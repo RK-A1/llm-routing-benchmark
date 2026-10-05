@@ -1,0 +1,9 @@
+.env
+data/*.duckdb
+data/*.duckdb.wal
+__pycache__/
+# smoke tests and calibration runs on earlier question sets (their spend still counts in the ledger)
+results/*_smoke/
+results/*calib-v1/
+results/*calib-v2/
+results/*_probes/

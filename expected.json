@@ -1,0 +1,417 @@
+{
+ "c1.1": {
+  "columns": [
+   "count_star()"
+  ],
+  "rows": [
+   [
+    481.0
+   ]
+  ]
+ },
+ "c1.2": {
+  "columns": [
+   "y",
+   "count_star()"
+  ],
+  "rows": [
+   [
+    2022.0,
+    97.0
+   ],
+   [
+    2023.0,
+    134.0
+   ],
+   [
+    2024.0,
+    132.0
+   ],
+   [
+    2025.0,
+    82.0
+   ],
+   [
+    2026.0,
+    32.0
+   ]
+  ]
+ },
+ "c1.3": {
+  "columns": [
+   "count(DISTINCT burst)",
+   "max(n)"
+  ],
+  "rows": [
+   [
+    70.0,
+    39.0
+   ]
+  ]
+ },
+ "c1.4": {
+  "columns": [
+   "count_star()"
+  ],
+  "rows": [
+   [
+    57.0
+   ]
+  ]
+ },
+ "c1.5": {
+  "columns": [
+   "min(date_taken)",
+   "max(date_taken)",
+   "count_star()",
+   "(SELECT subject FROM top)",
+   "(SELECT n FROM top)"
+  ],
+  "rows": [
+   [
+    "2023-05-23 14:51:09",
+    "2023-07-26 10:08:34",
+    39.0,
+    "galaxy",
+    12.0
+   ]
+  ]
+ },
+ "c1.6": {
+  "columns": [
+   "count_star()"
+  ],
+  "rows": [
+   [
+    82.0
+   ]
+  ]
+ },
+ "c2.1": {
+  "columns": [
+   "instrument"
+  ],
+  "rows": [
+   [
+    "non-webb"
+   ],
+   [
+    "multiple"
+   ],
+   [
+    "nircam"
+   ],
+   [
+    "nirspec"
+   ],
+   [
+    "fgs"
+   ],
+   [
+    "unknown"
+   ],
+   [
+    "miri"
+   ],
+   [
+    "niriss"
+   ]
+  ]
+ },
+ "c2.2": {
+  "columns": [
+   "count_star()"
+  ],
+  "rows": [
+   [
+    115.0
+   ]
+  ]
+ },
+ "c2.3": {
+  "columns": [
+   "instrument",
+   "subject",
+   "round(((100.0 * count_star()) / sum(count_star()) OVER (PARTITION BY instrument)), 1)"
+  ],
+  "rows": [
+   [
+    "nirspec",
+    "solar_system",
+    30.0
+   ],
+   [
+    "nircam",
+    "galaxy",
+    19.3
+   ],
+   [
+    "miri",
+    "protoplanetary_disk",
+    20.0
+   ]
+  ]
+ },
+ "c2.4": {
+  "columns": [
+   "count_star()"
+  ],
+  "rows": [
+   [
+    30.0
+   ]
+  ]
+ },
+ "c2.5": {
+  "columns": [
+   "instrument",
+   "gap",
+   "date_taken",
+   "(SELECT round(((100.0 * count_star() FILTER (WHERE (modality = 'spectrum_or_plot'))) / count_star()), 1) FROM jwst_space_images AS j WHERE (j.instrument = g.instrument))"
+  ],
+  "rows": [
+   [
+    "nirspec",
+    179.0,
+    "2025-06-13 08:33:46",
+    63.3
+   ],
+   [
+    "miri",
+    140.0,
+    "2025-04-14 10:08:26",
+    21.5
+   ],
+   [
+    "nircam",
+    85.0,
+    "2026-01-21 10:00:00",
+    1.8
+   ]
+  ]
+ },
+ "c2.6": {
+  "columns": [
+   "count_star()"
+  ],
+  "rows": [
+   [
+    44.0
+   ]
+  ]
+ },
+ "c3.1": {
+  "columns": [
+   "count_star()"
+  ],
+  "rows": [
+   [
+    4345.0
+   ]
+  ]
+ },
+ "c3.2": {
+  "columns": [
+   "count_star()"
+  ],
+  "rows": [
+   [
+    3268.0
+   ]
+  ]
+ },
+ "c3.3": {
+  "columns": [
+   "round(((100.0 * count_star() FILTER (WHERE (\"replace\"(p.legacy_tag_label, ' ', '_') = l.subject))) / count_star()), 1)"
+  ],
+  "rows": [
+   [
+    45.4
+   ]
+  ]
+ },
+ "c3.4": {
+  "columns": [
+   "count_star()"
+  ],
+  "rows": [
+   [
+    483.0
+   ]
+  ]
+ },
+ "c3.5": {
+  "columns": [
+   "y",
+   "count_star()",
+   "round((100.0 * avg(CAST(rej AS INTEGER))), 1)",
+   "any_value(m.g)"
+  ],
+  "rows": [
+   [
+    2022.0,
+    466.0,
+    79.2,
+    "artwork_illustration"
+   ],
+   [
+    2024.0,
+    183.0,
+    27.9,
+    "artwork_illustration"
+   ],
+   [
+    2023.0,
+    217.0,
+    38.2,
+    "artwork_illustration"
+   ],
+   [
+    2025.0,
+    98.0,
+    16.3,
+    "artwork_illustration"
+   ]
+  ]
+ },
+ "c3.6": {
+  "columns": [
+   "count_star()"
+  ],
+  "rows": [
+   [
+    380.0
+   ]
+  ]
+ },
+ "c4.1": {
+  "columns": [
+   "count_star()"
+  ],
+  "rows": [
+   [
+    23.0
+   ]
+  ]
+ },
+ "c4.2": {
+  "columns": [
+   "object_name_normalized",
+   "n"
+  ],
+  "rows": [
+   [
+    "jupiter",
+    12.0
+   ],
+   [
+    "smacs 0723",
+    10.0
+   ],
+   [
+    "uranus",
+    9.0
+   ],
+   [
+    "carina nebula",
+    8.0
+   ],
+   [
+    "saturn",
+    8.0
+   ]
+  ]
+ },
+ "c4.3": {
+  "columns": [
+   "object_name_normalized",
+   "span"
+  ],
+  "rows": [
+   [
+    "uranus",
+    1050.0
+   ]
+  ]
+ },
+ "c4.4": {
+  "columns": [
+   "count_star()"
+  ],
+  "rows": [
+   [
+    6.0
+   ]
+  ]
+ },
+ "c4.5": {
+  "columns": [
+   "object_name_normalized",
+   "count_star()",
+   "min(\"year\"(date_taken))",
+   "max(\"year\"(date_taken))",
+   "round(((100.0 * count_star() FILTER (WHERE (instrument IN ('NIRCam', 'MIRI', 'NIRSpec', 'NIRISS', 'FGS')))) / count_star()), 1)"
+  ],
+  "rows": [
+   [
+    "abell 2744",
+    6.0,
+    2022.0,
+    2025.0,
+    66.7
+   ],
+   [
+    "jupiter",
+    11.0,
+    2022.0,
+    2025.0,
+    81.8
+   ],
+   [
+    "uranus",
+    9.0,
+    2023.0,
+    2026.0,
+    55.6
+   ],
+   [
+    "cassiopeia a",
+    7.0,
+    2023.0,
+    2025.0,
+    0.0
+   ],
+   [
+    "m 74",
+    5.0,
+    2022.0,
+    2024.0,
+    40.0
+   ],
+   [
+    "pillars of creation",
+    6.0,
+    2022.0,
+    2024.0,
+    33.3
+   ],
+   [
+    "jades",
+    5.0,
+    2022.0,
+    2025.0,
+    40.0
+   ]
+  ]
+ },
+ "c4.6": {
+  "columns": [
+   "count_star()"
+  ],
+  "rows": [
+   [
+    12.0
+   ]
+  ]
+ }
+}

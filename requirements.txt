@@ -1,0 +1,6 @@
+litellm>=1.104
+duckdb>=1.1
+pandas
+python-dotenv
+rich
+tabulate
