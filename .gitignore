@@ -7,3 +7,5 @@ results/*_smoke/
 results/*calib-v1/
 results/*calib-v2/
 results/*_probes/
+results/*_verify*/
+results/*.log

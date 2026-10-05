@@ -1,7 +1,7 @@
 """Summarize one or more run directories: prints the tables and writes report.md.
 
 Usage:
-    python report.py results/<run_dir> [more run dirs]
+    python report.py results/<run_dir> [more run dirs]   # a config in several runs is taken from the last one
 """
 
 import argparse
@@ -16,7 +16,10 @@ TIERS = ["easy", "medium", "hard", "expert"]
 
 
 def load(dirs):
-    turns = pd.concat([pd.read_csv(Path(d) / "turns.csv") for d in dirs])
+    """Combine runs; when a config appears in several, the last directory given wins."""
+    runs = [pd.read_csv(Path(d) / "turns.csv") for d in dirs]
+    turns = pd.concat([t[~t["config"].isin(set().union(*(set(r["config"]) for r in runs[i + 1:])))]
+                       for i, t in enumerate(runs)])
     turns["correct"] = turns["correct"].astype(str).str.lower() == "true"
     turns["model"] = turns["first_model"].astype(str).str.rsplit("/", n=1).str[-1]
     return turns

@@ -28,7 +28,8 @@ CONFIGS = {
     "fw-firerouter-opus": {"model": f"{FIREWORKS_ROUTERS}/firerouter/opus", "routing_pref": 3, "repeats": 3},
     # FireRouter, open models only.
     "fw-auto": {"model": f"{FIREWORKS_ROUTERS}/auto", "routing_pref": 3, "repeats": 3},
-    # OpenRouter's router (NotDiamond).
+    # OpenRouter's Auto Router. With no cost_tier set it routes "roughly the low band" and
+    # prefers the model a conversation already landed on ("session stickiness").
     "or-auto": {"model": "openrouter/openrouter/auto", "repeats": 3},
     # Cost floor: one cheap open model, no routing.
     "glm-flash": {"model": "fireworks_ai/accounts/fireworks/models/glm-5p3-flash", "repeats": 1},

@@ -1,0 +1,1679 @@
+config,item,topic,repeat,turn_id,turn,tier,correct,reason,final_sql,answer_source,end,steps,n_sql,failed_sql,sql_time_s,nudged,cost_usd,litellm_cost_usd,latency_s,prompt_tokens,completion_tokens,repeated_sql,first_model,models,n_switches,error
+or-auto,c1,release timeline,1,c1.1,1,easy,True,match,SELECT count(*) AS image_count FROM jwst_space_images,submit,submitted,5,2,[],0.005,False,0.000698,0.000698,4.81,4222,342,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-firerouter-opus,c1,release timeline,1,c1.1,1,easy,True,match,SELECT COUNT(*) AS published_image_count FROM jwst_space_images,submit,submitted,4,2,[],0.004,False,0.001963,0.001963,6.81,2622,208,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+or-auto,c1,release timeline,1,c1.2,2,medium,True,match,"SELECT date_part('year', date_taken) AS year, count(*) AS image_count
+FROM jwst_space_images
+WHERE date_part('year', date_taken) >= 2022 AND date_part('year', date_taken) <= 2026
+GROUP BY 1
+ORDER BY 1",submit,submitted,4,3,[],0.009,False,0.000864,0.000864,4.88,5841,452,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+claude-opus,c1,release timeline,1,c1.1,1,easy,True,match,select count(*) as image_count from jwst_space_images,submit,submitted,4,2,[],0.006,False,0.027868,0.027868,10.55,5142,365,0,claude-opus-5-5,claude-opus-5-5|claude-opus-5-5|claude-opus-5-5|claude-opus-5-5,0,
+or-auto,c1,release timeline,1,c1.3,3,hard,True,match,"WITH d AS (
+  SELECT date_taken,
+    LAG(date_taken) OVER (ORDER BY date_taken) AS prev
+  FROM jwst_space_images
+  WHERE date_taken >= TIMESTAMP '2022-07-12'
+    AND date_taken < TIMESTAMP '2027-01-01'
+),
+b AS (
+  SELECT date_taken,
+    CASE WHEN prev IS NULL OR date_taken - prev > INTERVAL '168 hours' THEN 1 ELSE 0 END AS is_start
+  FROM d
+),
+g AS (
+  SELECT date_taken, SUM(is_start) OVER (ORDER BY date_taken) AS burst
+  FROM b
+)
+SELECT count(*) AS burst_count, max(cnt) AS largest_burst_size
+FROM (SELECT burst, count(*) AS cnt FROM g GROUP BY burst)",submit,submitted,2,1,[],0.007,False,0.000881,0.000881,4.36,4526,575,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-firerouter-opus,c1,release timeline,1,c1.2,2,medium,True,match,"SELECT year(date_taken) AS year, COUNT(*) AS image_count
+FROM jwst_space_images
+WHERE date_taken >= TIMESTAMP '2022-01-01'
+  AND year(date_taken) <= 2026
+GROUP BY year(date_taken)
+ORDER BY year",submit,submitted,3,2,[],0.007,False,0.003592,0.003592,7.96,3103,305,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+or-auto,c1,release timeline,1,c1.4,4,easy,True,match,SELECT count(*) AS image_count FROM jwst_space_images WHERE subject = 'nebula',submit,submitted,2,1,[],0.003,False,0.000403,0.000403,2.87,5396,179,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+claude-opus,c1,release timeline,1,c1.2,2,medium,True,match,"select year(date_taken) as year, count(*) as image_count from jwst_space_images where date_taken >= '2022-01-01' and date_taken <= '2026-10-05' group by year order by year",submit,submitted,3,2,[],0.004,False,0.031576,0.031576,7.9,6219,335,0,claude-opus-5-5,claude-opus-5-5|claude-opus-5-5|claude-opus-5-5,0,
+or-auto,c1,release timeline,1,c1.5,5,expert,True,match,"WITH d AS (
+  SELECT photo_id, subject, date_taken,
+    LAG(date_taken) OVER (ORDER BY date_taken) AS prev
+  FROM jwst_space_images
+  WHERE date_taken >= TIMESTAMP '2022-07-12' AND date_taken < TIMESTAMP '2027-01-01'
+),
+b AS (
+  SELECT photo_id, subject, date_taken,
+    CASE WHEN prev IS NULL OR date_taken - prev > INTERVAL '168 hours' THEN 1 ELSE 0 END AS is_start
+  FROM d
+),
+g AS (
+  SELECT photo_id, subject, date_taken, SUM(is_start) OVER (ORDER BY date_taken) AS burst
+  FROM b
+),
+sizes AS (
+  SELECT burst, count(*) AS cnt FROM g GROUP BY burst
+),
+biggest AS (
+  SELECT burst FROM sizes ORDER BY cnt DESC LIMIT 1
+),
+members AS (
+  SELECT * FROM g WHERE burst = (SELECT burst FROM biggest)
+),
+top_subject AS (
+  SELECT subject, count(*) AS subject_count
+  FROM members GROUP BY subject ORDER BY subject_count DESC LIMIT 1
+)
+SELECT
+  (SELECT min(date_taken) FROM members) AS start_date,
+  (SELECT max(date_taken) FROM members) AS end_date,
+  (SELECT count(*) FROM members) AS image_count,
+  (SELECT subject FROM top_subject) AS subject,
+  (SELECT subject_count FROM top_subject) AS subject_count",submit,submitted,2,1,[],0.009,False,0.00159,0.00159,4.59,7079,904,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c1,release timeline,1,c1.6,6,easy,True,match,"SELECT count(*) AS image_count FROM jwst_space_images WHERE date_part('year', date_taken) = 2025",submit,submitted,1,0,[],0.0,False,0.000272,0.000272,4.18,4540,95,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash,0,
+claude-opus,c1,release timeline,1,c1.3,3,hard,True,match,"with d as (select date_taken from jwst_space_images where date_taken >= '2022-07-12' and date_taken <= '2026-10-05'),
+g as (select date_taken, case when lag(date_taken) over (order by date_taken) is null or date_taken - lag(date_taken) over (order by date_taken) > interval 168 hour then 1 else 0 end s from d),
+b as (select sum(s) over (order by date_taken rows unbounded preceding) bid from g),
+c as (select bid, count(*) n from b group by bid)
+select count(*) as bursts, max(n) as largest_burst_images from c",submit,submitted,2,1,[],0.005,False,0.033656,0.033656,7.9,5329,617,0,claude-opus-5-5,claude-opus-5-5|claude-opus-5-5,0,
+or-auto,c2,instruments,1,c2.1,1,easy,True,match,SELECT DISTINCT instrument FROM jwst_space_images ORDER BY instrument;,submit,submitted,4,1,[],0.002,False,0.000712,0.000712,2.45,3562,424,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+claude-opus,c1,release timeline,1,c1.4,4,easy,True,match,select count(*) as nebula_images from jwst_space_images where subject = 'nebula',submit,submitted,2,1,[],0.002,False,0.03006,0.03006,3.84,6560,191,0,claude-opus-5-5,claude-opus-5-5|claude-opus-5-5,0,
+or-auto,c2,instruments,1,c2.2,2,medium,True,match,"SELECT COUNT(*) AS images_with_differing_instrument
+FROM jwst_space_images j
+JOIN labels l ON j.photo_id = l.photo_id
+WHERE j.instrument IS DISTINCT FROM l.instrument;",submit,submitted,4,3,[],0.01,False,0.000871,0.000871,2.63,5855,517,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-auto,c1,release timeline,1,c1.1,1,easy,True,match,SELECT COUNT(*) AS image_count FROM jwst_space_images,submit,submitted,3,1,[],0.001,False,0.000628,0.000628,31.76,1677,55,0,fireworks_ai/glm-5p3-flash,fireworks_ai/glm-5p3-flash|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,1,
+fw-firerouter-opus,c1,release timeline,1,c1.3,3,hard,True,match,"WITH d AS (
+  SELECT photo_id, date_taken,
+         date_taken - LAG(date_taken) OVER (ORDER BY date_taken, photo_id) AS gap
+  FROM jwst_space_images
+  WHERE date_taken >= TIMESTAMP '2022-07-12'
+    AND date_taken <= TIMESTAMP '2026-12-31'
+),
+b AS (
+  SELECT photo_id, date_taken,
+         SUM(CASE WHEN gap > INTERVAL 168 HOUR OR gap IS NULL THEN 1 ELSE 0 END)
+         OVER (ORDER BY date_taken, photo_id) AS burst
+  FROM d
+)
+SELECT COUNT(DISTINCT burst) AS number_of_bursts,
+       MAX(cnt) AS largest_burst_size
+FROM (SELECT burst, COUNT(*) AS cnt FROM b GROUP BY burst) t",submit,submitted,5,4,[],0.017,False,0.007365,0.007365,19.28,8341,924,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+or-auto,c2,instruments,1,c2.3,3,hard,True,match,"WITH counts AS (
+  SELECT instrument, subject, COUNT(*) AS c
+  FROM jwst_space_images
+  WHERE instrument IN ('NIRCam','MIRI','NIRSpec','NIRISS','FGS')
+  GROUP BY 1,2
+),
+totals AS (
+  SELECT instrument, SUM(c) AS tot FROM counts GROUP BY 1
+),
+ranked AS (
+  SELECT c.instrument, c.subject, c.c, t.tot,
+         ROW_NUMBER() OVER (PARTITION BY c.instrument ORDER BY c.c DESC) AS rn
+  FROM counts c JOIN totals t USING (instrument)
+)
+SELECT instrument, subject, ROUND(100.0*c/tot, 1) AS percentage
+FROM ranked
+WHERE rn = 2 AND tot >= 20
+ORDER BY instrument;",submit,submitted,3,3,[],0.012,False,0.001591,0.001591,3.15,7071,1001,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c2,instruments,1,c2.4,4,easy,True,match,SELECT COUNT(*) AS nirspec_images FROM jwst_space_images WHERE lower(instrument) = 'nirspec';,submit,submitted,2,1,[],0.001,False,0.00042,0.00042,1.07,6241,201,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-firerouter-opus,c1,release timeline,1,c1.4,4,easy,True,match,SELECT COUNT(*) AS nebula_images FROM jwst_space_images WHERE subject = 'nebula',submit,submitted,2,1,[],0.002,False,0.001938,0.001938,3.22,4853,68,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+claude-opus,c1,release timeline,1,c1.5,5,expert,True,match,"with d as (select date_taken, subject from jwst_space_images where date_taken >= '2022-07-12' and date_taken <= '2026-10-05'),
+g as (select *, case when lag(date_taken) over (order by date_taken) is null or date_taken - lag(date_taken) over (order by date_taken) > interval 168 hour then 1 else 0 end s from d),
+b as (select *, sum(s) over (order by date_taken rows unbounded preceding) bid from g),
+c as (select bid, count(*) n, min(date_taken) st, max(date_taken) en from b group by bid),
+top as (select * from c order by n desc limit 1)
+select t.st as start_date, t.en as end_date, t.n as image_count, b.subject, count(*) as subject_count
+from top t join b using(bid) group by all order by subject_count desc limit 1",submit,submitted,2,1,[],0.003,False,0.045736,0.045736,8.39,8279,631,0,claude-opus-5-5,claude-opus-5-5|claude-opus-5-5,0,
+fw-auto,c1,release timeline,1,c1.2,2,medium,True,match,"SELECT YEAR(date_taken) AS year, COUNT(*) AS count
+FROM jwst_space_images
+WHERE date_taken >= TIMESTAMP '2022-01-01'
+  AND date_taken <= TIMESTAMP '2026-10-05'
+GROUP BY 1
+ORDER BY 1",submit,submitted,3,1,[],0.002,False,0.002267,0.002267,7.81,2358,293,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+claude-opus,c1,release timeline,1,c1.6,6,easy,True,match,select count(*) as images_2025 from jwst_space_images where date_taken >= '2025-01-01' and date_taken < '2026-01-01',submit,submitted,1,0,[],0.0,False,0.02252,0.02252,2.42,5050,116,0,claude-opus-5-5,claude-opus-5-5,0,
+or-auto,c2,instruments,1,c2.5,5,expert,True,match,"WITH valid AS (
+  SELECT instrument, date_taken, modality
+  FROM jwst_space_images
+  WHERE instrument IN ('NIRCam','MIRI','NIRSpec')
+    AND date_taken >= '2022-07-12' AND date_taken <= '2026-10-05'
+),
+gaps AS (
+  SELECT instrument, date_taken,
+         date_diff('day', LAG(date_taken) OVER (PARTITION BY instrument ORDER BY date_taken), date_taken) AS gap
+  FROM valid
+),
+longest AS (
+  SELECT instrument, gap, CAST(date_taken AS DATE) AS end_date,
+         ROW_NUMBER() OVER (PARTITION BY instrument ORDER BY gap DESC) AS rn
+  FROM gaps WHERE gap IS NOT NULL
+),
+pct AS (
+  SELECT instrument,
+         ROUND(100.0*SUM(CASE WHEN modality='spectrum_or_plot' THEN 1 ELSE 0 END)/COUNT(*),1) AS percentage
+  FROM jwst_space_images
+  WHERE instrument IN ('NIRCam','MIRI','NIRSpec')
+  GROUP BY 1
+)
+SELECT l.instrument, l.gap, l.end_date, p.percentage
+FROM longest l JOIN pct p USING (instrument)
+WHERE l.rn = 1
+ORDER BY l.instrument;",submit,submitted,6,7,[],0.019,False,0.002726,0.002726,10.53,23749,1666,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c2,instruments,1,c2.6,6,easy,True,match,SELECT COUNT(*) AS spectra_or_plots FROM jwst_space_images WHERE modality = 'spectrum_or_plot';,submit,submitted,2,1,[],0.001,False,0.000397,0.000397,1.06,10041,173,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-auto,c1,release timeline,1,c1.3,3,hard,True,match,"WITH valid AS (
+  SELECT date_taken
+  FROM jwst_space_images
+  WHERE date_taken >= TIMESTAMP '2022-07-12'
+    AND date_taken <= TIMESTAMP '2026-10-05'
+  ORDER BY date_taken
+),
+gaps AS (
+  SELECT date_taken,
+    LAG(date_taken) OVER (ORDER BY date_taken) AS prev
+  FROM valid
+),
+flagged AS (
+  SELECT date_taken,
+    CASE WHEN prev IS NULL OR date_taken > prev + INTERVAL 168 HOUR THEN 1 ELSE 0 END AS new_burst
+  FROM gaps
+),
+numbered AS (
+  SELECT date_taken,
+    SUM(new_burst) OVER (ORDER BY date_taken) AS burst_id
+  FROM flagged
+)
+SELECT COUNT(DISTINCT burst_id) AS num_bursts, MAX(c) AS largest_burst
+FROM (SELECT burst_id, COUNT(*) AS c FROM numbered GROUP BY burst_id)",submit,submitted,2,1,[],0.004,False,0.003207,0.003207,9.48,2368,487,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+or-auto,c3,labelling pipeline,1,c3.1,1,easy,True,match,SELECT COUNT(*) AS total_photos FROM photos;,submit,submitted,3,1,[],0.001,False,0.000389,0.000389,3.42,2278,194,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+claude-opus,c2,instruments,1,c2.1,1,easy,True,match,"select instrument, count(*) as n_photos from jwst_space_images group by 1 order by 2 desc",submit,submitted,3,1,[],0.002,False,0.0196,0.0196,9.24,3460,288,0,claude-opus-5-5,claude-opus-5-5|claude-opus-5-5|claude-opus-5-5,0,
+fw-firerouter-opus,c1,release timeline,1,c1.5,5,expert,True,match,"WITH d AS (
+  SELECT photo_id, date_taken, subject,
+         date_taken - LAG(date_taken) OVER (ORDER BY date_taken, photo_id) AS gap
+  FROM jwst_space_images
+  WHERE date_taken >= TIMESTAMP '2022-07-12'
+    AND date_taken <= TIMESTAMP '2026-12-31'
+),
+b AS (
+  SELECT photo_id, date_taken, subject,
+         SUM(CASE WHEN gap > INTERVAL 168 HOUR OR gap IS NULL THEN 1 ELSE 0 END)
+         OVER (ORDER BY date_taken, photo_id) AS burst
+  FROM d
+),
+g AS (
+  SELECT burst, COUNT(*) AS cnt, MIN(date_taken) AS first_taken, MAX(date_taken) AS last_taken
+  FROM b GROUP BY burst
+),
+top_burst AS (
+  SELECT burst, cnt AS image_count, first_taken AS start_date, last_taken AS end_date
+  FROM g ORDER BY cnt DESC, first_taken LIMIT 1
+),
+s AS (
+  SELECT b.burst, b.subject, COUNT(*) AS subject_count
+  FROM b JOIN top_burst t ON b.burst = t.burst
+  GROUP BY b.burst, b.subject
+)
+SELECT t.start_date, t.end_date, t.image_count,
+       s.subject AS most_common_subject, s.subject_count
+FROM top_burst t
+JOIN s ON s.burst = t.burst
+WHERE s.subject_count = (SELECT MAX(subject_count) FROM s)",submit,submitted,3,2,[],0.017,False,0.007507,0.007507,15.52,8864,967,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c1,release timeline,1,c1.4,4,easy,True,match,SELECT COUNT(*) AS nebula_images FROM jwst_space_images WHERE subject = 'nebula',submit,submitted,2,1,[],0.002,False,0.003473,0.003473,4.22,3168,116,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+or-auto,c3,labelling pipeline,1,c3.2,2,medium,True,match,"SELECT COUNT(*) AS never_labelled_photos
+FROM photos p
+WHERE NOT EXISTS (SELECT 1 FROM labels l WHERE l.photo_id = p.photo_id);",submit,submitted,5,5,[],0.015,False,0.001174,0.001174,5.24,8046,629,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-firerouter-opus,c1,release timeline,1,c1.6,6,easy,True,match,"SELECT COUNT(*) AS images_2025
+FROM jwst_space_images
+WHERE date_taken >= TIMESTAMP '2025-01-01'
+  AND date_taken < TIMESTAMP '2026-01-01'",submit,submitted,2,1,[],0.001,False,0.00302,0.00302,4.27,7391,144,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+claude-opus,c2,instruments,1,c2.2,2,medium,True,match,select count(*) as n_differing from jwst_space_images j join labels l using(photo_id) where j.instrument is distinct from l.instrument,submit,submitted,4,2,[],0.012,False,0.0422,0.0422,11.03,8285,453,0,claude-opus-5-5,claude-opus-5-5|claude-opus-5-5|claude-opus-5-5|claude-opus-5-5,0,
+or-auto,c3,labelling pipeline,1,c3.3,3,hard,True,match,"SELECT ROUND(100.0 * SUM(CASE WHEN lower(replace(l.subject,'_',' ')) = lower(p.legacy_tag_label) THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_same_subject
+FROM photos p
+JOIN labels l ON l.photo_id = p.photo_id
+WHERE p.legacy_tag_label IS NOT NULL
+  AND p.legacy_tag_label NOT IN ('unclassified', 'observatory / engineering');",submit,submitted,5,6,[],0.017,False,0.002875,0.002875,7.97,14346,1883,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c3,labelling pipeline,1,c3.4,4,easy,True,match,SELECT COUNT(*) AS v6_labels FROM labels WHERE codebook_version = 'v6';,submit,submitted,3,2,[],0.006,False,0.000664,0.000664,3.07,11966,259,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+claude-opus,c2,instruments,1,c2.3,3,hard,True,match,"with c as (select instrument, subject, count(*) n from jwst_space_images where instrument in ('NIRCam','MIRI','NIRSpec','NIRISS','FGS') group by all),
+r as (select *, sum(n) over (partition by instrument) tot, row_number() over (partition by instrument order by n desc) rk from c)
+select instrument, subject, round(100.0*n/tot,1) as percentage from r where tot>=20 and rk=2 order by instrument",submit,submitted,2,1,[],0.006,False,0.032472,0.032472,5.97,5908,442,0,claude-opus-5-5,claude-opus-5-5|claude-opus-5-5,0,
+fw-auto,c1,release timeline,1,c1.5,5,expert,True,match,"WITH valid AS (
+  SELECT photo_id, subject, date_taken
+  FROM jwst_space_images
+  WHERE date_taken >= TIMESTAMP '2022-07-12'
+    AND date_taken <= TIMESTAMP '2026-10-05'
+),
+gaps AS (
+  SELECT photo_id, subject, date_taken,
+    LAG(date_taken) OVER (ORDER BY date_taken) AS prev
+  FROM valid
+),
+flagged AS (
+  SELECT photo_id, subject, date_taken,
+    CASE WHEN prev IS NULL OR date_taken > prev + INTERVAL 168 HOUR THEN 1 ELSE 0 END AS new_burst
+  FROM gaps
+),
+numbered AS (
+  SELECT photo_id, subject, date_taken,
+    SUM(new_burst) OVER (ORDER BY date_taken) AS burst_id
+  FROM flagged
+),
+burst_sizes AS (
+  SELECT burst_id, COUNT(*) AS c
+  FROM numbered GROUP BY burst_id
+),
+top_burst AS (
+  SELECT burst_id FROM burst_sizes ORDER BY c DESC, burst_id LIMIT 1
+),
+b AS (SELECT * FROM numbered WHERE burst_id = (SELECT burst_id FROM top_burst))
+SELECT (SELECT MIN(date_taken) FROM b) AS start_date,
+       (SELECT MAX(date_taken) FROM b) AS end_date,
+       (SELECT COUNT(*) FROM b) AS image_count,
+       subject, COUNT(*) AS subject_count
+FROM b GROUP BY subject
+ORDER BY subject_count DESC, subject
+LIMIT 1",submit,submitted,3,2,[],0.015,False,0.006755,0.006755,14.12,6250,927,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+glm-flash,c1,release timeline,1,c1.1,1,easy,False,api_error,,,api_error,1,0,[],0.0,False,8.8e-05,8.8e-05,66.28,497,27,0,fireworks_ai/accounts/fireworks/models/glm-5p3-flash,fireworks_ai/accounts/fireworks/models/glm-5p3-flash,0,"ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: Fireworks_aiException - upstream connect error or disconnect/reset before headers. reset reason: remote connection failure, transport failure reason: delayed connect error: Connection refused"
+glm-flash,c2,instruments,1,c2.1,1,easy,False,api_error,,,api_error,0,0,[],0.0,False,0.0,0.0,0.0,0,0,0,,,0,"BadRequestError: litellm.BadRequestError: Fireworks_aiException - {""error"":{""object"":""error"",""type"":""invalid_request_error"",""code"":""invalid_request_error"",""message"":""service overloaded, please try again later""}}"
+claude-opus,c2,instruments,1,c2.4,4,easy,True,match,select count(*) as n_nirspec from jwst_space_images where instrument = 'NIRSpec',submit,submitted,2,1,[],0.002,False,0.034196,0.034196,3.96,7354,239,0,claude-opus-5-5,claude-opus-5-5|claude-opus-5-5,0,
+or-auto,c3,labelling pipeline,1,c3.5,5,expert,True,match,"WITH lab AS (
+  SELECT p.photo_id, year(p.date_taken) AS yr, l.gate_category,
+         (j.photo_id IS NOT NULL) AS published
+  FROM photos p
+  JOIN labels l ON l.photo_id = p.photo_id
+  LEFT JOIN jwst_space_images j ON j.photo_id = p.photo_id
+  WHERE year(p.date_taken) BETWEEN 2022 AND 2025
+),
+totals AS (
+  SELECT yr, COUNT(*) AS labelled,
+         ROUND(100.0 * SUM(CASE WHEN NOT published THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_not_published
+  FROM lab GROUP BY yr
+),
+cats AS (
+  SELECT yr, gate_category, COUNT(*) AS n,
+         ROW_NUMBER() OVER (PARTITION BY yr ORDER BY COUNT(*) DESC, gate_category) AS rn
+  FROM lab WHERE NOT published
+  GROUP BY yr, gate_category
+)
+SELECT t.yr AS year, t.labelled AS labelled_count, t.pct_not_published AS pct_not_in_published,
+       c.gate_category AS top_gate_category
+FROM totals t JOIN cats c ON c.yr = t.yr AND c.rn = 1
+ORDER BY t.yr;",submit,submitted,4,5,[],0.028,False,0.002579,0.002579,6.12,24296,1281,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-auto,c1,release timeline,1,c1.6,6,easy,True,match,"SELECT COUNT(*) AS images_2025
+FROM jwst_space_images
+WHERE date_taken >= TIMESTAMP '2025-01-01'
+  AND date_taken < TIMESTAMP '2026-01-01'",submit,submitted,2,0,[],0.0,True,0.002552,0.002552,5.51,5625,137,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+or-auto,c3,labelling pipeline,1,c3.6,6,easy,True,match,"SELECT COUNT(*) AS photos_with_no_tags
+FROM photos
+WHERE tags IS NULL OR len(list_filter(tags, x -> trim(x) <> '')) = 0;",submit,submitted,3,2,[],0.01,False,0.000715,0.000715,3.8,22666,323,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c4,objects,1,c4.1,1,easy,True,match,"SELECT COUNT(*) AS images_without_object_name
+FROM jwst_space_images
+WHERE object_name IS NULL OR trim(object_name) = ''",submit,submitted,5,4,"[{""sql"": ""SELECT COUNT(*) total, COUNT(object_name) non_null, SUM(CASE WHEN object_name IS NULL THEN 1 ELSE 0 END) nulls, SUM(CASE WHEN trim(object_name)='' THEN 1 ELSE 0 END) empties FROM jwst_space_images"", ""error"": ""Parser Error: syntax error at or near \""nulls\""""}]",0.013,False,0.001361,0.001361,4.76,5953,713,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-auto,c2,instruments,1,c2.1,1,easy,True,match,"SELECT instrument, COUNT(*) AS n FROM jwst_space_images GROUP BY instrument ORDER BY n DESC",submit,submitted,4,1,[],0.003,False,0.002351,0.002351,8.91,2595,111,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+or-auto,c4,objects,1,c4.2,2,medium,True,match,"SELECT object_name_normalized AS object, COUNT(*) AS count
+FROM jwst_space_images
+WHERE object_name_normalized IS NOT NULL AND trim(object_name_normalized) <> ''
+GROUP BY object_name_normalized
+ORDER BY count DESC
+LIMIT 5",submit,submitted,3,2,[],0.008,False,0.000892,0.000892,3.99,6749,467,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-auto,c2,instruments,1,c2.2,2,medium,True,match,SELECT COUNT(*) AS mismatched_images FROM jwst_space_images j JOIN labels l USING (photo_id) WHERE j.instrument IS DISTINCT FROM l.instrument,submit,submitted,4,2,[],0.005,False,0.002183,0.002183,6.32,3875,141,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+claude-opus,c2,instruments,1,c2.5,5,expert,True,match,"with d as (select instrument, date_taken, lag(date_taken) over (partition by instrument order by date_taken) prev from jwst_space_images where instrument in ('NIRCam','MIRI','NIRSpec') and date_taken>='2022-07-12' and date_taken<='2026-10-05'),
+g as (select instrument, date_diff('day', prev::date, date_taken::date) gap_days, (epoch(date_taken)-epoch(prev))/86400.0 gap_days_exact, date_taken, row_number() over (partition by instrument order by date_taken-prev desc) rk from d where prev is not null),
+p as (select instrument, round(100.0*count(*) filter (where modality='spectrum_or_plot')/count(*),1) pct_spectrum_or_plot from jwst_space_images where instrument in ('NIRCam','MIRI','NIRSpec') group by 1)
+select g.instrument, gap_days, date_taken::date as gap_end_date, pct_spectrum_or_plot, gap_days_exact from g join p using(instrument) where rk=1 order by 1",submit,submitted,4,4,[],0.018,False,0.103264,0.103264,19.44,19021,1359,0,claude-opus-5-5,claude-opus-5-5|claude-opus-5-5|claude-opus-5-5|claude-opus-5-5,0,
+or-auto,c4,objects,1,c4.3,3,hard,True,match,"SELECT
+  object_name_normalized AS object,
+  COUNT(*) AS image_count,
+  MIN(date_taken) AS first_date,
+  MAX(date_taken) AS last_date,
+  date_diff('day', MIN(date_taken), MAX(date_taken)) AS span_days
+FROM jwst_space_images
+WHERE object_name_normalized IS NOT NULL
+  AND trim(object_name_normalized) <> ''
+  AND date_taken IS NOT NULL
+  AND date_taken <= TIMESTAMP '2026-10-05'
+GROUP BY object_name_normalized
+HAVING COUNT(*) >= 4
+ORDER BY span_days DESC
+LIMIT 1",submit,submitted,5,5,"[{""sql"": ""SELECT object_name_normalized, COUNT(*) c, MIN(date_taken) mn, MAX(date_taken) mx, date_diff('day', MIN(date_taken), MAX(date_taken)) days\nFROM jwst_space_images\nWHERE object_name_normalized IS NOT NULL AND trim(object_name_normalized)<>'' AND date_taken IS NOT NULL\nGROUP BY 1 HAVING COUNT(*)>=4 ORDER BY days DESC"", ""error"": ""Parser Error: syntax error at or near \""days\""""}]",0.009,False,0.001908,0.001908,5.53,18681,966,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+claude-opus,c2,instruments,1,c2.6,6,easy,True,match,select count(*) as n_spectrum_or_plot from jwst_space_images where modality = 'spectrum_or_plot',submit,submitted,1,0,[],0.0,False,0.026352,0.026352,2.74,6068,104,0,claude-opus-5-5,claude-opus-5-5,0,
+or-auto,c4,objects,1,c4.4,4,easy,True,match,"SELECT COUNT(*) AS pillars_of_creation_images
+FROM jwst_space_images
+WHERE object_name_normalized = 'Pillars of Creation'",submit,submitted,3,3,[],0.01,False,0.001098,0.001098,4.4,15809,538,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c4,objects,1,c4.5,5,expert,True,match,"SELECT
+  object_name_normalized AS object,
+  COUNT(*) AS image_count,
+  MIN(year(date_taken)) AS first_year,
+  MAX(year(date_taken)) AS last_year,
+  ROUND(100.0 * SUM(CASE WHEN instrument IN ('NIRCam','MIRI','NIRSpec','NIRISS','FGS') THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_single_instrument
+FROM jwst_space_images
+WHERE object_name_normalized IS NOT NULL
+  AND trim(object_name_normalized) <> ''
+  AND date_taken IS NOT NULL
+  AND date_taken <= TIMESTAMP '2026-10-05'
+GROUP BY object_name_normalized
+HAVING COUNT(DISTINCT year(date_taken)) >= 3
+ORDER BY image_count DESC",submit,submitted,4,4,[],0.01,False,0.002023,0.002023,6.15,25108,1243,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+claude-opus,c3,labelling pipeline,1,c3.1,1,easy,True,match,select count(distinct photo_id) as total_photos from photos,submit,submitted,3,1,[],0.001,False,0.017576,0.017576,10.72,3274,224,0,claude-opus-5-5,claude-opus-5-5|claude-opus-5-5|claude-opus-5-5,0,
+or-auto,c4,objects,1,c4.6,6,easy,True,match,"SELECT COUNT(*) AS jupiter_images
+FROM jwst_space_images
+WHERE object_name_normalized = 'Jupiter'",submit,submitted,1,0,[],0.0,False,0.000386,0.000386,2.67,7007,201,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash,0,
+or-auto,c1,release timeline,2,c1.1,1,easy,True,match,SELECT COUNT(*) AS image_count FROM jwst_space_images,submit,submitted,4,2,[],0.004,False,0.00061,0.00061,2.18,3414,314,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-auto,c2,instruments,1,c2.3,3,hard,True,match,"WITH webb AS (
+  SELECT * FROM jwst_space_images
+  WHERE instrument IN ('NIRCam','MIRI','NIRSpec','NIRISS','FGS')
+),
+totals AS (
+  SELECT instrument, COUNT(*) AS total FROM webb GROUP BY instrument HAVING COUNT(*) >= 20
+),
+ranked AS (
+  SELECT w.instrument, w.subject, COUNT(*) AS n,
+         DENSE_RANK() OVER (PARTITION BY w.instrument ORDER BY COUNT(*) DESC) AS rnk
+  FROM webb w GROUP BY w.instrument, w.subject
+)
+SELECT r.instrument, r.subject,
+       ROUND(100.0 * r.n / t.total, 1) AS pct
+FROM ranked r JOIN totals t USING (instrument)
+WHERE r.rnk = 2
+ORDER BY r.instrument",submit,submitted,3,2,[],0.008,False,0.006835,0.006835,18.74,4674,1030,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+claude-opus,c3,labelling pipeline,1,c3.2,2,medium,True,match,select count(*) as never_labelled from photos p where not exists (select 1 from labels l where l.photo_id = p.photo_id),submit,submitted,3,2,[],0.003,False,0.0289,0.0289,5.03,5580,329,0,claude-opus-5-5,claude-opus-5-5|claude-opus-5-5|claude-opus-5-5,0,
+or-auto,c1,release timeline,2,c1.2,2,medium,True,match,"SELECT EXTRACT(YEAR FROM date_taken) AS year, COUNT(*) AS count
+FROM jwst_space_images
+WHERE EXTRACT(YEAR FROM date_taken) BETWEEN 2022 AND 2026
+GROUP BY 1 ORDER BY 1",submit,submitted,4,3,[],0.003,False,0.001098,0.001098,2.77,6442,496,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-auto,c2,instruments,1,c2.4,4,easy,True,match,SELECT COUNT(*) AS n FROM jwst_space_images WHERE instrument = 'NIRSpec',submit,submitted,2,1,[],0.001,False,0.001605,0.001605,3.11,4048,64,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+or-auto,c1,release timeline,2,c1.3,3,hard,True,match,"WITH ordered AS (
+  SELECT date_taken, LAG(date_taken) OVER (ORDER BY date_taken) AS prev
+  FROM jwst_space_images
+  WHERE date_taken >= TIMESTAMP '2022-07-12' AND EXTRACT(YEAR FROM date_taken) <= 2026
+),
+numbered AS (
+  SELECT date_taken,
+    SUM(CASE WHEN prev IS NULL OR date_taken - prev > INTERVAL 168 HOUR THEN 1 ELSE 0 END) OVER (ORDER BY date_taken) AS burst_id
+  FROM ordered
+),
+bursts AS (
+  SELECT burst_id, COUNT(*) AS c FROM numbered GROUP BY burst_id
+)
+SELECT COUNT(*) AS num_bursts, MAX(c) AS largest_burst_size FROM bursts",submit,submitted,3,2,[],0.008,False,0.001288,0.001288,3.04,8873,769,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c1,release timeline,2,c1.4,4,easy,True,match,SELECT COUNT(*) AS nebula_images FROM jwst_space_images WHERE subject = 'nebula',submit,submitted,2,1,[],0.004,False,0.00043,0.00043,1.25,7208,249,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c1,release timeline,2,c1.5,5,expert,True,match,"WITH ordered AS (
+  SELECT date_taken, subject, LAG(date_taken) OVER (ORDER BY date_taken) AS prev
+  FROM jwst_space_images
+  WHERE date_taken >= TIMESTAMP '2022-07-12' AND EXTRACT(YEAR FROM date_taken) <= 2026
+),
+numbered AS (
+  SELECT date_taken, subject,
+    SUM(CASE WHEN prev IS NULL OR date_taken - prev > INTERVAL 168 HOUR THEN 1 ELSE 0 END) OVER (ORDER BY date_taken) AS burst_id
+  FROM ordered
+),
+biggest AS (
+  SELECT burst_id FROM numbered GROUP BY burst_id ORDER BY COUNT(*) DESC, burst_id LIMIT 1
+),
+burst_images AS (
+  SELECT * FROM numbered WHERE burst_id = (SELECT burst_id FROM biggest)
+),
+top_subject AS (
+  SELECT subject, COUNT(*) AS subject_count
+  FROM burst_images GROUP BY subject ORDER BY subject_count DESC LIMIT 1
+)
+SELECT MIN(date_taken) AS start_date, MAX(date_taken) AS end_date,
+       COUNT(*) AS image_count,
+       (SELECT subject FROM top_subject) AS subject,
+       (SELECT subject_count FROM top_subject) AS subject_count
+FROM burst_images",submit,submitted,2,1,[],0.007,False,0.00094,0.00094,1.74,7943,585,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c1,release timeline,2,c1.6,6,easy,True,match,SELECT COUNT(*) AS image_count FROM jwst_space_images WHERE EXTRACT(YEAR FROM date_taken) = 2025,submit,submitted,2,1,[],0.002,False,0.000393,0.000393,1.07,8976,153,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+claude-opus,c3,labelling pipeline,1,c3.3,3,hard,True,match,"select round(100.0 * avg(case when replace(p.legacy_tag_label, ' ', '_') = l.subject then 1 else 0 end), 1) as pct_agree, count(*) as n
+from photos p join labels l using(photo_id)
+where p.legacy_tag_label is not null and p.legacy_tag_label not in ('unclassified', 'observatory / engineering')",submit,submitted,3,3,[],0.013,False,0.053572,0.053572,8.77,9393,800,0,claude-opus-5-5,claude-opus-5-5|claude-opus-5-5|claude-opus-5-5,0,
+or-auto,c2,instruments,2,c2.1,1,easy,True,match,SELECT DISTINCT instrument FROM jwst_space_images WHERE instrument IS NOT NULL ORDER BY instrument,submit,submitted,5,2,[],0.004,False,0.000925,0.000925,3.71,5025,581,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+claude-opus,c3,labelling pipeline,1,c3.4,4,easy,True,match,select count(*) as v6_labels from labels where codebook_version = 'v6',submit,submitted,2,1,[],0.003,False,0.038228,0.038228,2.76,8852,141,0,claude-opus-5-5,claude-opus-5-5|claude-opus-5-5,0,
+or-auto,c2,instruments,2,c2.2,2,medium,True,match,SELECT count(*) FROM jwst_space_images j JOIN labels l USING(photo_id) WHERE j.instrument IS DISTINCT FROM l.instrument,submit,submitted,3,3,[],0.014,False,0.000958,0.000958,3.66,5046,603,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c2,instruments,2,c2.3,3,hard,True,match,"WITH counts AS (
+  SELECT instrument, subject, count(*) AS c
+  FROM jwst_space_images
+  WHERE instrument IN ('FGS','MIRI','NIRCam','NIRISS','NIRSpec')
+  GROUP BY 1,2
+),
+tot AS (
+  SELECT instrument, sum(c) AS total FROM counts GROUP BY 1
+),
+ranked AS (
+  SELECT c.*, row_number() OVER (PARTITION BY instrument ORDER BY c DESC, subject) AS rn
+  FROM counts c
+)
+SELECT r.instrument, r.subject,
+       round(100.0 * r.c / t.total, 1) AS percentage
+FROM ranked r JOIN tot t USING (instrument)
+WHERE t.total >= 20 AND r.rn = 2
+ORDER BY r.instrument",submit,submitted,2,1,[],0.003,False,0.001125,0.001125,2.53,4664,681,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-auto,c2,instruments,1,c2.5,5,expert,True,match,"WITH ranked AS (
+  SELECT photo_id, instrument, date_taken,
+         LAG(date_taken) OVER (PARTITION BY instrument ORDER BY date_taken) AS prev_date
+  FROM jwst_space_images
+  WHERE instrument IN ('NIRCam','MIRI','NIRSpec')
+    AND date_taken >= TIMESTAMP '2022-07-12 00:00:00'
+    AND date_taken <= TIMESTAMP '2026-10-05 00:00:00'
+),
+gaps AS (
+  SELECT instrument, date_taken AS end_date,
+         date_diff('day', prev_date, date_taken) AS gap_days
+  FROM ranked WHERE prev_date IS NOT NULL
+),
+max_gap AS (
+  SELECT instrument, MAX(gap_days) AS max_gap FROM gaps GROUP BY instrument
+),
+pct AS (
+  SELECT instrument,
+         ROUND(100.0 * COUNT(*) FILTER (WHERE modality = 'spectrum_or_plot') / COUNT(*), 1) AS pct_spectra
+  FROM jwst_space_images
+  WHERE instrument IN ('NIRCam','MIRI','NIRSpec')
+  GROUP BY instrument
+)
+SELECT g.instrument, mg.max_gap AS gap, g.end_date, p.pct_spectra
+FROM gaps g JOIN max_gap mg USING (instrument) JOIN pct p USING (instrument)
+WHERE g.gap_days = mg.max_gap
+ORDER BY g.instrument",submit,submitted,4,4,[],0.016,False,0.009825,0.009825,18.59,10289,968,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+or-auto,c2,instruments,2,c2.4,4,easy,True,match,SELECT count(*) AS nirspec_images FROM jwst_space_images WHERE instrument = 'NIRSpec',submit,submitted,3,3,[],0.007,False,0.001001,0.001001,3.07,9015,619,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+claude-opus,c3,labelling pipeline,1,c3.5,5,expert,True,match,"with b as (
+ select year(p.date_taken) y, l.gate_category g, j.photo_id is null as dropped
+ from photos p join labels l using(photo_id) left join jwst_space_images j using(photo_id)
+ where year(p.date_taken) between 2022 and 2025),
+c as (select y, g, count(*) n from b where dropped group by all)
+select y as year, count(*) as labelled, round(100.0*avg(dropped::int),1) as pct_not_published,
+ (select g from c where c.y=b.y order by n desc, g limit 1) as top_dropped_category
+from b group by y order by y",submit,submitted,4,3,[],0.02,False,0.106872,0.106872,10.01,22403,863,0,claude-opus-5-5,claude-opus-5-5|claude-opus-5-5|claude-opus-5-5|claude-opus-5-5,0,
+fw-auto,c2,instruments,1,c2.6,6,easy,True,match,SELECT COUNT(*) AS n FROM jwst_space_images WHERE modality = 'spectrum_or_plot',submit,submitted,2,1,[],0.001,False,0.002904,0.002904,3.81,6794,64,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+claude-opus,c3,labelling pipeline,1,c3.6,6,easy,True,match,"select count(*) as photos_without_tags from photos where tags is null or len(list_filter(tags, x -> trim(coalesce(x,'')) <> '')) = 0",submit,submitted,2,1,[],0.005,False,0.058632,0.058632,3.66,13423,247,0,claude-opus-5-5,claude-opus-5-5|claude-opus-5-5,0,
+or-auto,c2,instruments,2,c2.5,5,expert,True,match,"WITH insts AS (
+  SELECT * FROM jwst_space_images
+  WHERE instrument IN ('MIRI','NIRCam','NIRSpec')
+    AND date_taken >= TIMESTAMP '2022-07-12'
+    AND date_taken < TIMESTAMP '2030-01-01'
+),
+gaps AS (
+  SELECT instrument, date_taken,
+         date_diff('second', lag(date_taken) OVER (PARTITION BY instrument ORDER BY date_taken), date_taken)/86400.0 AS gap_days
+  FROM insts
+),
+mx AS (SELECT instrument, max(gap_days) AS maxgap FROM gaps GROUP BY 1),
+pct AS (
+  SELECT instrument,
+         round(100.0*count(*) FILTER (WHERE modality='spectrum_or_plot')/count(*),1) AS pct
+  FROM jwst_space_images
+  WHERE instrument IN ('MIRI','NIRCam','NIRSpec')
+  GROUP BY 1
+)
+SELECT g.instrument, g.gap_days AS gap, g.date_taken AS end_date, p.pct AS percentage
+FROM gaps g
+JOIN mx ON mx.instrument=g.instrument AND mx.maxgap=g.gap_days
+JOIN pct p ON p.instrument=g.instrument
+ORDER BY g.instrument",submit,submitted,7,9,[],0.024,False,0.005644,0.005644,12.68,37129,3355,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c2,instruments,2,c2.6,6,easy,True,match,SELECT COUNT(*) AS spectra_or_plots FROM jwst_space_images WHERE modality = 'spectrum_or_plot',submit,submitted,2,1,[],0.001,False,0.000423,0.000423,1.2,15883,176,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-firerouter-opus,c2,instruments,1,c2.1,1,easy,True,match,SELECT DISTINCT instrument FROM jwst_space_images ORDER BY instrument,submit,submitted,5,2,[],0.005,False,0.001453,0.001453,87.0,3499,188,0,fireworks_ai/glm-5p3-flash,fireworks_ai/glm-5p3-flash|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3-flash,2,
+claude-opus,c4,objects,1,c4.1,1,easy,True,match,select count(*) as images_without_object_name from jwst_space_images where object_name is null or trim(object_name)='',submit,submitted,5,2,[],0.01,False,0.035008,0.035008,10.95,6542,442,0,claude-opus-5-5,claude-opus-5-5|claude-opus-5-5|claude-opus-5-5|claude-opus-5-5|claude-opus-5-5,0,
+or-auto,c3,labelling pipeline,2,c3.1,1,easy,True,match,SELECT COUNT(*) AS total_photos FROM photos,submit,submitted,4,2,[],0.003,False,0.00062,0.00062,2.13,3253,330,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c3,labelling pipeline,2,c3.2,2,medium,True,match,"SELECT COUNT(*) AS unlabeled_photos
+FROM photos p
+WHERE NOT EXISTS (SELECT 1 FROM labels l WHERE l.photo_id = p.photo_id)",submit,submitted,4,5,[],0.015,False,0.001124,0.001124,2.57,6614,600,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+claude-opus,c4,objects,1,c4.2,2,medium,True,match,"select object_name_normalized as object, count(*) as count from jwst_space_images where object_name_normalized is not null group by 1 order by 2 desc limit 5",submit,submitted,3,2,[],0.009,False,0.036052,0.036052,5.93,6643,474,0,claude-opus-5-5,claude-opus-5-5|claude-opus-5-5|claude-opus-5-5,0,
+or-auto,c3,labelling pipeline,2,c3.3,3,hard,True,match,"SELECT ROUND(100.0 * SUM(CASE WHEN replace(p.legacy_tag_label,' ','_') = l.subject THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_same_subject
+FROM photos p
+JOIN labels l USING (photo_id)
+WHERE p.legacy_tag_label IS NOT NULL
+  AND p.legacy_tag_label NOT IN ('unclassified', 'observatory / engineering')",submit,submitted,4,4,[],0.012,False,0.002383,0.002383,4.57,11122,1589,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-firerouter-opus,c2,instruments,1,c2.2,2,medium,True,match,"SELECT COUNT(*) AS mismatched
+FROM jwst_space_images j
+JOIN labels l USING (photo_id)
+WHERE j.instrument IS DISTINCT FROM l.instrument",submit,submitted,5,3,[],0.009,False,0.004046,0.004046,9.81,5713,314,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+or-auto,c3,labelling pipeline,2,c3.4,4,easy,True,match,SELECT COUNT(*) AS v6_labels FROM labels WHERE codebook_version = 'v6',submit,submitted,2,1,[],0.002,False,0.000361,0.000361,1.11,6965,190,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c3,labelling pipeline,2,c3.5,5,expert,True,match,"WITH j AS (
+  SELECT EXTRACT(year FROM p.date_taken) AS yr,
+         l.gate_category,
+         (p.photo_id IN (SELECT photo_id FROM jwst_space_images)) AS published
+  FROM photos p
+  JOIN labels l USING (photo_id)
+  WHERE EXTRACT(year FROM p.date_taken) BETWEEN 2022 AND 2025
+),
+per_year AS (
+  SELECT yr, COUNT(*) AS labelled_photos,
+         ROUND(100.0 * SUM(CASE WHEN NOT published THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_not_published
+  FROM j GROUP BY yr
+),
+mode AS (
+  SELECT yr, gate_category,
+         ROW_NUMBER() OVER (PARTITION BY yr ORDER BY COUNT(*) DESC, gate_category) AS rn
+  FROM j WHERE NOT published GROUP BY yr, gate_category
+)
+SELECT per_year.yr AS year, per_year.labelled_photos, per_year.pct_not_published, mode.gate_category
+FROM per_year
+JOIN mode ON per_year.yr = mode.yr AND mode.rn = 1
+ORDER BY per_year.yr",submit,submitted,5,5,[],0.021,False,0.00249,0.00249,3.97,26920,1178,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c3,labelling pipeline,2,c3.6,6,easy,True,match,"SELECT COUNT(*) AS photos_without_tags
+FROM photos
+WHERE tags IS NULL OR len(tags) = 0",submit,submitted,3,2,[],0.006,False,0.00068,0.00068,1.87,20534,294,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+claude-opus,c4,objects,1,c4.3,3,hard,True,match,"select object_name_normalized as object, count(*) as n_images, min(date_taken) as first_image, max(date_taken) as last_image, date_diff('day', min(date_taken), max(date_taken)) as span_days from jwst_space_images where object_name_normalized is not null and date_taken between '2021-12-25' and '2026-10-05' group by 1 having count(*)>=4 order by span_days desc limit 1",submit,submitted,4,4,[],0.012,False,0.075572,0.075572,10.34,14633,852,0,claude-opus-5-5,claude-opus-5-5|claude-opus-5-5|claude-opus-5-5|claude-opus-5-5,0,
+or-auto,c4,objects,2,c4.1,1,easy,True,match,SELECT count(*) AS n FROM jwst_space_images WHERE object_name IS NULL OR trim(object_name) = '',submit,submitted,5,3,[],0.005,False,0.000925,0.000925,2.93,5163,515,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-firerouter-opus,c2,instruments,1,c2.3,3,hard,True,match,"WITH totals AS (
+  SELECT instrument, COUNT(*) AS total
+  FROM jwst_space_images
+  WHERE instrument IN ('NIRCam','MIRI','NIRSpec','NIRISS','FGS')
+  GROUP BY instrument
+  HAVING COUNT(*) >= 20
+),
+ranked AS (
+  SELECT j.instrument, j.subject, COUNT(*) AS n,
+         ROW_NUMBER() OVER (PARTITION BY j.instrument ORDER BY COUNT(*) DESC, j.subject) AS rnk
+  FROM jwst_space_images j
+  JOIN totals t ON j.instrument = t.instrument
+  GROUP BY j.instrument, j.subject
+)
+SELECT r.instrument, r.subject, ROUND(100.0 * r.n / t.total, 1) AS percentage
+FROM ranked r JOIN totals t ON r.instrument = t.instrument
+WHERE r.rnk = 2
+ORDER BY r.instrument",submit,submitted,2,1,[],0.004,False,0.004129,0.004129,11.51,3260,606,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+or-auto,c4,objects,2,c4.2,2,medium,True,match,"SELECT object_name_normalized AS object, count(*) AS n FROM jwst_space_images WHERE object_name_normalized IS NOT NULL AND trim(object_name_normalized) <> '' GROUP BY 1 ORDER BY n DESC, object LIMIT 5",submit,submitted,3,2,[],0.004,False,0.000723,0.000723,2.74,5230,424,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+claude-opus,c4,objects,1,c4.4,4,easy,True,match,select count(*) as n_images from jwst_space_images where object_name_normalized = 'Pillars of Creation',submit,submitted,2,1,[],0.002,False,0.046924,0.046924,4.71,10421,262,0,claude-opus-5-5,claude-opus-5-5|claude-opus-5-5,0,
+or-auto,c4,objects,2,c4.3,3,hard,True,match,"SELECT object_name_normalized AS object, count(*) AS images, min(date_taken)::DATE AS first_image, max(date_taken)::DATE AS last_image, date_diff('day', min(date_taken), max(date_taken)) AS span_days
+FROM jwst_space_images
+WHERE object_name_normalized IS NOT NULL AND trim(object_name_normalized) <> ''
+  AND date_taken >= DATE '2021-12-25' AND date_taken <= DATE '2026-10-05'
+GROUP BY 1 HAVING count(*) >= 4 ORDER BY span_days DESC LIMIT 1",submit,submitted,4,4,[],0.011,False,0.002303,0.002303,5.83,12721,1342,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c4,objects,2,c4.4,4,easy,True,match,SELECT count(*) AS n FROM jwst_space_images WHERE object_name_normalized = 'Pillars of Creation',submit,submitted,3,3,[],0.011,False,0.001057,0.001057,3.35,13390,576,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+claude-opus,c4,objects,1,c4.5,5,expert,False,"no column matches reference column(s) [1, 4]","select object_name_normalized as object, count(*) as image_count,
+ min(year(date_taken)) filter (where date_taken between '2021-12-25' and '2026-10-05') as first_year,
+ max(year(date_taken)) filter (where date_taken between '2021-12-25' and '2026-10-05') as last_year,
+ round(100.0*count(*) filter (where instrument in ('NIRCam','MIRI','NIRSpec','NIRISS','FGS'))/count(*),1) as pct_single_instrument
+from jwst_space_images where object_name_normalized is not null group by 1
+having count(distinct year(date_taken)) filter (where date_taken between '2021-12-25' and '2026-10-05') >= 3
+order by image_count desc",submit,submitted,3,2,[],0.009,False,0.091316,0.091316,10.25,18074,951,0,claude-opus-5-5,claude-opus-5-5|claude-opus-5-5|claude-opus-5-5,0,
+glm-flash,c3,labelling pipeline,1,c3.1,1,easy,True,match,SELECT COUNT(*) AS total_photos FROM photos,submit,submitted,3,1,[],0.001,False,0.000313,0.000313,107.89,1674,125,0,fireworks_ai/accounts/fireworks/models/glm-5p3-flash,fireworks_ai/accounts/fireworks/models/glm-5p3-flash|fireworks_ai/accounts/fireworks/models/glm-5p3-flash|fireworks_ai/accounts/fireworks/models/glm-5p3-flash,0,
+fw-auto,c3,labelling pipeline,1,c3.1,1,easy,True,match,SELECT COUNT(*) AS total_photos FROM photos,submit,submitted,3,1,[],0.001,False,0.000637,0.000637,46.9,1674,44,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3-flash|fireworks_ai/glm-5p3,2,
+claude-opus,c4,objects,1,c4.6,6,easy,True,match,select count(*) as n_images from jwst_space_images where object_name_normalized = 'Jupiter',submit,submitted,2,1,[],0.002,False,0.06492,0.06492,3.9,14680,310,0,claude-opus-5-5,claude-opus-5-5|claude-opus-5-5,0,
+or-auto,c4,objects,2,c4.5,5,expert,True,match,"WITH f AS (
+  SELECT * FROM jwst_space_images
+  WHERE object_name_normalized IS NOT NULL AND trim(object_name_normalized) <> ''
+    AND date_taken >= DATE '2021-12-25' AND date_taken <= DATE '2026-10-05'
+)
+SELECT object_name_normalized AS object,
+       count(*) AS image_count,
+       min(year(date_taken)) AS first_year,
+       max(year(date_taken)) AS last_year,
+       round(100.0 * count(*) FILTER (WHERE instrument IN ('NIRCam','MIRI','NIRSpec','NIRISS','FGS')) / count(*), 1) AS single_instrument_pct
+FROM f
+GROUP BY 1
+HAVING count(DISTINCT year(date_taken)) >= 3
+ORDER BY object",submit,submitted,4,3,[],0.012,False,0.002048,0.002048,7.38,21584,1297,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c4,objects,2,c4.6,6,easy,True,match,SELECT count(*) AS jupiter_images FROM jwst_space_images WHERE object_name_normalized = 'Jupiter',submit,submitted,3,3,[],0.01,False,0.000986,0.000986,2.77,18957,535,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c1,release timeline,3,c1.1,1,easy,True,match,SELECT COUNT(DISTINCT photo_id) AS image_count FROM jwst_space_images,submit,submitted,3,1,[],0.002,False,0.000499,0.000499,2.04,2391,257,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-auto,c3,labelling pipeline,1,c3.2,2,medium,True,match,SELECT COUNT(*) AS never_labelled_photos FROM photos p WHERE NOT EXISTS (SELECT 1 FROM labels l WHERE l.photo_id = p.photo_id),submit,submitted,4,2,"[{""sql"": ""SELECT COUNT(*) AS unlabelled_photos FROM photos p WHERE NOT EXISTS (SELECT 1 FROM labels l WHERE l.photo_id = p.id)"", ""error"": ""Binder Error: Table \""p\"" does not have a column named \""id\""""}]",0.006,False,0.002604,0.002604,7.83,3144,284,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+or-auto,c1,release timeline,3,c1.2,2,medium,True,match,"SELECT EXTRACT(year FROM date_taken) AS year, COUNT(*) AS image_count
+FROM jwst_space_images
+WHERE date_taken >= DATE '2022-01-01'
+  AND date_taken <= DATE '2026-10-05'
+GROUP BY 1
+ORDER BY 1",submit,submitted,3,3,[],0.004,False,0.001477,0.001477,3.53,4927,783,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-auto,c3,labelling pipeline,1,c3.3,3,hard,True,match,"SELECT ROUND(100.0 * SUM(CASE WHEN l.subject = replace(p.legacy_tag_label, ' ', '_') THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_agreement
+FROM photos p JOIN labels l USING (photo_id)
+WHERE p.legacy_tag_label IS NOT NULL
+  AND p.legacy_tag_label NOT IN ('unclassified', 'observatory / engineering')",submit,submitted,3,3,[],0.006,False,0.002992,0.002992,7.81,3740,335,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+or-auto,c1,release timeline,3,c1.3,3,hard,True,match,"WITH d AS (
+  SELECT date_taken,
+         date_taken - LAG(date_taken) OVER (ORDER BY date_taken, photo_id) AS gap
+  FROM jwst_space_images
+  WHERE date_taken >= TIMESTAMP '2022-07-12' AND date_taken <= TIMESTAMP '2026-10-05'
+),
+b AS (
+  SELECT SUM(CASE WHEN gap IS NULL OR gap > INTERVAL 168 HOUR THEN 1 ELSE 0 END)
+           OVER (ORDER BY date_taken ROWS UNBOUNDED PRECEDING) AS burst
+  FROM d
+)
+SELECT COUNT(*) AS num_bursts, MAX(cnt) AS images_in_largest_burst
+FROM (SELECT burst, COUNT(*) AS cnt FROM b GROUP BY burst);",submit,submitted,3,2,[],0.012,False,0.001429,0.001429,4.25,8703,928,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c1,release timeline,3,c1.4,4,easy,True,match,SELECT COUNT(*) AS nebula_images FROM jwst_space_images WHERE subject = 'nebula',submit,submitted,2,1,[],0.003,False,0.000391,0.000391,1.27,6944,158,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-auto,c3,labelling pipeline,1,c3.4,4,easy,True,match,SELECT COUNT(*) AS v6_labels FROM labels WHERE codebook_version = 'v6',submit,submitted,2,1,[],0.002,False,0.00126,0.00126,2.73,3098,58,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+or-auto,c1,release timeline,3,c1.5,5,expert,True,match,"WITH d AS (
+  SELECT date_taken, subject,
+         date_taken - LAG(date_taken) OVER (ORDER BY date_taken, photo_id) AS gap
+  FROM jwst_space_images
+  WHERE date_taken >= TIMESTAMP '2022-07-12' AND date_taken <= TIMESTAMP '2026-10-05'
+),
+b AS (
+  SELECT date_taken, subject,
+         SUM(CASE WHEN gap IS NULL OR gap > INTERVAL 168 HOUR THEN 1 ELSE 0 END)
+           OVER (ORDER BY date_taken ROWS UNBOUNDED PRECEDING) AS burst
+  FROM d
+),
+sizes AS (SELECT burst, COUNT(*) AS cnt FROM b GROUP BY burst),
+top_burst AS (SELECT burst FROM sizes ORDER BY cnt DESC LIMIT 1),
+stats AS (
+  SELECT MIN(b.date_taken) AS start_date, MAX(b.date_taken) AS end_date, COUNT(*) AS image_count
+  FROM b JOIN top_burst USING (burst)
+),
+subj AS (
+  SELECT b.subject, COUNT(*) AS subject_count
+  FROM b JOIN top_burst USING (burst)
+  GROUP BY b.subject ORDER BY subject_count DESC LIMIT 1
+)
+SELECT stats.start_date, stats.end_date, stats.image_count, subj.subject, subj.subject_count
+FROM stats, subj;",submit,submitted,3,2,[],0.011,False,0.001458,0.001458,5.45,12002,912,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c1,release timeline,3,c1.6,6,easy,True,match,SELECT COUNT(*) AS image_count FROM jwst_space_images WHERE date_taken >= TIMESTAMP '2025-01-01' AND date_taken < TIMESTAMP '2026-01-01',submit,submitted,3,2,[],0.004,False,0.0006,0.0006,1.82,14336,271,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c2,instruments,3,c2.1,1,easy,True,match,SELECT DISTINCT instrument FROM jwst_space_images ORDER BY instrument,submit,submitted,5,2,[],0.006,False,0.000739,0.000739,4.01,4824,476,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c2,instruments,3,c2.2,2,medium,True,match,SELECT COUNT(*) FROM jwst_space_images s JOIN labels l ON s.photo_id=l.photo_id WHERE s.instrument IS DISTINCT FROM l.instrument,submit,submitted,4,4,[],0.01,False,0.000858,0.000858,2.56,6374,470,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c2,instruments,3,c2.3,3,hard,True,match,"WITH counts AS (
+  SELECT instrument, subject, COUNT(*) AS c
+  FROM jwst_space_images
+  WHERE instrument IN ('NIRCam','MIRI','NIRSpec','NIRISS','FGS')
+  GROUP BY instrument, subject
+),
+ranked AS (
+  SELECT instrument, subject, c,
+         ROW_NUMBER() OVER (PARTITION BY instrument ORDER BY c DESC, subject) AS rn
+  FROM counts
+),
+totals AS (
+  SELECT instrument, COUNT(*) AS total
+  FROM jwst_space_images
+  WHERE instrument IN ('NIRCam','MIRI','NIRSpec','NIRISS','FGS')
+  GROUP BY instrument
+)
+SELECT r.instrument, r.subject, ROUND(100.0 * r.c / t.total, 1) AS percentage
+FROM ranked r JOIN totals t USING (instrument)
+WHERE r.rn = 2 AND t.total >= 20
+ORDER BY r.instrument",submit,submitted,2,1,[],0.006,False,0.001084,0.001084,3.0,4399,713,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-auto,c3,labelling pipeline,1,c3.5,5,expert,True,match,"WITH lab AS (
+  SELECT p.photo_id, year(p.date_taken) AS y, l.gate_category
+  FROM photos p JOIN labels l USING (photo_id)
+  WHERE year(p.date_taken) BETWEEN 2022 AND 2025
+),
+by_year AS (
+  SELECT y, COUNT(*) AS labelled_count,
+    SUM(CASE WHEN NOT EXISTS (SELECT 1 FROM jwst_space_images j WHERE j.photo_id = lab.photo_id) THEN 1 ELSE 0 END) AS not_published,
+    SUM(CASE WHEN NOT EXISTS (SELECT 1 FROM jwst_space_images j WHERE j.photo_id = lab.photo_id) THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS pct
+  FROM lab GROUP BY y
+),
+gates AS (
+  SELECT l.y, l.gate_category, COUNT(*) AS c
+  FROM lab l
+  WHERE NOT EXISTS (SELECT 1 FROM jwst_space_images j WHERE j.photo_id = l.photo_id)
+  GROUP BY 1, 2
+)
+SELECT b.y, b.labelled_count,
+  ROUND(b.pct, 1) AS pct_not_published,
+  (SELECT g.gate_category FROM gates g WHERE g.y = b.y ORDER BY g.c DESC, g.gate_category LIMIT 1) AS most_common_gate
+FROM by_year b ORDER BY b.y",submit,submitted,4,3,[],0.011,False,0.007201,0.007201,17.39,8100,925,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+or-auto,c2,instruments,3,c2.4,4,easy,True,match,SELECT COUNT(*) FROM jwst_space_images WHERE instrument = 'NIRSpec',submit,submitted,2,1,[],0.006,False,0.000599,0.000599,2.14,5530,371,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-auto,c3,labelling pipeline,1,c3.6,6,easy,True,match,SELECT COUNT(*) AS no_tags FROM photos WHERE tags IS NULL OR len(tags) = 0,submit,submitted,2,1,[],0.002,False,0.002127,0.002127,4.18,5609,60,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+or-auto,c2,instruments,3,c2.5,5,expert,True,match,"WITH valid AS (
+  SELECT * FROM jwst_space_images
+  WHERE instrument IN ('NIRCam','MIRI','NIRSpec')
+    AND date_taken >= '2022-07-12' AND date_taken <= '2026-10-05'
+),
+d AS (
+  SELECT instrument, date_taken,
+         LEAD(date_taken) OVER (PARTITION BY instrument ORDER BY date_taken) AS next_dt
+  FROM valid
+),
+gaps AS (
+  SELECT instrument, date_diff('day', date_taken, next_dt) AS gap, next_dt AS end_date
+  FROM d
+  QUALIFY ROW_NUMBER() OVER (PARTITION BY instrument ORDER BY date_diff('day', date_taken, next_dt) DESC) = 1
+),
+pct AS (
+  SELECT instrument,
+         ROUND(100.0*COUNT(*) FILTER (WHERE modality='spectrum_or_plot')/COUNT(*),1) AS percentage
+  FROM jwst_space_images
+  WHERE instrument IN ('NIRCam','MIRI','NIRSpec')
+  GROUP BY instrument
+)
+SELECT g.instrument, g.gap, g.end_date, p.percentage
+FROM gaps g JOIN pct p USING (instrument)
+ORDER BY g.instrument",submit,submitted,8,9,[],0.023,False,0.003249,0.003249,7.49,37461,1684,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c2,instruments,3,c2.6,6,easy,True,match,SELECT COUNT(*) FROM jwst_space_images WHERE modality = 'spectrum_or_plot',submit,submitted,1,0,[],0.0,False,0.000275,0.000275,0.54,6338,87,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash,0,
+or-auto,c3,labelling pipeline,3,c3.1,1,easy,True,match,SELECT COUNT(*) AS total_photos FROM photos,submit,submitted,3,1,[],0.001,False,0.000298,0.000298,1.62,2150,150,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-auto,c4,objects,1,c4.1,1,easy,True,match,SELECT COUNT(*) AS images_without_object_name FROM jwst_space_images WHERE object_name IS NULL OR TRIM(object_name) = '',submit,submitted,5,2,[],0.003,False,0.002059,0.002059,6.33,3379,178,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+or-auto,c3,labelling pipeline,3,c3.2,2,medium,True,match,SELECT COUNT(*) AS unlabelled_photos FROM photos p WHERE NOT EXISTS (SELECT 1 FROM labels l WHERE l.photo_id = p.photo_id),submit,submitted,3,1,[],0.003,False,0.000446,0.000446,1.73,3151,242,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-firerouter-opus,c2,instruments,1,c2.4,4,easy,True,match,SELECT COUNT(*) AS nirspec_images FROM jwst_space_images WHERE instrument = 'NIRSpec',submit,submitted,2,1,[],0.002,False,0.001301,0.001301,62.77,4155,77,0,fireworks_ai/glm-5p3-flash,fireworks_ai/glm-5p3-flash|fireworks_ai/glm-5p3,1,
+fw-auto,c4,objects,1,c4.2,2,medium,True,match,"SELECT object_name_normalized AS object, COUNT(*) AS count FROM jwst_space_images WHERE object_name_normalized IS NOT NULL AND TRIM(object_name_normalized) <> '' GROUP BY 1 ORDER BY count DESC, object LIMIT 5",submit,submitted,2,1,[],0.003,False,0.001488,0.001488,4.11,1944,167,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+or-auto,c3,labelling pipeline,3,c3.3,3,hard,True,match,"SELECT ROUND(100.0 * COUNT(*) FILTER (WHERE replace(lower(p.legacy_tag_label),' ','_') = l.subject) / COUNT(*), 1) AS pct_same_subject
+FROM photos p JOIN labels l ON l.photo_id = p.photo_id
+WHERE p.legacy_tag_label IS NOT NULL
+AND p.legacy_tag_label NOT IN ('unclassified','observatory / engineering')",submit,submitted,5,7,[],0.03,False,0.004137,0.004137,9.59,10702,2905,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c3,labelling pipeline,3,c3.4,4,easy,True,match,SELECT COUNT(*) AS labels_v6 FROM labels WHERE codebook_version = 'v6',submit,submitted,2,1,[],0.002,False,0.000268,0.000268,0.94,6296,123,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-auto,c4,objects,1,c4.3,3,hard,True,match,"SELECT object_name_normalized AS object, COUNT(*) AS n, MIN(date_taken) AS first_date, MAX(date_taken) AS last_date, DATE_DIFF('day', MIN(date_taken), MAX(date_taken)) AS span_days FROM jwst_space_images WHERE object_name_normalized IS NOT NULL AND TRIM(object_name_normalized) <> '' AND date_taken IS NOT NULL AND date_taken <= TIMESTAMP '2026-10-05' GROUP BY 1 HAVING COUNT(*) >= 4 ORDER BY span_days DESC LIMIT 1",submit,submitted,3,2,[],0.009,False,0.006606,0.006606,11.0,5016,599,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+or-auto,c3,labelling pipeline,3,c3.5,5,expert,True,match,"WITH base AS (
+  SELECT year(p.date_taken) AS yr, l.photo_id, l.gate_category,
+         (j.photo_id IS NULL) AS not_published
+  FROM photos p
+  JOIN labels l ON l.photo_id = p.photo_id
+  LEFT JOIN jwst_space_images j ON j.photo_id = p.photo_id
+  WHERE year(p.date_taken) BETWEEN 2022 AND 2025
+),
+gate AS (
+  SELECT yr, gate_category,
+         ROW_NUMBER() OVER (PARTITION BY yr ORDER BY COUNT(*) DESC, gate_category) rn
+  FROM base WHERE not_published
+  GROUP BY yr, gate_category
+)
+SELECT b.yr AS year,
+       COUNT(*) AS labelled_count,
+       ROUND(100.0 * COUNT(*) FILTER (WHERE b.not_published) / COUNT(*), 1) AS pct_not_published,
+       g.gate_category
+FROM base b JOIN gate g ON g.yr = b.yr AND g.rn = 1
+GROUP BY b.yr, g.gate_category
+ORDER BY b.yr",submit,submitted,7,9,"[{""sql"": ""SELECT year(dt) yr, COUNT(DISTINCT p.photo_id) FROM photos p JOIN labels l ON l.photo_id=p.photo_id\nWHERE dt IS NOT NULL GROUP BY 1 ORDER BY 1"", ""error"": ""Binder Error: Referenced column \""dt\"" not found in FROM clause!""}, {""sql"": ""SELECT COUNT(*), COUNT(DISTINCT photo_id) FROM labels GROUP BY 1 LIMIT 0; "", ""error"": ""Binder Error: GROUP BY clause cannot contain aggregates!""}]",0.03,False,0.002392,0.002392,4.78,28443,1342,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c3,labelling pipeline,3,c3.6,6,easy,True,match,SELECT COUNT(*) AS no_tags FROM photos WHERE tags IS NULL OR len(tags) = 0,submit,submitted,3,3,[],0.014,False,0.000675,0.000675,1.64,15881,293,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-auto,c4,objects,1,c4.4,4,easy,True,match,SELECT COUNT(*) AS pillars_of_creation_images FROM jwst_space_images WHERE LOWER(object_name_normalized) LIKE '%pillars of creation%',submit,submitted,2,1,[],0.002,False,0.002765,0.002765,3.7,4866,83,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c2,instruments,1,c2.5,5,expert,True,match,"WITH ranked AS (
+  SELECT instrument, date_taken,
+         LAG(date_taken) OVER (PARTITION BY instrument ORDER BY date_taken) AS prev_date
+  FROM jwst_space_images
+  WHERE instrument IN ('NIRCam','MIRI','NIRSpec')
+    AND date_taken >= TIMESTAMP '2022-07-12'
+    AND date_taken < TIMESTAMP '2027-01-01'
+),
+gaps AS (
+  SELECT instrument, prev_date, date_taken,
+         DATE_DIFF('day', prev_date, date_taken) AS gap_days
+  FROM ranked
+  WHERE prev_date IS NOT NULL
+),
+max_gaps AS (
+  SELECT instrument, date_taken AS end_date, gap_days,
+         ROW_NUMBER() OVER (PARTITION BY instrument ORDER BY gap_days DESC, date_taken) AS rn
+  FROM gaps
+),
+pct AS (
+  SELECT instrument,
+         100.0 * SUM(CASE WHEN modality = 'spectrum_or_plot' THEN 1 ELSE 0 END) / COUNT(*) AS pct_spectra
+  FROM jwst_space_images
+  WHERE instrument IN ('NIRCam','MIRI','NIRSpec')
+  GROUP BY instrument
+)
+SELECT m.instrument, m.gap_days, CAST(m.end_date AS DATE) AS end_date, ROUND(p.pct_spectra, 1) AS spectra_pct
+FROM max_gaps m JOIN pct p USING (instrument)
+WHERE m.rn = 1
+ORDER BY m.instrument",submit,submitted,4,4,[],0.013,False,0.008284,0.008284,18.21,10079,1074,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+or-auto,c4,objects,3,c4.1,1,easy,True,match,SELECT COUNT(*) AS no_object_name_count FROM jwst_space_images WHERE object_name IS NULL OR TRIM(object_name) = '',submit,submitted,5,4,[],0.008,False,0.001586,0.001586,2.66,9828,527,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c4,objects,3,c4.2,2,medium,True,match,"SELECT object_name_normalized AS object, COUNT(*) AS count FROM jwst_space_images WHERE object_name_normalized IS NOT NULL AND TRIM(object_name_normalized) <> '' GROUP BY 1 ORDER BY count DESC LIMIT 5",submit,submitted,4,3,[],0.012,False,0.001097,0.001097,2.61,15819,566,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-firerouter-opus,c2,instruments,1,c2.6,6,easy,True,match,SELECT COUNT(*) AS spectra_or_plots FROM jwst_space_images WHERE modality = 'spectrum_or_plot',submit,submitted,2,1,[],0.001,False,0.002436,0.002436,4.36,6551,67,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+or-auto,c4,objects,3,c4.3,3,hard,True,match,"SELECT object_name_normalized AS object, COUNT(*) AS image_count, MIN(date_taken) AS first_image, MAX(date_taken) AS last_image, DATE_DIFF('day', MIN(date_taken), MAX(date_taken)) AS span_days
+FROM jwst_space_images
+WHERE object_name_normalized IS NOT NULL AND TRIM(object_name_normalized) <> ''
+  AND date_taken <= TIMESTAMP '2026-10-05'
+GROUP BY 1
+HAVING COUNT(*) >= 4
+ORDER BY span_days DESC
+LIMIT 1",submit,submitted,5,6,[],0.016,False,0.002768,0.002768,5.91,29008,1483,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-firerouter-opus,c3,labelling pipeline,1,c3.1,1,easy,True,match,SELECT COUNT(*) AS total_photos FROM photos,submit,submitted,4,1,[],0.003,False,0.001328,0.001328,5.26,2431,121,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c4,objects,1,c4.5,5,expert,True,match,"WITH valid AS (
+  SELECT object_name_normalized AS object, YEAR(date_taken) AS yr, instrument
+  FROM jwst_space_images
+  WHERE object_name_normalized IS NOT NULL AND TRIM(object_name_normalized) <> ''
+    AND date_taken IS NOT NULL AND date_taken <= TIMESTAMP '2026-10-05'
+)
+SELECT object,
+       COUNT(*) AS image_count,
+       MIN(yr) AS first_year,
+       MAX(yr) AS last_year,
+       ROUND(100.0 * SUM(CASE WHEN instrument IN ('NIRCam','MIRI','NIRSpec','NIRISS','FGS') THEN 1 ELSE 0 END) / COUNT(*), 1) AS single_named_instrument_pct
+FROM valid
+GROUP BY object
+HAVING COUNT(DISTINCT yr) >= 3
+ORDER BY image_count DESC, object",submit,submitted,3,3,[],0.011,False,0.005825,0.005825,11.54,8386,622,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+or-auto,c4,objects,3,c4.4,4,easy,True,match,SELECT COUNT(*) AS pillar_images FROM jwst_space_images WHERE object_name_normalized = 'Pillars of Creation',submit,submitted,3,3,[],0.011,False,0.000942,0.000942,2.34,21676,414,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-firerouter-opus,c3,labelling pipeline,1,c3.2,2,medium,True,match,SELECT COUNT(*) AS never_labelled FROM photos p WHERE NOT EXISTS (SELECT 1 FROM labels l WHERE l.photo_id = p.photo_id),submit,submitted,3,1,[],0.003,False,0.002339,0.002339,6.49,2732,245,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c4,objects,1,c4.6,6,easy,True,match,SELECT COUNT(*) AS jupiter_images FROM jwst_space_images WHERE object_name_normalized = 'Jupiter',submit,submitted,2,1,[],0.002,False,0.004545,0.004545,8.28,7295,362,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c1,release timeline,2,c1.1,1,easy,True,match,SELECT COUNT(*) AS published_images FROM jwst_space_images,submit,submitted,3,1,[],0.001,False,0.000734,0.000734,3.22,1677,67,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+or-auto,c4,objects,3,c4.5,5,expert,True,match,"SELECT object_name_normalized AS object,
+  COUNT(*) AS image_count,
+  MIN(YEAR(date_taken)) AS first_year,
+  MAX(YEAR(date_taken)) AS last_year,
+  ROUND(100.0 * SUM(CASE WHEN instrument IN ('NIRCam','MIRI','NIRSpec','NIRISS','FGS') THEN 1 ELSE 0 END) / COUNT(*), 1) AS single_instrument_pct
+FROM jwst_space_images
+WHERE object_name_normalized IS NOT NULL AND TRIM(object_name_normalized) <> ''
+  AND YEAR(date_taken) <> 2124
+GROUP BY 1
+HAVING COUNT(DISTINCT YEAR(date_taken)) >= 3
+ORDER BY object;",submit,submitted,7,8,"[{""sql"": ""WITH base AS (\n  SELECT object_name_normalized obj, instrument\n  FROM jwst_space_images\n  WHERE object_name_normalized IS NOT NULL AND TRIM(object_name_normalized)<>'' AND YEAR(date_taken)<>2124\n), agg AS (\n  SELECT obj, COUNT(*) cnt, COUNT(DISTINCT YEAR(date_taken)) yrs,\n    SUM(CASE WHEN instrument IN ('NIRCam','MIRI','NIRSpec','NIRISS','FGS') THEN 1 ELSE 0 END) single_instr\n  FROM base JOIN jwst_space_images USING (photo_id)\n  GROUP BY obj\n)\nSELECT * FROM agg LIMIT 5;"", ""error"": ""Binder Error: Column \""photo_id\"" does not exist on left side of join!""}]",0.03,False,0.003621,0.003621,11.07,60464,2108,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+or-auto,c4,objects,3,c4.6,6,easy,True,match,SELECT COUNT(*) AS jupiter_images FROM jwst_space_images WHERE object_name_normalized = 'Jupiter',submit,submitted,4,3,[],0.005,False,0.001334,0.001334,4.95,41173,572,0,deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash|deepseek/deepseek-v4.1-flash,0,
+fw-auto,c1,release timeline,2,c1.2,2,medium,True,match,"SELECT year(date_taken) AS year_taken, COUNT(*) AS count FROM jwst_space_images WHERE year(date_taken) BETWEEN 2022 AND 2026 GROUP BY 1 ORDER BY 1",submit,submitted,4,2,[],0.004,False,0.002453,0.002453,7.15,3352,258,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c3,labelling pipeline,1,c3.3,3,hard,True,match,"SELECT ROUND(100.0 * SUM(CASE WHEN replace(p.legacy_tag_label, ' ', '_') = l.subject THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_agree,
+       COUNT(*) AS total,
+       SUM(CASE WHEN replace(p.legacy_tag_label, ' ', '_') = l.subject THEN 1 ELSE 0 END) AS agree
+FROM photos p JOIN labels l USING (photo_id)
+WHERE p.legacy_tag_label IS NOT NULL
+  AND p.legacy_tag_label NOT IN ('unclassified','observatory / engineering')",submit,submitted,4,4,[],0.016,False,0.007446,0.007446,20.89,6415,1051,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c1,release timeline,2,c1.3,3,hard,True,match,"WITH valid AS (
+  SELECT date_taken, photo_id
+  FROM jwst_space_images
+  WHERE date_taken >= TIMESTAMP '2022-07-12' AND date_taken <= TIMESTAMP '2026-10-05'
+), ordered AS (
+  SELECT *, lag(date_taken) OVER (ORDER BY date_taken) AS prev_dt
+  FROM valid
+), flagged AS (
+  SELECT *, CASE WHEN prev_dt IS NULL OR date_diff('millisecond', prev_dt, date_taken) > 168*3600*1000 THEN 1 ELSE 0 END AS is_new
+  FROM ordered
+), numbered AS (
+  SELECT *, sum(is_new) OVER (ORDER BY date_taken) AS burst_id
+  FROM flagged
+)
+SELECT COUNT(DISTINCT burst_id) AS n_bursts, max(cnt) AS largest_burst
+FROM (
+  SELECT burst_id, COUNT(*) AS cnt FROM numbered GROUP BY burst_id
+)",submit,submitted,3,3,[],0.01,False,0.00581,0.00581,12.19,4332,649,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c3,labelling pipeline,1,c3.4,4,easy,True,match,SELECT COUNT(*) AS v6_labels FROM labels WHERE codebook_version = 'v6',submit,submitted,3,2,[],0.003,False,0.004759,0.004759,7.23,6715,215,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c1,release timeline,2,c1.4,4,easy,True,match,SELECT COUNT(*) AS nebula_images FROM jwst_space_images WHERE subject = 'nebula',submit,submitted,2,1,[],0.003,False,0.00173,0.00173,3.77,4010,63,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c3,labelling pipeline,1,c3.5,5,expert,True,match,"WITH yearly AS (
+  SELECT year(p.date_taken) AS yr, COUNT(*) AS labelled,
+         SUM(CASE WHEN j.photo_id IS NULL THEN 1 ELSE 0 END) AS not_published
+  FROM photos p
+  JOIN labels l USING (photo_id)
+  LEFT JOIN jwst_space_images j USING (photo_id)
+  WHERE year(p.date_taken) BETWEEN 2022 AND 2025
+  GROUP BY 1
+),
+gates AS (
+  SELECT year(p.date_taken) AS yr, l.gate_category, COUNT(*) AS n
+  FROM photos p
+  JOIN labels l USING (photo_id)
+  LEFT JOIN jwst_space_images j USING (photo_id)
+  WHERE year(p.date_taken) BETWEEN 2022 AND 2025 AND j.photo_id IS NULL
+  GROUP BY 1,2
+),
+top_gate AS (
+  SELECT yr, gate_category
+  FROM (SELECT yr, gate_category, ROW_NUMBER() OVER (PARTITION BY yr ORDER BY n DESC, gate_category) AS rn FROM gates)
+  WHERE rn = 1
+)
+SELECT y.yr AS year, y.labelled AS labelled_count,
+       ROUND(100.0 * y.not_published / y.labelled, 1) AS pct_not_published,
+       t.gate_category
+FROM yearly y LEFT JOIN top_gate t ON y.yr = t.yr
+ORDER BY y.yr",submit,submitted,4,4,[],0.02,False,0.007905,0.007905,16.32,11098,837,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c1,release timeline,2,c1.5,5,expert,True,match,"WITH valid AS (
+  SELECT date_taken, photo_id, subject
+  FROM jwst_space_images
+  WHERE date_taken >= TIMESTAMP '2022-07-12' AND date_taken <= TIMESTAMP '2026-10-05'
+), ordered AS (
+  SELECT *, lag(date_taken) OVER (ORDER BY date_taken) AS prev_dt
+  FROM valid
+), flagged AS (
+  SELECT *, CASE WHEN prev_dt IS NULL OR date_diff('millisecond', prev_dt, date_taken) > 168*3600*1000 THEN 1 ELSE 0 END AS is_new
+  FROM ordered
+), numbered AS (
+  SELECT *, sum(is_new) OVER (ORDER BY date_taken) AS burst_id
+  FROM flagged
+), burst_sizes AS (
+  SELECT burst_id, COUNT(*) AS cnt FROM numbered GROUP BY burst_id
+), largest AS (
+  SELECT burst_id, cnt FROM burst_sizes ORDER BY cnt DESC LIMIT 1
+), subj AS (
+  SELECT n.burst_id, n.subject, COUNT(*) AS subject_count,
+         row_number() OVER (PARTITION BY n.burst_id ORDER BY COUNT(*) DESC, n.subject) AS rn
+  FROM numbered n GROUP BY n.burst_id, n.subject
+)
+SELECT l.cnt AS image_count,
+       (SELECT min(date_taken) FROM numbered WHERE burst_id = l.burst_id) AS burst_start,
+       (SELECT max(date_taken) FROM numbered WHERE burst_id = l.burst_id) AS burst_end,
+       s.subject AS most_common_subject,
+       s.subject_count
+FROM largest l
+JOIN subj s ON s.burst_id = l.burst_id AND s.rn = 1",submit,submitted,4,3,"[{""sql"": ""WITH valid AS (\n  SELECT date_taken, photo_id, subject\n  FROM jwst_space_images\n  WHERE date_taken >= TIMESTAMP '2022-07-12' AND date_taken <= TIMESTAMP '2026-10-05'\n), ordered AS (\n  SELECT *, lag(date_taken) OVER (ORDER BY date_taken) AS prev_dt\n  FROM valid\n), flagged AS (\n  SELECT *, CASE WHEN prev_dt IS NULL OR date_diff('millisecond', prev_dt, date_taken) > 168*3600*1000 THEN 1 ELSE 0 END AS is_new\n  FROM ordered\n), numbered AS (\n  SELECT *, sum(is_new) OVER (ORDER BY date_taken) AS burst_id\n  FROM flagged\n), burst_sizes AS (\n  SELECT burst_id, COUNT(*) AS cnt FROM numbered GROUP BY burst_id\n), largest AS (\n  SELECT burst_id FROM burst_sizes ORDER BY cnt DESC LIMIT 1\n)\nSELECT min(n.date_taken) AS burst_start,\n       max(n.date_taken) AS burst_end,\n       b.cnt AS image_count,\n       s.subject AS most_common_subject,\n       s.subject_count\nFROM numbered n\nJOIN largest l ON n.burst_id = l.burst_id\nJOIN burst_sizes b ON b.burst_id = l.burst_id\nJOIN (\n  SELECT subject, COUNT(*) AS subject_count, row_number() OVER (ORDER BY COUNT(*) DESC, subject) AS rn\n  FROM numbered WHERE burst_id = (SELECT burst_id FROM largest)\n  GROUP BY subject\n) s ON s.rn = 1\nGROUP ALL"", ""error"": ""Parser Error: syntax error at or near \""ALL\""""}]",0.017,False,0.010133,0.010133,18.83,10553,1241,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c3,labelling pipeline,1,c3.6,6,easy,True,match,"SELECT COUNT(*) AS photos_with_no_tags
+FROM photos
+WHERE tags IS NULL OR len(tags) = 0",submit,submitted,3,2,"[{""sql"": ""SELECT\n  COUNT(*) FILTER (WHERE tags IS NULL) AS null_tags,\n  COUNT(*) FILTER (WHERE tags = '{}') AS empty_array_tags,\n  COUNT(*) FILTER (WHERE tags IS NULL OR tags = '{}') AS no_tags\nFROM photos"", ""error"": ""Conversion Error: Type VARCHAR with value '{}' can't be cast to the destination type VARCHAR[]""}]",0.008,False,0.004095,0.004095,5.4,10809,163,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c1,release timeline,2,c1.6,6,easy,True,match,SELECT COUNT(*) AS images_2025 FROM jwst_space_images WHERE year(date_taken) = 2025,submit,submitted,1,0,[],0.0,False,0.001526,0.001526,2.84,3558,40,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3,0,
+fw-auto,c2,instruments,2,c2.1,1,easy,True,match,"SELECT instrument, COUNT(*) AS n FROM jwst_space_images GROUP BY instrument ORDER BY n DESC",submit,submitted,5,2,[],0.004,False,0.002231,0.002231,7.81,3432,265,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c4,objects,1,c4.1,1,easy,True,match,"SELECT COUNT(*) AS published_images_without_object_name
+FROM jwst_space_images
+WHERE object_name IS NULL",submit,submitted,5,2,[],0.005,False,0.002376,0.002376,8.4,3492,292,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c4,objects,1,c4.2,2,medium,True,match,"SELECT object_name_normalized AS object, COUNT(*) AS count
+FROM jwst_space_images
+WHERE object_name_normalized IS NOT NULL
+GROUP BY 1
+ORDER BY count DESC
+LIMIT 5",submit,submitted,2,1,[],0.006,False,0.002019,0.002019,4.5,2041,124,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c2,instruments,2,c2.2,2,medium,True,match,"SELECT COUNT(*) AS n
+FROM jwst_space_images j
+JOIN labels l USING (photo_id)
+WHERE j.instrument IS DISTINCT FROM l.instrument",submit,submitted,4,2,[],0.004,False,0.00388,0.00388,8.28,4745,373,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c2,instruments,2,c2.3,3,hard,True,match,"WITH ranked AS (
+  SELECT instrument, subject, COUNT(*) AS n,
+         ROW_NUMBER() OVER (PARTITION BY instrument ORDER BY COUNT(*) DESC) AS rn
+  FROM jwst_space_images
+  WHERE instrument IN ('FGS','MIRI','NIRCam','NIRISS','NIRSpec')
+  GROUP BY instrument, subject
+),
+totals AS (
+  SELECT instrument, COUNT(*) AS total
+  FROM jwst_space_images
+  WHERE instrument IN ('FGS','MIRI','NIRCam','NIRISS','NIRSpec')
+  GROUP BY instrument
+)
+SELECT r.instrument, r.subject, ROUND(100.0 * r.n / t.total, 1) AS pct
+FROM ranked r JOIN totals t USING (instrument)
+WHERE r.rn = 2 AND t.total >= 20
+ORDER BY r.instrument",submit,submitted,3,2,[],0.012,False,0.007919,0.007919,16.74,5700,1022,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c4,objects,1,c4.3,3,hard,True,match,"SELECT object_name_normalized AS object,
+ COUNT(*) AS images,
+ CAST(DATEDIFF('day', MIN(date_taken), MAX(date_taken)) AS INT) AS span_days,
+ MIN(date_taken) AS first_taken,
+ MAX(date_taken) AS last_taken
+FROM jwst_space_images
+WHERE object_name_normalized IS NOT NULL
+  AND date_taken BETWEEN '2021-12-25' AND '2026-10-05'
+GROUP BY 1
+HAVING COUNT(*) >= 4
+ORDER BY span_days DESC
+LIMIT 1",submit,submitted,5,4,[],0.012,False,0.008219,0.008219,22.1,7931,977,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c2,instruments,2,c2.4,4,easy,True,match,SELECT COUNT(*) AS nirspec_images FROM jwst_space_images WHERE instrument = 'NIRSpec',submit,submitted,1,0,[],0.0,False,0.001305,0.001305,2.85,2533,62,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c4,objects,1,c4.4,4,easy,True,match,"SELECT COUNT(*) AS pillars_of_creation_images
+FROM jwst_space_images
+WHERE object_name_normalized ILIKE '%Pillars of Creation%'",submit,submitted,2,1,[],0.002,False,0.003234,0.003234,4.76,4765,168,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c4,objects,1,c4.5,5,expert,True,match,"WITH obj AS (
+ SELECT object_name_normalized,
+  COUNT(*) AS n,
+  CAST(MIN(YEAR(date_taken)) AS INT) AS first_yr,
+  CAST(MAX(YEAR(date_taken)) AS INT) AS last_yr,
+  CAST(COUNT(DISTINCT YEAR(date_taken)) AS INT) AS yrs,
+  100.0 * COUNT(*) FILTER (
+   WHERE instrument IN ('NIRCam','NIRSpec','NIRISS','MIRI','FGS')
+  ) / COUNT(*) AS pct
+ FROM jwst_space_images
+ WHERE object_name_normalized IS NOT NULL
+  AND date_taken BETWEEN '2021-12-25' AND '2026-10-05'
+ GROUP BY 1
+)
+SELECT object_name_normalized AS object, n AS image_count, first_yr, last_yr, ROUND(pct, 1) AS single_instrument_pct
+FROM obj
+WHERE yrs >= 3
+ORDER BY single_instrument_pct DESC, object",submit,submitted,4,3,[],0.013,False,0.00856,0.00856,14.32,11015,619,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c4,objects,1,c4.6,6,easy,True,match,"SELECT COUNT(*) AS jupiter_images
+FROM jwst_space_images
+WHERE object_name_normalized ILIKE '%jupiter%'",submit,submitted,2,1,[],0.002,False,0.002396,0.002396,4.52,6707,74,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c2,instruments,2,c2.5,5,expert,True,match,"WITH d AS (
+  SELECT instrument, date_taken
+  FROM jwst_space_images
+  WHERE instrument IN ('NIRCam','MIRI','NIRSpec')
+    AND date_taken >= TIMESTAMP '2022-07-12'
+    AND date_taken <= TIMESTAMP '2026-10-05'
+),
+gaps AS (
+  SELECT instrument, date_taken AS end_date,
+         DATEDIFF('day', LAG(date_taken) OVER (PARTITION BY instrument ORDER BY date_taken), date_taken) AS gap
+  FROM d
+),
+m AS (
+  SELECT instrument, end_date, gap,
+         ROW_NUMBER() OVER (PARTITION BY instrument ORDER BY gap DESC) AS rn
+  FROM gaps WHERE gap IS NOT NULL
+),
+pct AS (
+  SELECT instrument,
+         ROUND(100.0 * SUM(CASE WHEN modality = 'spectrum_or_plot' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct
+  FROM jwst_space_images
+  WHERE instrument IN ('NIRCam','MIRI','NIRSpec')
+  GROUP BY instrument
+)
+SELECT m.instrument, m.gap, CAST(m.end_date AS DATE) AS end_date, p.pct
+FROM m JOIN pct p USING (instrument)
+WHERE m.rn = 1
+ORDER BY m.instrument",submit,submitted,6,6,[],0.015,False,0.017802,0.017802,27.81,20134,1635,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c1,release timeline,2,c1.1,1,easy,True,match,SELECT COUNT(*) AS image_count FROM jwst_space_images,submit,submitted,5,2,[],0.004,False,0.00198,0.00198,6.69,3331,150,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c2,instruments,2,c2.6,6,easy,True,match,SELECT COUNT(*) AS n FROM jwst_space_images WHERE modality = 'spectrum_or_plot',submit,submitted,2,1,[],0.001,False,0.003366,0.003366,3.94,9184,74,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c1,release timeline,2,c1.2,2,medium,True,match,"SELECT YEAR(date_taken) AS year, COUNT(*) AS count
+FROM jwst_space_images
+WHERE YEAR(date_taken) BETWEEN 2022 AND 2026
+GROUP BY 1
+ORDER BY 1",submit,submitted,2,1,[],0.001,False,0.001453,0.001453,5.21,1785,186,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c3,labelling pipeline,2,c3.1,1,easy,True,match,SELECT COUNT(*) AS total_photos FROM photos,submit,submitted,3,1,[],0.001,False,0.00079,0.00079,3.55,1674,80,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c3,labelling pipeline,2,c3.2,2,medium,True,match,SELECT COUNT(*) AS unlabelled_photos FROM photos p LEFT JOIN labels l ON p.photo_id = l.photo_id WHERE l.photo_id IS NULL,submit,submitted,3,1,[],0.003,False,0.001739,0.001739,5.53,2319,199,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c1,release timeline,2,c1.3,3,hard,True,match,"WITH ordered AS (
+  SELECT date_taken,
+         LAG(date_taken) OVER (ORDER BY date_taken) AS prev_date
+  FROM jwst_space_images
+  WHERE date_taken >= TIMESTAMP '2022-07-12'
+    AND date_taken < TIMESTAMP '2027-01-01'
+),
+bursts AS (
+  SELECT date_taken,
+         SUM(CASE WHEN prev_date IS NULL OR
+                    epoch(date_taken - prev_date) > 168*3600
+                THEN 1 ELSE 0 END) OVER (ORDER BY date_taken) AS burst_id
+  FROM ordered
+)
+SELECT COUNT(DISTINCT burst_id) AS num_bursts,
+       MAX(c) AS largest_burst
+FROM (
+  SELECT burst_id, COUNT(*) AS c FROM bursts GROUP BY burst_id
+)",submit,submitted,4,3,[],0.014,False,0.007735,0.007735,14.7,8214,799,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c1,release timeline,2,c1.4,4,easy,True,match,"SELECT COUNT(*) AS nebula_images
+FROM jwst_space_images
+WHERE subject = 'nebula'",submit,submitted,2,1,[],0.002,False,0.002141,0.002141,2.97,5676,65,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c3,labelling pipeline,2,c3.3,3,hard,True,match,"SELECT ROUND(100.0 * matched / n, 1) AS pct_agree FROM (
+  SELECT COUNT(*) AS n,
+    SUM(CASE WHEN replace(lower(p.legacy_tag_label),' ','_') = lower(l.subject) THEN 1 ELSE 0 END) AS matched
+  FROM photos p JOIN labels l ON p.photo_id = l.photo_id
+  WHERE p.legacy_tag_label IS NOT NULL
+    AND p.legacy_tag_label NOT IN ('unclassified','observatory / engineering')
+)",submit,submitted,5,5,[],0.021,False,0.008248,0.008248,17.2,7748,815,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c3,labelling pipeline,2,c3.4,4,easy,True,match,SELECT COUNT(*) AS v6_labels FROM labels WHERE codebook_version = 'v6',submit,submitted,2,1,[],0.002,False,0.001597,0.001597,3.08,4286,59,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c3,labelling pipeline,2,c3.5,5,expert,True,match,"WITH labelled AS (
+  SELECT p.photo_id, year(p.date_taken) AS y, l.gate_category
+  FROM photos p JOIN labels l ON p.photo_id = l.photo_id
+  WHERE year(p.date_taken) BETWEEN 2022 AND 2025
+),
+excluded AS (
+  SELECT a.* FROM labelled a
+  LEFT JOIN jwst_space_images j ON a.photo_id = j.photo_id
+  WHERE j.photo_id IS NULL
+),
+top_gate AS (
+  SELECT y, gate_category, COUNT(*) AS n,
+    ROW_NUMBER() OVER (PARTITION BY y ORDER BY COUNT(*) DESC, gate_category) AS rn
+  FROM excluded GROUP BY y, gate_category
+)
+SELECT l.y AS year,
+  COUNT(*) AS labelled_count,
+  ROUND(100.0 * (SELECT COUNT(*) FROM excluded e WHERE e.y = l.y) / COUNT(*), 1) AS pct_not_in_dataset,
+  t.gate_category AS most_common_gate
+FROM labelled l JOIN top_gate t ON t.y = l.y AND t.rn = 1
+GROUP BY l.y, t.gate_category
+ORDER BY l.y",submit,submitted,3,2,[],0.015,False,0.006024,0.006024,13.52,7674,737,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c1,release timeline,2,c1.5,5,expert,True,match,"WITH ordered AS (
+  SELECT photo_id, subject, date_taken,
+         LAG(date_taken) OVER (ORDER BY date_taken) AS prev_date
+  FROM jwst_space_images
+  WHERE date_taken >= TIMESTAMP '2022-07-12'
+    AND date_taken < TIMESTAMP '2027-01-01'
+),
+bursts AS (
+  SELECT photo_id, subject, date_taken,
+         SUM(CASE WHEN prev_date IS NULL OR
+                    epoch(date_taken - prev_date) > 168*3600
+                THEN 1 ELSE 0 END) OVER (ORDER BY date_taken) AS burst_id
+  FROM ordered
+),
+burst_sizes AS (
+  SELECT burst_id, COUNT(*) AS c FROM bursts GROUP BY 1
+),
+top_burst AS (
+  SELECT burst_id FROM burst_sizes ORDER BY c DESC LIMIT 1
+),
+subj AS (
+  SELECT subject, COUNT(*) AS cnt
+  FROM bursts
+  WHERE burst_id = (SELECT burst_id FROM top_burst)
+  GROUP BY subject
+  ORDER BY cnt DESC
+)
+SELECT (SELECT MIN(date_taken) FROM bursts b WHERE b.burst_id = (SELECT burst_id FROM top_burst)) AS burst_start,
+       (SELECT MAX(date_taken) FROM bursts b WHERE b.burst_id = (SELECT burst_id FROM top_burst)) AS burst_end,
+       (SELECT c FROM burst_sizes WHERE burst_id = (SELECT burst_id FROM top_burst)) AS image_count,
+       (SELECT subject FROM subj LIMIT 1) AS most_common_subject,
+       (SELECT cnt FROM subj LIMIT 1) AS subject_count",submit,submitted,5,4,"[{""sql"": ""WITH ordered AS (\n  SELECT photo_id, subject, date_taken,\n         LAG(date_taken) OVER (ORDER BY date_taken) AS prev_date\n  FROM jwst_space_images\n  WHERE date_taken >= TIMESTAMP '2022-07-12'\n    AND date_taken < TIMESTAMP '2027-01-01'\n),\nbursts AS (\n  SELECT photo_id, subject, date_taken,\n         SUM(CASE WHEN prev_date IS NULL OR\n                    epoch(date_taken - prev_date) > 168*3600\n                THEN 1 ELSE 0 END) OVER (ORDER BY date_taken) AS burst_id\n  FROM ordered\n)\nSELECT MIN(date_taken) AS burst_start,\n       MAX(date_taken) AS burst_end,\n       COUNT(*) AS image_count,\n       mode(subject) WITHIN GROUP (ORDER BY subject) AS most_common_subject,\n       COUNT(*) FILTER (WHERE subject = mode(subject) WITHIN GROUP (ORDER BY subject)) AS subject_count\nFROM bursts\nGROUP BY burst_id\nORDER BY image_count DESC\nLIMIT 1"", ""error"": ""Parser Error: Wrong number of arguments for MODE""}]",0.02,False,0.015257,0.015257,22.34,18129,1289,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c1,release timeline,2,c1.6,6,easy,True,match,"SELECT COUNT(*) AS count_2025
+FROM jwst_space_images
+WHERE YEAR(date_taken) = 2025",submit,submitted,1,0,[],0.0,False,0.002176,0.002176,2.62,4573,50,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3,0,
+fw-auto,c3,labelling pipeline,2,c3.6,6,easy,True,match,SELECT COUNT(*) AS photos_no_tags FROM photos WHERE tags IS NULL OR len(tags) = 0,submit,submitted,2,1,[],0.002,False,0.005819,0.005819,3.18,6289,62,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c2,instruments,2,c2.1,1,easy,True,match,"SELECT instrument, COUNT(*) AS n FROM jwst_space_images GROUP BY instrument ORDER BY n DESC",submit,submitted,4,1,[],0.004,False,0.004095,0.004095,12.76,2595,105,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c4,objects,2,c4.1,1,easy,True,match,"SELECT COUNT(*) AS images_without_object_name
+FROM jwst_space_images
+WHERE object_name IS NULL OR trim(object_name) = ''",submit,submitted,6,3,[],0.006,False,0.004547,0.004547,20.14,4399,317,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+glm-flash,c3,labelling pipeline,1,c3.2,2,medium,True,match,"SELECT COUNT(*) AS unlabelled_photos
+FROM photos p
+LEFT JOIN labels l ON p.photo_id = l.photo_id
+WHERE l.photo_id IS NULL",submit,submitted,5,2,"[{""sql"": ""SELECT COUNT(*) AS unlabelled_photos\nFROM photos p\nLEFT JOIN labels l ON p.id = l.photo_id\nWHERE l.photo_id IS NULL"", ""error"": ""Binder Error: Table \""p\"" does not have a column named \""id\""""}]",0.004,False,0.000727,0.000727,270.44,3984,259,0,fireworks_ai/accounts/fireworks/models/glm-5p3-flash,fireworks_ai/accounts/fireworks/models/glm-5p3-flash|fireworks_ai/accounts/fireworks/models/glm-5p3-flash|fireworks_ai/accounts/fireworks/models/glm-5p3-flash|fireworks_ai/accounts/fireworks/models/glm-5p3-flash|fireworks_ai/accounts/fireworks/models/glm-5p3-flash,0,
+fw-firerouter-opus,c2,instruments,2,c2.2,2,medium,True,match,SELECT COUNT(*) AS differing_images FROM jwst_space_images j JOIN labels l USING (photo_id) WHERE j.instrument IS DISTINCT FROM l.instrument,submit,submitted,4,2,[],0.009,False,0.003935,0.003935,11.18,3950,247,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c4,objects,2,c4.2,2,medium,True,match,"SELECT object_name_normalized AS object, COUNT(*) AS count
+FROM jwst_space_images
+WHERE object_name_normalized IS NOT NULL AND trim(object_name_normalized) <> ''
+GROUP BY object_name_normalized
+ORDER BY count DESC, object
+LIMIT 5",submit,submitted,2,1,[],0.004,False,0.003647,0.003647,4.91,2162,141,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c4,objects,2,c4.3,3,hard,True,match,"SELECT object_name_normalized AS object,
+       COUNT(*) AS image_count,
+       MIN(date_taken) AS first_image,
+       MAX(date_taken) AS last_image,
+       date_diff('day', MIN(date_taken), MAX(date_taken)) AS span_days
+FROM jwst_space_images
+WHERE object_name_normalized IS NOT NULL AND trim(object_name_normalized) <> ''
+  AND date_taken IS NOT NULL
+  AND date_taken <= CURRENT_DATE   -- excludes clearly erroneous future dates (e.g., year 2124)
+GROUP BY object_name_normalized
+HAVING COUNT(*) >= 4
+ORDER BY span_days DESC
+LIMIT 1",submit,submitted,4,3,[],0.013,False,0.008272,0.008272,13.01,8116,585,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c2,instruments,2,c2.3,3,hard,True,match,"WITH ranked AS (
+  SELECT instrument, subject, COUNT(*) AS n,
+         RANK() OVER (PARTITION BY instrument ORDER BY COUNT(*) DESC) AS rnk
+  FROM jwst_space_images
+  WHERE instrument IN ('NIRCam','NIRSpec','MIRI','NIRISS','FGS')
+  GROUP BY instrument, subject
+),
+totals AS (
+  SELECT instrument, COUNT(*) AS total FROM jwst_space_images
+  WHERE instrument IN ('NIRCam','NIRSpec','MIRI','NIRISS','FGS')
+  GROUP BY instrument
+)
+SELECT r.instrument, r.subject,
+       ROUND(r.n * 100.0 / t.total, 1) AS pct
+FROM ranked r JOIN totals t USING (instrument)
+WHERE r.rnk = 2 AND t.total >= 20
+ORDER BY r.instrument",submit,submitted,3,2,[],0.012,False,0.008045,0.008045,16.13,4936,892,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c2,instruments,2,c2.4,4,easy,True,match,SELECT COUNT(*) AS n FROM jwst_space_images WHERE instrument = 'NIRSpec',submit,submitted,1,0,[],0.0,False,0.00098,0.00098,2.55,2180,41,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3,0,
+fw-auto,c4,objects,2,c4.4,4,easy,True,match,"SELECT COUNT(*) AS pillars_of_creation_images
+FROM jwst_space_images
+WHERE object_name_normalized = 'Pillars of Creation'",submit,submitted,3,2,[],0.003,False,0.003433,0.003433,4.68,9043,115,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c4,objects,2,c4.5,5,expert,True,match,"WITH obj AS (
+  SELECT object_name_normalized AS object,
+         COUNT(*) AS img_count,
+         MIN(year(date_taken)) AS first_year,
+         MAX(year(date_taken)) AS last_year,
+         COUNT(DISTINCT year(date_taken)) AS n_years,
+         COUNT(*) FILTER (WHERE instrument IN ('NIRCam','MIRI','NIRSpec','NIRISS','FGS')) AS named_inst
+  FROM jwst_space_images
+  WHERE object_name_normalized IS NOT NULL AND trim(object_name_normalized) <> ''
+    AND date_taken IS NOT NULL
+    AND date_taken <= CURRENT_DATE
+  GROUP BY 1
+)
+SELECT object, img_count, first_year, last_year,
+       round(100.0 * named_inst / img_count, 1) AS pct_single_named_instrument
+FROM obj
+WHERE n_years >= 3
+ORDER BY img_count DESC",submit,submitted,4,3,[],0.012,False,0.008161,0.008161,16.62,14442,835,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c2,instruments,2,c2.5,5,expert,False,no column matches reference column(s) [3],"WITH inst AS (
+  SELECT * FROM jwst_space_images
+  WHERE instrument IN ('NIRCam','NIRSpec','MIRI')
+    AND date_taken >= TIMESTAMP '2022-07-12'
+    AND date_taken <= TIMESTAMP '2026-10-05'
+),
+gaps AS (
+  SELECT instrument, photo_id, date_taken,
+         date_taken - LAG(date_taken) OVER (PARTITION BY instrument ORDER BY date_taken) AS gap
+  FROM inst
+),
+totals AS (
+  SELECT instrument, COUNT(*) AS total FROM jwst_space_images
+  WHERE instrument IN ('NIRCam','NIRSpec','MIRI') GROUP BY instrument
+)
+SELECT g.instrument,
+       MAX(g.gap) AS longest_gap,
+       (SELECT g2.date_taken FROM gaps g2
+        WHERE g2.instrument = g.instrument AND g2.gap = MAX(g.gap)
+        ORDER BY g2.date_taken DESC LIMIT 1) AS gap_end_date,
+       ROUND(SUM(CASE WHEN i.modality = 'spectrum_or_plot' THEN 1 ELSE 0 END) * 100.0 / t.total, 1) AS spectra_or_plots_pct
+FROM gaps g
+JOIN jwst_space_images i USING (photo_id)
+JOIN totals t ON t.instrument = g.instrument
+GROUP BY g.instrument, t.total
+ORDER BY g.instrument",submit,submitted,5,4,[],0.024,False,0.01375,0.01375,19.79,13869,1018,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c4,objects,2,c4.6,6,easy,True,match,"SELECT COUNT(*) AS jupiter_images
+FROM jwst_space_images
+WHERE object_name_normalized = 'Jupiter'",submit,submitted,2,1,[],0.001,False,0.002752,0.002752,4.45,8250,64,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c2,instruments,2,c2.6,6,easy,True,match,SELECT COUNT(*) AS n FROM jwst_space_images WHERE modality = 'spectrum_or_plot',submit,submitted,1,0,[],0.0,False,0.001924,0.001924,2.74,3625,35,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c3,labelling pipeline,2,c3.1,1,easy,True,match,SELECT COUNT(*) AS total_photos FROM photos,submit,submitted,3,1,[],0.001,False,0.000892,0.000892,3.73,1674,71,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c1,release timeline,3,c1.1,1,easy,True,match,SELECT COUNT(*) AS image_count FROM jwst_space_images,submit,submitted,5,2,[],0.005,False,0.002445,0.002445,7.32,3443,241,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c3,labelling pipeline,2,c3.2,2,medium,True,match,SELECT COUNT(*) AS unlabelled_photos FROM photos p LEFT JOIN labels l ON p.photo_id = l.photo_id WHERE l.photo_id IS NULL,submit,submitted,4,2,"[{""sql"": ""SELECT COUNT(*) AS unlabelled_photos FROM photos p LEFT JOIN labels l ON p.id = l.photo_id WHERE l.photo_id IS NULL"", ""error"": ""Binder Error: Table \""p\"" does not have a column named \""id\""""}]",0.003,False,0.001846,0.001846,6.4,3142,148,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c1,release timeline,3,c1.2,2,medium,True,match,"SELECT strftime(date_taken, '%Y') AS year, COUNT(*) AS count
+FROM jwst_space_images
+WHERE date_taken >= TIMESTAMP '2022-01-01'
+  AND date_taken < TIMESTAMP '2027-01-01'
+GROUP BY 1
+ORDER BY 1",submit,submitted,2,1,[],0.003,False,0.002106,0.002106,6.94,1990,310,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c3,labelling pipeline,2,c3.3,3,hard,True,match,"SELECT ROUND(100.0 * SUM(CASE WHEN lower(replace(p.legacy_tag_label, ' ', '_')) = lower(l.subject) THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_agreement
+FROM photos p JOIN labels l ON p.photo_id = l.photo_id
+WHERE p.legacy_tag_label IS NOT NULL
+  AND p.legacy_tag_label NOT IN ('unclassified', 'observatory / engineering')",submit,submitted,3,3,[],0.008,False,0.004008,0.004008,7.76,3751,296,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c3,labelling pipeline,2,c3.4,4,easy,True,match,SELECT COUNT(*) AS v6_labels FROM labels WHERE codebook_version = 'v6',submit,submitted,2,1,[],0.002,False,0.001553,0.001553,3.11,3134,59,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c1,release timeline,3,c1.3,3,hard,True,match,"WITH d AS (
+  SELECT date_taken
+  FROM jwst_space_images
+  WHERE date_taken >= TIMESTAMP '2022-07-12'
+    AND date_taken < TIMESTAMP '2027-01-01'
+), g AS (
+  SELECT date_taken,
+    CASE WHEN date_taken - LAG(date_taken) OVER (ORDER BY date_taken) > INTERVAL 168 HOUR
+         OR LAG(date_taken) OVER (ORDER BY date_taken) IS NULL
+    THEN 1 ELSE 0 END AS new_burst
+  FROM d
+), b AS (
+  SELECT date_taken, SUM(new_burst) OVER (ORDER BY date_taken) AS burst_id
+  FROM g
+), s AS (
+  SELECT burst_id, COUNT(*) AS cnt FROM b GROUP BY burst_id
+)
+SELECT COUNT(*) AS bursts, MAX(cnt) AS largest_burst FROM s",submit,submitted,3,2,[],0.011,False,0.005607,0.005607,14.06,4538,800,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c1,release timeline,3,c1.4,4,easy,True,match,SELECT COUNT(*) AS nebula_images FROM jwst_space_images WHERE subject = 'nebula',submit,submitted,2,1,[],0.004,False,0.002364,0.002364,4.6,4468,152,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c3,labelling pipeline,2,c3.5,5,expert,True,match,"WITH per_year AS (
+  SELECT year(p.date_taken) AS yr, COUNT(*) AS labelled_count,
+    ROUND(100.0 * SUM(CASE WHEN j.photo_id IS NULL THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_not_published
+  FROM photos p
+  JOIN labels l USING (photo_id)
+  LEFT JOIN jwst_space_images j USING (photo_id)
+  WHERE year(p.date_taken) BETWEEN 2022 AND 2025
+  GROUP BY 1
+),
+excluded AS (
+  SELECT year(p.date_taken) AS yr, l.gate_category,
+    ROW_NUMBER() OVER (PARTITION BY year(p.date_taken) ORDER BY COUNT(*) DESC) AS rn
+  FROM photos p
+  JOIN labels l USING (photo_id)
+  LEFT JOIN jwst_space_images j USING (photo_id)
+  WHERE year(p.date_taken) BETWEEN 2022 AND 2025 AND j.photo_id IS NULL
+  GROUP BY 1, 2
+)
+SELECT per_year.yr AS year, per_year.labelled_count, per_year.pct_not_published, excluded.gate_category AS most_common_excluded_gate
+FROM per_year JOIN excluded ON excluded.yr = per_year.yr AND excluded.rn = 1
+ORDER BY per_year.yr",submit,submitted,5,3,[],0.017,False,0.007628,0.007628,19.85,10524,853,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c3,labelling pipeline,2,c3.6,6,easy,True,match,SELECT COUNT(*) AS no_tags FROM photos WHERE tags IS NULL OR len(tags) = 0,submit,submitted,2,1,[],0.002,False,0.002166,0.002166,3.28,5815,60,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c1,release timeline,3,c1.5,5,expert,True,match,"WITH d AS (
+  SELECT photo_id, subject, date_taken
+  FROM jwst_space_images
+  WHERE date_taken >= TIMESTAMP '2022-07-12'
+    AND date_taken < TIMESTAMP '2027-01-01'
+), g AS (
+  SELECT photo_id, subject, date_taken,
+    CASE WHEN date_taken - LAG(date_taken) OVER (ORDER BY date_taken) > INTERVAL 168 HOUR
+         OR LAG(date_taken) OVER (ORDER BY date_taken) IS NULL
+    THEN 1 ELSE 0 END AS new_burst
+  FROM d
+), b AS (
+  SELECT photo_id, subject, date_taken, SUM(new_burst) OVER (ORDER BY date_taken) AS burst_id
+  FROM g
+), s AS (
+  SELECT burst_id, COUNT(*) AS cnt FROM b GROUP BY burst_id
+), top_burst AS (
+  SELECT burst_id, cnt FROM s ORDER BY cnt DESC, burst_id LIMIT 1
+), subj AS (
+  SELECT b.subject, COUNT(*) AS subject_count
+  FROM b JOIN top_burst t USING (burst_id)
+  GROUP BY 1
+), top_subj AS (
+  SELECT subject, subject_count FROM subj ORDER BY subject_count DESC LIMIT 1
+)
+SELECT (SELECT MIN(date_taken) FROM b JOIN top_burst t USING (burst_id)) AS start_date,
+       (SELECT MAX(date_taken) FROM b JOIN top_burst t USING (burst_id)) AS end_date,
+       (SELECT cnt FROM top_burst) AS image_count,
+       (SELECT subject FROM top_subj) AS subject,
+       (SELECT subject_count FROM top_subj) AS subject_count",submit,submitted,3,2,[],0.023,False,0.009984,0.009984,21.37,9110,1405,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c4,objects,2,c4.1,1,easy,True,match,"SELECT count(*) AS published_images_without_object_name
+FROM jwst_space_images
+WHERE object_name IS NULL OR trim(object_name) = ''",submit,submitted,5,3,[],0.006,False,0.002929,0.002929,9.47,3821,331,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c4,objects,2,c4.2,2,medium,True,match,"SELECT object_name_normalized AS object, count(*) AS count
+FROM jwst_space_images
+WHERE object_name_normalized IS NOT NULL AND trim(object_name_normalized) <> ''
+GROUP BY 1
+ORDER BY count DESC, object_name_normalized
+LIMIT 5",submit,submitted,2,1,[],0.004,False,0.001412,0.001412,3.75,2355,122,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c1,release timeline,3,c1.6,6,easy,True,match,"SELECT COUNT(*) AS images_2025
+FROM jwst_space_images
+WHERE date_taken >= TIMESTAMP '2025-01-01'
+  AND date_taken < TIMESTAMP '2026-01-01'",submit,submitted,2,1,[],0.001,False,0.003539,0.003539,5.77,8145,180,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c2,instruments,3,c2.1,1,easy,True,match,"SELECT instrument, COUNT(*) AS n FROM jwst_space_images GROUP BY instrument ORDER BY n DESC",submit,submitted,5,2,[],0.005,False,0.001646,0.001646,6.09,3466,153,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c2,instruments,3,c2.2,2,medium,True,match,"SELECT COUNT(*) AS differing_images
+FROM jwst_space_images j
+JOIN labels l USING (photo_id)
+WHERE j.instrument IS DISTINCT FROM l.instrument",submit,submitted,4,2,[],0.011,False,0.002802,0.002802,8.21,4314,258,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c4,objects,2,c4.3,3,hard,True,match,"SELECT object_name_normalized AS object,
+       count(*) AS image_count,
+       date_diff('day', min(date_taken), max(date_taken)) AS span_days
+FROM jwst_space_images
+WHERE object_name_normalized IS NOT NULL AND trim(object_name_normalized) <> ''
+  AND date_taken >= TIMESTAMP '2022-01-01'   -- JWST launched Dec 2021; earlier dates are errors
+  AND date_taken <= TIMESTAMP '2026-10-05'   -- no future dates (e.g. year 2124)
+GROUP BY 1
+HAVING count(*) >= 4
+ORDER BY span_days DESC
+LIMIT 1",submit,submitted,5,4,[],0.008,False,0.006854,0.006854,17.22,8202,807,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c4,objects,2,c4.4,4,easy,True,match,"SELECT count(*) AS pillar_images
+FROM jwst_space_images
+WHERE object_name_normalized = 'Pillars of Creation'",submit,submitted,3,2,[],0.004,False,0.00493,0.00493,5.91,7479,143,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c2,instruments,3,c2.3,3,hard,True,match,"WITH counts AS (
+  SELECT instrument, subject, COUNT(*) AS n
+  FROM jwst_space_images
+  WHERE instrument NOT IN ('unknown','multiple','non-Webb')
+  GROUP BY 1,2
+),
+totals AS (
+  SELECT instrument, SUM(n) AS total FROM counts GROUP BY 1 HAVING SUM(n) >= 20
+),
+ranked AS (
+  SELECT c.instrument, c.subject, c.n,
+         ROW_NUMBER() OVER (PARTITION BY c.instrument ORDER BY c.n DESC) AS rnk,
+         t.total
+  FROM counts c JOIN totals t USING (instrument)
+)
+SELECT instrument, subject,
+       ROUND(100.0 * n / total, 1) AS pct
+FROM ranked WHERE rnk = 2 ORDER BY instrument",submit,submitted,3,2,[],0.016,False,0.005469,0.005469,13.8,5098,744,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c2,instruments,3,c2.4,4,easy,True,match,SELECT COUNT(*) AS n FROM jwst_space_images WHERE instrument = 'NIRSpec',submit,submitted,2,1,[],0.001,False,0.001728,0.001728,4.19,4402,73,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c4,objects,2,c4.5,5,expert,True,match,"WITH valid AS (
+  SELECT object_name_normalized AS object,
+         year(date_taken) AS y,
+         instrument
+  FROM jwst_space_images
+  WHERE object_name_normalized IS NOT NULL AND trim(object_name_normalized) <> ''
+    AND date_taken >= TIMESTAMP '2022-01-01'   -- JWST launched Dec 2021; earlier dates are errors
+    AND date_taken <= TIMESTAMP '2026-10-05'   -- exclude future dates (e.g. year 2124)
+)
+SELECT object,
+       count(*) AS image_count,
+       min(y) AS first_year,
+       max(y) AS last_year,
+       round(100.0 * count(*) FILTER (WHERE instrument IN ('NIRCam','MIRI','NIRSpec','NIRISS','FGS')) / count(*), 1) AS single_named_instrument_pct
+FROM valid
+GROUP BY object
+HAVING count(DISTINCT y) >= 3
+ORDER BY object",submit,submitted,4,3,[],0.025,False,0.007437,0.007437,13.27,11853,704,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c4,objects,2,c4.6,6,easy,True,match,"SELECT count(*) AS jupiter_images
+FROM jwst_space_images
+WHERE object_name_normalized = 'Jupiter'",submit,submitted,3,2,[],0.005,False,0.00455,0.00455,8.5,10595,319,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c1,release timeline,3,c1.1,1,easy,True,match,SELECT COUNT(*) AS image_count FROM jwst_space_images,submit,submitted,5,2,[],0.004,False,0.00234,0.00234,10.02,3398,243,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c2,instruments,3,c2.5,5,expert,True,match,"WITH ranked AS (
+  SELECT photo_id, instrument, date_taken,
+         LAG(date_taken) OVER (PARTITION BY instrument ORDER BY date_taken) AS prev_date
+  FROM jwst_space_images
+  WHERE instrument IN ('NIRCam','MIRI','NIRSpec')
+    AND date_taken >= DATE '2022-07-12'
+    AND date_taken <= DATE '2026-10-05'
+),
+gaps AS (
+  SELECT instrument, date_taken, DATE_DIFF('day', prev_date, date_taken) AS gap
+  FROM ranked WHERE prev_date IS NOT NULL
+),
+maxgaps AS (
+  SELECT instrument, MAX(gap) AS max_gap FROM gaps GROUP BY 1
+),
+totals AS (
+  SELECT instrument, COUNT(*) AS total,
+         SUM(CASE WHEN modality = 'spectrum_or_plot' THEN 1 ELSE 0 END) AS spectra
+  FROM jwst_space_images
+  WHERE instrument IN ('NIRCam','MIRI','NIRSpec')
+  GROUP BY 1
+)
+SELECT g.instrument, g.gap, g.date_taken AS end_date,
+       ROUND(100.0 * t.spectra / t.total, 1) AS pct_spectra
+FROM gaps g
+JOIN maxgaps m ON m.instrument = g.instrument AND g.gap = m.max_gap
+JOIN totals t ON t.instrument = g.instrument
+ORDER BY g.instrument",submit,submitted,6,5,"[{""sql"": ""WITH ranked AS (\n  SELECT photo_id, instrument, date_taken,\n         LAG(date_taken) OVER (PARTITION BY instrument ORDER BY date_taken) AS prev_date\n  FROM jwst_space_images\n  WHERE instrument IN ('NIRCam','MIRI','NIRSpec')\n    AND date_taken >= DATE '2022-07-12'\n    AND date_taken <= DATE '2026-10-05'\n),\ngaps AS (\n  SELECT instrument, date_taken, DATE_DIFF('day', prev_date, date_taken) AS gap\n  FROM ranked WHERE prev_date IS NOT NULL\n),\nmaxgaps AS (\n  SELECT instrument, MAX(gap) AS max_gap FROM gaps GROUP BY 1\n),\ntotals AS (\n  SELECT instrument, COUNT(*) AS total,\n         SUM(CASE WHEN modality = 'spectrum_or_plot' THEN 1 ELSE 0 END) AS spectra\n  FROM jwst_space_images\n  WHERE instrument IN ('NIRCam','MIRI','NIRSpec')\n  GROUP BY 1\n)\nSELECT g.instrument, g.gap, g.date_taken AS end_date,\n       ROUND(100.0 * t.spectra / t.total, 1) AS pct_spectra\nFROM gaps g\nJOIN maxgaps m ON m.instrument = g.instrument AND g.gap = m.max_gap\nJOIN totals t USING (instrument)\nORDER BY g.instrument"", ""error"": ""Binder Error: Ambiguous reference to column name \""instrument\"" (use: \""g.instrument\"" or \""m.instrument\"")""}]",0.011,False,0.012313,0.012313,25.48,17068,1445,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c1,release timeline,3,c1.2,2,medium,True,match,"SELECT year(date_taken) AS year, COUNT(*) AS count
+FROM jwst_space_images
+WHERE date_taken IS NOT NULL
+  AND year(date_taken) BETWEEN 2022 AND 2026
+GROUP BY year
+ORDER BY year",submit,submitted,2,1,[],0.002,False,0.00175,0.00175,5.18,1984,184,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c2,instruments,3,c2.6,6,easy,True,match,SELECT COUNT(*) AS n FROM jwst_space_images WHERE modality = 'spectrum_or_plot',submit,submitted,2,1,[],0.001,False,0.002724,0.002724,5.05,7782,64,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c3,labelling pipeline,3,c3.1,1,easy,True,match,SELECT COUNT(*) AS total_photos FROM photos,submit,submitted,3,1,[],0.002,False,0.000645,0.000645,3.25,1674,47,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c1,release timeline,3,c1.3,3,hard,True,match,"WITH valid AS (
+  SELECT photo_id, date_taken
+  FROM jwst_space_images
+  WHERE date_taken IS NOT NULL
+    AND date_taken >= TIMESTAMP '2022-07-12'
+    AND date_taken <= TIMESTAMP '2026-10-05'
+),
+gaps AS (
+  SELECT photo_id, date_taken,
+         lag(date_taken) OVER (ORDER BY date_taken, photo_id) AS prev_dt
+  FROM valid
+),
+flagged AS (
+  SELECT photo_id, date_taken,
+         CASE WHEN prev_dt IS NULL
+               OR date_taken > prev_dt + INTERVAL 168 HOUR
+         THEN 1 ELSE 0 END AS new_burst
+  FROM gaps
+),
+bursts AS (
+  SELECT photo_id,
+         SUM(new_burst) OVER (ORDER BY date_taken, photo_id) AS burst_id
+  FROM flagged
+)
+SELECT COUNT(DISTINCT burst_id) AS num_bursts,
+       MAX(cnt) AS largest_burst_size
+FROM (
+  SELECT burst_id, COUNT(*) AS cnt FROM bursts GROUP BY burst_id
+)",submit,submitted,3,2,[],0.009,False,0.005113,0.005113,12.81,4248,651,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c3,labelling pipeline,3,c3.2,2,medium,True,match,SELECT COUNT(*) AS unlabelled FROM photos p WHERE NOT EXISTS (SELECT 1 FROM labels l WHERE l.photo_id = p.photo_id),submit,submitted,4,3,"[{""sql"": ""SELECT COUNT(*) AS unlabelled FROM photos p WHERE NOT EXISTS (SELECT 1 FROM labels l WHERE l.photo_id = p.id)"", ""error"": ""Binder Error: Table \""p\"" does not have a column named \""id\""""}, {""sql"": ""SELECT COUNT(*) AS orphan_labels FROM labels l WHERE NOT EXISTS (SELECT 1 FROM photos p WHERE p.id = l.photo_id)"", ""error"": ""Binder Error: Referenced table \""p\"" not found!""}]",0.006,False,0.002148,0.002148,7.27,3297,205,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c1,release timeline,3,c1.4,4,easy,True,match,"SELECT COUNT(*) AS nebula_images
+FROM jwst_space_images
+WHERE subject = 'nebula'",submit,submitted,2,1,[],0.004,False,0.00241,0.00241,5.11,3879,197,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c3,labelling pipeline,3,c3.3,3,hard,True,match,"WITH labelled AS (
+  SELECT p.photo_id,
+         lower(replace(p.legacy_tag_label, ' ', '_')) AS legacy,
+         lower(replace(l.subject, ' ', '_')) AS subj
+  FROM photos p
+  JOIN labels l ON l.photo_id = p.photo_id
+  WHERE p.legacy_tag_label IS NOT NULL
+    AND p.legacy_tag_label NOT IN ('unclassified', 'observatory / engineering')
+)
+SELECT ROUND(100.0 * SUM(CASE WHEN legacy = subj THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_match
+FROM labelled",submit,submitted,5,5,"[{""sql"": ""SELECT l.legacy_tag_label, s.subject, COUNT(*) AS n\nFROM photos p\nJOIN labels l ON l.photo_id = p.photo_id\nJOIN photos s ON s.photo_id = p.photo_id\nWHERE 1=0 GROUP BY 1,2"", ""error"": ""Binder Error: Table \""l\"" does not have a column named \""legacy_tag_label\""""}]",0.017,False,0.008079,0.008079,18.07,8029,849,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c1,release timeline,3,c1.5,5,expert,True,match,"WITH valid AS (
+  SELECT photo_id, date_taken, subject
+  FROM jwst_space_images
+  WHERE date_taken IS NOT NULL
+    AND date_taken >= TIMESTAMP '2022-07-12'
+    AND date_taken <= TIMESTAMP '2026-10-05'
+),
+gaps AS (
+  SELECT photo_id, date_taken, subject,
+         lag(date_taken) OVER (ORDER BY date_taken, photo_id) AS prev_dt
+  FROM valid
+),
+flagged AS (
+  SELECT photo_id, date_taken, subject,
+         CASE WHEN prev_dt IS NULL
+               OR date_taken > prev_dt + INTERVAL 168 HOUR
+         THEN 1 ELSE 0 END AS new_burst
+  FROM gaps
+),
+bursts AS (
+  SELECT photo_id, date_taken, subject,
+         SUM(new_burst) OVER (ORDER BY date_taken, photo_id) AS burst_id
+  FROM flagged
+),
+sizes AS (
+  SELECT burst_id, COUNT(*) AS cnt,
+         min(date_taken) AS start_dt, max(date_taken) AS end_dt
+  FROM bursts GROUP BY burst_id
+),
+top_burst AS (
+  SELECT burst_id, cnt, start_dt, end_dt
+  FROM sizes ORDER BY cnt DESC, burst_id LIMIT 1
+)
+SELECT b.start_dt, b.end_dt, b.cnt AS image_count, s.subject, s.cnt AS subject_count
+FROM top_burst b
+CROSS JOIN LATERAL (
+  SELECT subject, COUNT(*) AS cnt
+  FROM bursts WHERE burst_id = b.burst_id
+  GROUP BY subject ORDER BY cnt DESC LIMIT 1
+) s",submit,submitted,3,2,[],0.016,False,0.009148,0.009148,16.9,7670,1071,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c3,labelling pipeline,3,c3.4,4,easy,True,match,SELECT COUNT(*) AS v6_labels FROM labels WHERE codebook_version = 'v6',submit,submitted,2,1,[],0.002,False,0.002649,0.002649,3.11,4648,58,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+glm-flash,c3,labelling pipeline,1,c3.3,3,hard,True,match,"SELECT ROUND(
+  100.0 * COUNT(*) FILTER (
+    WHERE lower(replace(p.legacy_tag_label, ' ', '_')) = l.subject
+  ) / COUNT(*),
+  1
+) AS pct_same_subject
+FROM photos p
+JOIN labels l ON p.photo_id = l.photo_id
+WHERE p.legacy_tag_label IS NOT NULL
+  AND p.legacy_tag_label NOT IN ('unclassified', 'observatory / engineering')",submit,submitted,3,4,[],0.008,False,0.00147,0.00147,199.68,4340,1638,0,fireworks_ai/accounts/fireworks/models/glm-5p3-flash,fireworks_ai/accounts/fireworks/models/glm-5p3-flash|fireworks_ai/accounts/fireworks/models/glm-5p3-flash|fireworks_ai/accounts/fireworks/models/glm-5p3-flash,0,
+fw-firerouter-opus,c1,release timeline,3,c1.6,6,easy,True,match,"SELECT COUNT(*) AS images_2025
+FROM jwst_space_images
+WHERE date_taken IS NOT NULL
+  AND year(date_taken) = 2025",submit,submitted,1,0,[],0.0,False,0.001762,0.001762,3.29,3380,79,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c2,instruments,3,c2.1,1,easy,True,match,"SELECT instrument, COUNT(*) AS photo_count FROM jwst_space_images GROUP BY instrument ORDER BY photo_count DESC",submit,submitted,4,1,[],0.003,False,0.001246,0.001246,5.2,2595,126,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c3,labelling pipeline,3,c3.5,5,expert,True,match,"WITH base AS (
+  SELECT year(p.date_taken) AS y, l.gate_category,
+         (j.photo_id IS NULL) AS dropped
+  FROM photos p
+  JOIN labels l ON l.photo_id = p.photo_id
+  LEFT JOIN jwst_space_images j ON j.photo_id = p.photo_id
+  WHERE year(p.date_taken) BETWEEN 2022 AND 2025
+)
+SELECT y,
+       COUNT(*) AS labelled_count,
+       ROUND(100.0 * SUM(CASE WHEN dropped THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_dropped,
+       (SELECT gate_category FROM base b2
+         WHERE b2.y = b.y AND b2.dropped
+         GROUP BY gate_category ORDER BY COUNT(*) DESC, gate_category LIMIT 1) AS top_dropped_gate
+FROM base b
+GROUP BY y
+ORDER BY y",submit,submitted,5,4,"[{""sql"": ""SELECT year(p.date_taken) AS y,\n       COUNT(*) AS labelled_count,\n       SUM(CASE WHEN j.photo_id IS NULL THEN 1 ELSE 0 END) AS not_in_published,\n       l.gate_category\nFROM photos p\nJOIN labels l ON l.photo_id = p.photo_id\nLEFT JOIN jwst_space_images j ON j.photo_id = p.photo_id\nWHERE year(p.date_taken) BETWEEN 2022 AND 2025\nGROUP BY 1, 3\nORDER BY 1"", ""error"": ""Binder Error: GROUP BY clause cannot contain aggregates!""}]",0.015,False,0.007854,0.007854,16.8,13898,740,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c2,instruments,3,c2.2,2,medium,True,match,"SELECT COUNT(*) AS differing_instrument
+FROM jwst_space_images j
+JOIN labels l ON l.photo_id = j.photo_id
+WHERE LOWER(TRIM(j.instrument)) <> LOWER(TRIM(l.instrument))",submit,submitted,4,2,[],0.006,False,0.002842,0.002842,10.76,4016,293,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c3,labelling pipeline,3,c3.6,6,easy,True,match,"SELECT COUNT(*) AS no_tags
+FROM photos
+WHERE tags IS NULL OR len(tags) = 0",submit,submitted,2,1,[],0.001,False,0.003251,0.003251,3.14,6775,64,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c4,objects,3,c4.1,1,easy,True,match,SELECT COUNT(*) AS published_images_without_object_name FROM jwst_space_images WHERE object_name IS NULL OR TRIM(object_name) = '',submit,submitted,5,2,[],0.006,False,0.00236,0.00236,8.65,3670,230,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c2,instruments,3,c2.3,3,hard,True,match,"WITH counts AS (
+  SELECT instrument, subject, COUNT(*) AS n
+  FROM jwst_space_images
+  GROUP BY instrument, subject
+),
+ranked AS (
+  SELECT instrument, subject, n,
+         ROW_NUMBER() OVER (PARTITION BY instrument ORDER BY n DESC) AS rn,
+         SUM(n) OVER (PARTITION BY instrument) AS total
+  FROM counts
+)
+SELECT instrument, subject,
+       ROUND(n * 100.0 / total, 1) AS pct
+FROM ranked
+WHERE rn = 2
+  AND instrument IN ('NIRCam', 'MIRI', 'NIRSpec', 'NIRISS', 'FGS')
+  AND total >= 20",submit,submitted,2,1,[],0.004,False,0.00484,0.00484,12.79,2927,676,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c2,instruments,3,c2.4,4,easy,True,match,SELECT COUNT(*) AS nirspec_images FROM jwst_space_images WHERE instrument = 'NIRSpec',submit,submitted,1,0,[],0.0,False,0.001708,0.001708,2.55,1854,46,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3,0,
+fw-auto,c4,objects,3,c4.2,2,medium,True,match,"SELECT object_name_normalized AS object, COUNT(*) AS count FROM jwst_space_images WHERE object_name_normalized IS NOT NULL AND TRIM(object_name_normalized) <> '' GROUP BY 1 ORDER BY count DESC, object LIMIT 5",submit,submitted,2,1,[],0.004,False,0.001813,0.001813,5.9,2160,176,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c2,instruments,3,c2.5,5,expert,False,"expected 3 rows, got 4","WITH dts AS (
+  SELECT instrument, date_taken,
+         LEAD(date_taken) OVER (PARTITION BY instrument ORDER BY date_taken) AS next_dt
+  FROM jwst_space_images
+  WHERE instrument IN ('NIRCam','MIRI','NIRSpec','NIRISS')
+    AND date_taken >= TIMESTAMP '2022-07-12'
+    AND date_taken <  TIMESTAMP '2027-01-01'
+),
+gaps AS (
+  SELECT instrument, DATE(next_dt) - DATE(date_taken) AS gap_days, DATE(next_dt) AS end_date
+  FROM dts
+  WHERE next_dt IS NOT NULL
+  AND DATE(next_dt) - DATE(date_taken) >= 0
+),
+maxgaps AS (
+  SELECT instrument, MAX(gap_days) AS max_gap
+  FROM gaps GROUP BY instrument
+)
+SELECT m.instrument, m.max_gap AS gap, g.end_date,
+       ROUND(100.0 * SUM(CASE WHEN i.modality = 'spectrum_or_plot' THEN 1 ELSE 0 END)
+             / COUNT(*), 1) AS pct_spectra
+FROM maxgaps m
+JOIN gaps g ON g.instrument = m.instrument AND g.gap_days = m.max_gap
+JOIN jwst_space_images i ON i.instrument = m.instrument
+GROUP BY m.instrument, m.max_gap, g.end_date
+ORDER BY m.instrument",submit,submitted,3,4,[],0.01,False,0.006108,0.006108,13.74,7092,748,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c4,objects,3,c4.3,3,hard,True,match,"SELECT object_name_normalized AS object, COUNT(*) AS n, DATE_DIFF('day', MIN(date_taken), MAX(date_taken)) AS span_days, MIN(date_taken) AS first_img, MAX(date_taken) AS last_img FROM jwst_space_images WHERE object_name_normalized IS NOT NULL AND TRIM(object_name_normalized) <> '' AND date_taken IS NOT NULL AND date_taken <= TIMESTAMP '2026-10-05' GROUP BY 1 HAVING COUNT(*) >= 4 ORDER BY span_days DESC LIMIT 1",submit,submitted,4,4,[],0.012,False,0.008051,0.008051,14.36,9713,679,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c2,instruments,3,c2.6,6,easy,True,match,SELECT COUNT(*) AS spectra_or_plots FROM jwst_space_images WHERE modality = 'spectrum_or_plot',submit,submitted,1,0,[],0.0,False,0.001296,0.001296,2.22,3020,34,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3,0,
+fw-auto,c4,objects,3,c4.4,4,easy,True,match,SELECT COUNT(*) AS published_images FROM jwst_space_images WHERE object_name_normalized = 'Pillars of Creation',submit,submitted,2,1,[],0.002,False,0.002513,0.002513,4.57,6777,120,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c3,labelling pipeline,3,c3.1,1,easy,True,match,SELECT COUNT(*) AS total_photos FROM photos,submit,submitted,3,1,[],0.001,False,0.000697,0.000697,4.48,1674,57,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c3,labelling pipeline,3,c3.2,2,medium,True,match,SELECT COUNT(*) AS unlabelled_photos FROM photos p WHERE NOT EXISTS (SELECT 1 FROM labels l WHERE l.photo_id = p.photo_id),submit,submitted,4,2,"[{""sql"": ""SELECT COUNT(*) FROM photos p WHERE NOT EXISTS (SELECT 1 FROM labels l WHERE l.photo_id = p.id)"", ""error"": ""Binder Error: Table \""p\"" does not have a column named \""id\""""}]",0.005,False,0.002088,0.002088,7.7,3131,206,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c4,objects,3,c4.5,5,expert,True,match,"SELECT object_name_normalized AS object, COUNT(*) AS image_count, MIN(YEAR(date_taken)) AS first_year, MAX(YEAR(date_taken)) AS last_year, COUNT(DISTINCT YEAR(date_taken)) AS n_years, ROUND(100.0 * COUNT(*) FILTER (WHERE instrument IN ('NIRCam','MIRI','NIRSpec','NIRISS','FGS')) / COUNT(*), 1) AS pct_single_instrument FROM jwst_space_images WHERE object_name_normalized IS NOT NULL AND TRIM(object_name_normalized) <> '' AND date_taken IS NOT NULL AND date_taken <= TIMESTAMP '2026-10-05' GROUP BY 1 HAVING COUNT(DISTINCT YEAR(date_taken)) >= 3 ORDER BY image_count DESC, object",submit,submitted,4,3,[],0.011,False,0.010184,0.010184,13.14,15199,611,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-auto,c4,objects,3,c4.6,6,easy,True,match,SELECT COUNT(*) AS published_images FROM jwst_space_images WHERE object_name_normalized = 'Jupiter',submit,submitted,2,1,[],0.001,False,0.003104,0.003104,4.79,8507,144,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c3,labelling pipeline,3,c3.3,3,hard,True,match,"WITH astro AS (
+  SELECT l.subject, REPLACE(p.legacy_tag_label, ' ', '_') AS legacy
+  FROM photos p JOIN labels l USING (photo_id)
+  WHERE p.legacy_tag_label IS NOT NULL
+    AND p.legacy_tag_label NOT IN ('unclassified', 'observatory / engineering')
+)
+SELECT ROUND(100.0 * SUM(CASE WHEN subject = legacy THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_agree
+FROM astro",submit,submitted,4,4,[],0.013,False,0.00575,0.00575,15.85,5875,614,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c3,labelling pipeline,3,c3.4,4,easy,True,match,SELECT COUNT(*) AS v6_labels FROM labels WHERE codebook_version = 'v6',submit,submitted,2,1,[],0.002,False,0.001537,0.001537,5.83,4072,59,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c3,labelling pipeline,3,c3.5,5,expert,True,match,"SELECT
+  YEAR(p.date_taken) AS yr,
+  COUNT(*) AS labelled_count,
+  ROUND(100.0 * SUM(CASE WHEN j.photo_id IS NULL THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_not_published,
+  MODE(CASE WHEN j.photo_id IS NULL THEN l.gate_category END) AS most_common_gate
+FROM labels l
+JOIN photos p USING (photo_id)
+LEFT JOIN jwst_space_images j USING (photo_id)
+WHERE YEAR(p.date_taken) BETWEEN 2022 AND 2025
+GROUP BY 1 ORDER BY 1",submit,submitted,5,4,"[{""sql"": ""SELECT\n  YEAR(l.date_taken) AS yr,\n  COUNT(*) AS labelled_count,\n  ROUND(100.0 * SUM(CASE WHEN j.photo_id IS NULL THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_not_published,\n  MODE(CASE WHEN j.photo_id IS NULL THEN l.gate_category END) AS most_common_gate\nFROM labels l\nLEFT JOIN jwst_space_images j USING (photo_id)\nWHERE YEAR(l.date_taken) BETWEEN 2022 AND 2025\nGROUP BY 1 ORDER BY 1"", ""error"": ""Binder Error: Table \""l\"" does not have a column named \""date_taken\""""}]",0.019,False,0.00815,0.00815,16.96,12918,844,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c3,labelling pipeline,3,c3.6,6,easy,True,match,"SELECT COUNT(*) AS photos_with_no_tags
+FROM photos
+WHERE len(tags) = 0
+   OR len(TRIM(array_to_string(tags, ' '))) = 0",submit,submitted,3,2,[],0.007,False,0.003879,0.003879,5.9,9712,220,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c4,objects,3,c4.1,1,easy,True,match,"SELECT COUNT(*) AS images_with_no_object_name
+FROM jwst_space_images
+WHERE object_name IS NULL OR trim(object_name) = ''",submit,submitted,5,2,[],0.003,False,0.002162,0.002162,8.64,3469,250,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c4,objects,3,c4.2,2,medium,True,match,"SELECT object_name_normalized AS object, COUNT(*) AS count
+FROM jwst_space_images
+WHERE object_name_normalized IS NOT NULL AND trim(object_name_normalized) <> ''
+GROUP BY object_name_normalized
+ORDER BY count DESC, object
+LIMIT 5",submit,submitted,2,1,[],0.003,False,0.00132,0.00132,4.37,2036,122,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c4,objects,3,c4.3,3,hard,True,match,"SELECT object_name_normalized AS object,
+       COUNT(*) AS n,
+       MIN(date_taken) AS first_img,
+       MAX(date_taken) AS last_img,
+       DATE_DIFF('day', CAST(MIN(date_taken) AS DATE), CAST(MAX(date_taken) AS DATE)) AS span_days
+FROM jwst_space_images
+WHERE object_name_normalized IS NOT NULL AND trim(object_name_normalized) <> ''
+  AND date_taken IS NOT NULL
+  AND date_taken <= TIMESTAMP '2026-10-05'  -- exclude impossible future dates (e.g., year 2124)
+GROUP BY object_name_normalized
+HAVING COUNT(*) >= 4
+ORDER BY span_days DESC
+LIMIT 1",submit,submitted,4,3,[],0.011,False,0.008243,0.008243,15.06,9516,678,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c4,objects,3,c4.4,4,easy,True,match,"SELECT COUNT(*) AS published_pillars_of_creation_images
+FROM jwst_space_images
+WHERE object_name_normalized = 'Pillars of Creation'",submit,submitted,3,2,[],0.004,False,0.003604,0.003604,5.52,10226,142,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c4,objects,3,c4.5,5,expert,True,match,"WITH obj AS (
+  SELECT object_name_normalized AS object,
+         COUNT(*) AS n_images,
+         COUNT(DISTINCT EXTRACT(YEAR FROM date_taken)) AS n_years,
+         MIN(EXTRACT(YEAR FROM date_taken)) AS first_year,
+         MAX(EXTRACT(YEAR FROM date_taken)) AS last_year,
+         COUNT(*) FILTER (WHERE instrument IN ('NIRCam','MIRI','NIRSpec','NIRISS','FGS')) AS n_single_instrument
+  FROM jwst_space_images
+  WHERE object_name_normalized IS NOT NULL AND trim(object_name_normalized) <> ''
+    AND date_taken IS NOT NULL
+    AND date_taken <= TIMESTAMP '2026-10-05'  -- exclude impossible future dates
+  GROUP BY object_name_normalized
+)
+SELECT object, n_images AS image_count, first_year, last_year,
+       ROUND(100.0 * n_single_instrument / n_images, 1) AS pct_single_instrument
+FROM obj
+WHERE n_years >= 3
+ORDER BY object",submit,submitted,4,3,[],0.011,False,0.009215,0.009215,18.57,15553,966,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+fw-firerouter-opus,c4,objects,3,c4.6,6,easy,True,match,"SELECT COUNT(*) AS published_jupiter_images
+FROM jwst_space_images
+WHERE object_name_normalized = 'Jupiter'",submit,submitted,2,1,[],0.003,False,0.003056,0.003056,4.15,9073,81,0,fireworks_ai/glm-5p3,fireworks_ai/glm-5p3|fireworks_ai/glm-5p3,0,
+glm-flash,c3,labelling pipeline,1,c3.4,4,easy,True,match,"SELECT COUNT(*) AS labels_v6
+FROM labels
+WHERE codebook_version = 'v6'",submit,submitted,2,1,[],0.003,False,0.000696,0.000696,305.67,4423,64,0,fireworks_ai/accounts/fireworks/models/glm-5p3-flash,fireworks_ai/accounts/fireworks/models/glm-5p3-flash|fireworks_ai/accounts/fireworks/models/glm-5p3-flash,0,
+glm-flash,c3,labelling pipeline,1,c3.5,5,expert,True,match,"WITH joined AS (
+  SELECT p.photo_id,
+         year(p.date_taken) AS yr,
+         l.gate_category,
+         (j.photo_id IS NOT NULL) AS published
+  FROM photos p
+  JOIN labels l ON p.photo_id = l.photo_id
+  LEFT JOIN jwst_space_images j ON p.photo_id = j.photo_id
+  WHERE year(p.date_taken) BETWEEN 2022 AND 2025
+),
+top_gate AS (
+  SELECT yr, gate_category,
+         ROW_NUMBER() OVER (PARTITION BY yr ORDER BY COUNT(*) DESC) AS rn
+  FROM joined
+  WHERE NOT published
+  GROUP BY yr, gate_category
+)
+SELECT j.yr,
+       COUNT(*) AS labelled,
+       ROUND(100.0 * COUNT(*) FILTER (WHERE NOT j.published) / COUNT(*), 1) AS pct_not_published,
+       (SELECT t.gate_category FROM top_gate t WHERE t.yr = j.yr AND t.rn = 1) AS top_gate_category
+FROM joined j
+GROUP BY j.yr
+ORDER BY j.yr",submit,submitted,4,5,[],0.019,False,0.002272,0.002272,634.12,11462,1104,0,fireworks_ai/accounts/fireworks/models/glm-5p3-flash,fireworks_ai/accounts/fireworks/models/glm-5p3-flash|fireworks_ai/accounts/fireworks/models/glm-5p3-flash|fireworks_ai/accounts/fireworks/models/glm-5p3-flash|fireworks_ai/accounts/fireworks/models/glm-5p3-flash,0,
