@@ -41,7 +41,7 @@ def cost(turns):
         "answers": g.size(),
         "correct": g["correct"].sum(),
         "total $": g["cost_usd"].sum().round(3),
-        "LiteLLM-computed $": g["litellm_cost_usd"].sum().round(3),
+        "LiteLLM-reported $": g["litellm_cost_usd"].sum().round(3),
         "$ / answer": g["cost_usd"].mean().round(4),
         "LLM calls / answer": g["steps"].mean().round(1),
         "LLM seconds / answer": g["latency_s"].mean().round(1),

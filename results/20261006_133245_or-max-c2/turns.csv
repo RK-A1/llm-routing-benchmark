@@ -1,0 +1,51 @@
+config,item,topic,repeat,turn_id,turn,tier,correct,reason,final_sql,answer_source,end,steps,n_sql,failed_sql,sql_time_s,nudged,cost_usd,litellm_cost_usd,latency_s,prompt_tokens,completion_tokens,repeated_sql,first_model,models,n_switches
+or-auto-max,c2,instruments,1,c2.1,1,easy,True,match,SELECT DISTINCT instrument FROM jwst_space_images ORDER BY instrument,submit,submitted,4,1,[],0.004,False,0.102859,0.102859,17.95,10246,258,0,openai/gpt-6-astra-pro,openai/gpt-6-astra-pro|openai/gpt-6-astra-pro|openai/gpt-6-astra-pro|openai/gpt-6-astra-pro,0
+or-auto-max,c2,instruments,1,c2.2,2,medium,True,match,SELECT COUNT(*) AS published_images_with_different_instrument FROM jwst_space_images AS p JOIN labels AS l ON p.photo_id = l.photo_id WHERE p.instrument IS DISTINCT FROM l.instrument,submit,submitted,3,1,[],0.004,False,0.13324,0.13324,14.73,11509,363,0,openai/gpt-6-astra-pro,openai/gpt-6-astra-pro|openai/gpt-6-astra-pro|openai/gpt-6-astra-pro,0
+or-auto-max,c2,instruments,1,c2.3,3,hard,True,match,"WITH subject_counts AS (
+    SELECT instrument, subject, COUNT(*) AS subject_count
+    FROM jwst_space_images
+    WHERE instrument IN ('FGS', 'MIRI', 'NIRCam', 'NIRISS', 'NIRSpec')
+    GROUP BY instrument, subject
+), ranked AS (
+    SELECT instrument, subject, subject_count,
+           SUM(subject_count) OVER (PARTITION BY instrument) AS instrument_count,
+           DENSE_RANK() OVER (PARTITION BY instrument ORDER BY subject_count DESC) AS subject_rank
+    FROM subject_counts
+)
+SELECT instrument, subject,
+       ROUND(100.0 * subject_count / instrument_count, 1) AS percentage
+FROM ranked
+WHERE instrument_count >= 20 AND subject_rank = 2
+ORDER BY instrument",submit,submitted,2,1,[],0.004,False,0.102473,0.102473,13.24,11008,545,0,openai/gpt-6-astra-pro,openai/gpt-6-astra-pro|openai/gpt-6-astra-pro,0
+or-auto-max,c2,instruments,1,c2.4,4,easy,True,match,SELECT COUNT(*) AS published_images_listing_nirspec FROM jwst_space_images WHERE instrument = 'NIRSpec',submit,submitted,2,1,[],0.002,False,0.08632,0.08632,10.88,14016,194,0,openai/gpt-6-astra-pro,openai/gpt-6-astra-pro|openai/gpt-6-astra-pro,0
+or-auto-max,c2,instruments,1,c2.5,5,expert,True,match,"WITH instrument_totals AS (
+    SELECT instrument,
+           ROUND(100.0 * COUNT(*) FILTER (WHERE modality = 'spectrum_or_plot') / COUNT(*), 1) AS percentage
+    FROM jwst_space_images
+    WHERE instrument IN ('FGS', 'MIRI', 'NIRCam', 'NIRISS', 'NIRSpec')
+    GROUP BY instrument
+    HAVING COUNT(*) >= 20
+), ordered_images AS (
+    SELECT p.instrument, p.photo_id, p.date_taken,
+           LAG(p.date_taken) OVER (
+               PARTITION BY p.instrument ORDER BY p.date_taken, p.photo_id
+           ) AS previous_date
+    FROM jwst_space_images AS p
+    JOIN instrument_totals AS t ON p.instrument = t.instrument
+    WHERE p.date_taken >= TIMESTAMP '2022-07-12 00:00:00'
+      AND p.date_taken < TIMESTAMP '2026-10-06 00:00:00'
+), ranked_gaps AS (
+    SELECT instrument, DATE_DIFF('day', previous_date, date_taken) AS gap,
+           CAST(date_taken AS DATE) AS end_date,
+           ROW_NUMBER() OVER (
+               PARTITION BY instrument
+               ORDER BY DATE_DIFF('day', previous_date, date_taken) DESC, date_taken, photo_id
+           ) AS gap_rank
+    FROM ordered_images
+    WHERE previous_date IS NOT NULL
+)
+SELECT t.instrument, g.gap, g.end_date, t.percentage
+FROM instrument_totals AS t
+LEFT JOIN ranked_gaps AS g ON t.instrument = g.instrument AND g.gap_rank = 1
+ORDER BY t.instrument",submit,submitted,3,2,[],0.009,False,0.239356,0.239356,35.59,28988,1698,0,openai/gpt-6-astra-pro,openai/gpt-6-astra-pro|openai/gpt-6-astra-pro|openai/gpt-6-astra-pro,0
+or-auto-max,c2,instruments,1,c2.6,6,easy,True,match,SELECT COUNT(*) AS published_images_that_are_spectra_or_plots FROM jwst_space_images WHERE modality = 'spectrum_or_plot',submit,submitted,2,1,[],0.002,False,0.141825,0.141825,9.54,27084,192,0,openai/gpt-6-astra-pro,openai/gpt-6-astra-pro|openai/gpt-6-astra-pro,0

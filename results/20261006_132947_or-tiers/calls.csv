@@ -1,0 +1,212 @@
+config,item,topic,repeat,turn_id,tier,step,ts,chosen_model,finish_reason,prompt_tokens,cached_tokens,completion_tokens,reasoning_tokens,cost_usd,cost_source,litellm_cost_usd,latency_s,trace_id,project_spend_usd
+or-auto-medium,c1,release timeline,1,c1.1,easy,1,2026-10-06T13:29:48,z-ai/glm-5.2,tool_calls,497,256,20,14,0.000825,provider,0.000825,0.99,gen-1791318587-92FvBoS37FE99dzA8oKK,3.5185
+or-auto-xhigh,c1,release timeline,1,c1.1,easy,1,2026-10-06T13:29:49,anthropic/claude-opus-5.5,tool_calls,870,0,27,0,0.00402,provider,0.00402,1.45,gen-1791318587-kKnVZwMlrRkGrIVtwwsO,3.5225
+or-auto-high,c1,release timeline,1,c1.1,easy,1,2026-10-06T13:29:49,anthropic/claude-sonnet-5.5,tool_calls,870,0,27,0,0.00201,provider,0.00201,1.83,gen-1791318587-0Q2SoZYhF2Ev2MaRLnbV,3.5245
+or-auto-medium,c1,release timeline,1,c1.1,easy,2,2026-10-06T13:29:49,z-ai/glm-5.2,tool_calls,573,256,68,45,0.00138,provider,0.00138,1.13,gen-1791318588-zos0oUK3tkfgS61dBcbD,3.5259
+or-auto-medium,c1,release timeline,1,c1.1,easy,3,2026-10-06T13:29:50,z-ai/glm-5.2,tool_calls,610,448,51,24,0.000568,provider,0.000568,0.81,gen-1791318589-bNuXB2UOSfyChdxJkb2j,3.5265
+or-auto-high,c1,release timeline,1,c1.1,easy,2,2026-10-06T13:29:51,anthropic/claude-sonnet-5.5,tool_calls,1010,0,119,0,0.00321,provider,0.00321,1.67,gen-1791318589-FGFx2fxzR1gPKWnwsWXm,3.5297
+or-auto-xhigh,c1,release timeline,1,c1.1,easy,2,2026-10-06T13:29:51,anthropic/claude-opus-5.5,tool_calls,1010,0,79,24,0.00562,provider,0.00562,2.83,gen-1791318589-KJEO4zSSXBXAg7YK99ec,3.5353
+or-auto-high,c1,release timeline,1,c1.1,easy,3,2026-10-06T13:29:52,anthropic/claude-sonnet-5.5,tool_calls,1506,0,104,0,0.004052,provider,0.004052,1.69,gen-1791318591-evTFMKL1CT0Ff8nsYigw,3.5394
+or-auto-medium,c1,release timeline,1,c1.2,medium,1,2026-10-06T13:29:53,z-ai/glm-5.2,tool_calls,660,576,38,26,0.000435,provider,0.000435,2.95,gen-1791318590-gQgYWXEO56WQeW3c80dR,3.5398
+or-auto-medium,c1,release timeline,1,c1.2,medium,2,2026-10-06T13:29:54,z-ai/glm-5.2,tool_calls,802,640,64,0,0.000675,provider,0.000675,0.54,gen-1791318593-KuuDrAdntE70ZVYL9uLr,3.5405
+or-auto-xhigh,c1,release timeline,1,c1.1,easy,3,2026-10-06T13:29:54,anthropic/claude-opus-5.5,tool_calls,1360,0,86,0,0.00716,provider,0.00716,2.27,gen-1791318591-9KgaGbo2ygvouRt6uei6,3.5476
+or-auto-medium,c1,release timeline,1,c1.2,medium,3,2026-10-06T13:29:54,z-ai/glm-5.2,tool_calls,914,832,92,13,0.000736,provider,0.000736,0.61,gen-1791318594-lnOqJXSRVoYBJePHVDXb,3.5484
+or-auto-high,c1,release timeline,1,c1.1,easy,4,2026-10-06T13:29:55,anthropic/claude-sonnet-5.5,tool_calls,1710,0,112,45,0.00454,provider,0.00454,2.81,gen-1791318592-MHny6KhIxekjMvIS92Ot,3.5529
+or-auto-xhigh,c1,release timeline,1,c1.1,easy,4,2026-10-06T13:29:56,anthropic/claude-opus-5.5,tool_calls,1494,0,72,0,0.007416,provider,0.007416,2.4,gen-1791318594-OGf2CZkFgh8BStaBurj5,3.5603
+or-auto-medium,c1,release timeline,1,c1.3,hard,1,2026-10-06T13:29:57,z-ai/glm-5.2,tool_calls,1064,896,157,116,0.001159,provider,0.001159,2.46,gen-1791318594-PWl3pTz17BJG35uOdRlg,3.5615
+or-auto-high,c1,release timeline,1,c1.2,medium,1,2026-10-06T13:29:57,anthropic/claude-sonnet-5.5,tool_calls,1813,0,79,0,0.004416,provider,0.004416,1.51,gen-1791318595-DNNGZeqwbyy4JRUiaKDZ,3.5659
+or-auto-medium,c1,release timeline,1,c1.3,hard,2,2026-10-06T13:29:58,z-ai/glm-5.2,tool_calls,1540,448,200,0,0.002525,provider,0.002525,1.3,gen-1791318597-mlcAq551pR99I5DAkU3M,3.5684
+or-auto-xhigh,c1,release timeline,1,c1.2,medium,1,2026-10-06T13:29:58,anthropic/claude-opus-5.5,tool_calls,1603,0,76,0,0.007932,provider,0.007932,2.01,gen-1791318596-9SdCQpIFqK9m9MThaUSv,3.5764
+or-auto-medium,c1,release timeline,1,c1.3,hard,3,2026-10-06T13:29:59,z-ai/glm-5.2,tool_calls,1757,1600,204,0,0.001533,provider,0.001533,0.98,gen-1791318598-jZ09UT0tvToUJONDnv6u,3.5779
+or-auto-high,c1,release timeline,1,c1.2,medium,2,2026-10-06T13:30:00,anthropic/claude-sonnet-5.5,tool_calls,1966,0,143,48,0.005362,provider,0.005362,2.96,gen-1791318597-4vAW8h1BJfPmptQdY9MR,3.5833
+or-auto-medium,c1,release timeline,1,c1.3,hard,4,2026-10-06T13:30:00,z-ai/glm-5.2,tool_calls,1984,1920,204,0,0.001486,provider,0.001486,1.1,gen-1791318599-hMOSvAzrL4wqYxX32Ohi,3.5848
+or-auto-xhigh,c1,release timeline,1,c1.2,medium,2,2026-10-06T13:30:01,anthropic/claude-opus-5.5,tool_calls,1753,0,121,28,0.009432,provider,0.009432,2.45,gen-1791318598-ASrsfBkgkUrzpdlgXzxP,3.5942
+or-auto-high,c1,release timeline,1,c1.2,medium,3,2026-10-06T13:30:01,anthropic/claude-sonnet-5.5,tool_calls,2146,0,132,0,0.005612,provider,0.005612,1.85,gen-1791318600-5cIfjfET717o0SRDNTq5,3.5998
+or-auto-medium,c1,release timeline,1,c1.4,easy,1,2026-10-06T13:30:03,z-ai/glm-5.2,tool_calls,2205,1024,47,27,0.002126,provider,0.002126,2.56,gen-1791318600-F7FEr56REtxJcGxUQe4h,3.6019
+or-auto-xhigh,c1,release timeline,1,c1.2,medium,3,2026-10-06T13:30:03,anthropic/claude-opus-5.5,tool_calls,1913,0,144,28,0.010532,provider,0.010532,2.54,gen-1791318601-zdKLjLllA8ABkSRPzKvw,3.6125
+or-auto-medium,c1,release timeline,1,c1.4,easy,2,2026-10-06T13:30:03,z-ai/glm-5.2,tool_calls,2293,2176,34,0,0.000879,provider,0.000879,0.5,gen-1791318603-UxKHBOJhuf3TgR2YujFQ,3.6133
+or-auto-medium,c1,release timeline,1,c1.4,easy,3,2026-10-06T13:30:04,z-ai/glm-5.2,tool_calls,2342,2304,34,0,0.000802,provider,0.000802,1.03,gen-1791318603-AHKPeklPNBzeZaYZmSpd,3.6141
+or-auto-high,c1,release timeline,1,c1.3,hard,1,2026-10-06T13:30:04,anthropic/claude-sonnet-5.5,tool_calls,2372,0,161,57,0.006354,provider,0.006354,3.05,gen-1791318601-oe8xfFg05IMBbwKpGNhl,3.6205
+or-auto-xhigh,c1,release timeline,1,c1.3,hard,1,2026-10-06T13:30:07,anthropic/claude-opus-5.5,tool_calls,2122,0,329,39,0.015068,provider,0.015068,4.12,gen-1791318603-5uoAZQBOueCUJOe9nd5H,3.6356
+or-auto-high,c1,release timeline,1,c1.3,hard,2,2026-10-06T13:30:07,anthropic/claude-sonnet-5.5,tool_calls,3353,0,271,40,0.009416,provider,0.009416,2.78,gen-1791318605-jLAQiSFmD3kNYelWI89V,3.645
+or-auto-medium,c1,release timeline,1,c1.5,expert,1,2026-10-06T13:30:07,z-ai/glm-5.2,tool_calls,2442,2368,281,19,0.001956,provider,0.001956,3.32,gen-1791318604-O6RoeGfgWlgdReqZaPed,3.6469
+or-auto-high,c1,release timeline,1,c1.4,easy,1,2026-10-06T13:30:09,anthropic/claude-sonnet-5.5,tool_calls,3609,0,76,0,0.007978,provider,0.007978,1.52,gen-1791318607-28Jvk5vUH4ZzI10cHG5d,3.6549
+or-auto-medium,c1,release timeline,1,c1.5,expert,2,2026-10-06T13:30:10,z-ai/glm-5.2,tool_calls,2753,0,347,0,0.005381,provider,0.005381,2.79,gen-1791318607-DeE9YVZHP87TgFIxlh9D,3.6603
+or-auto-high,c1,release timeline,1,c1.4,easy,2,2026-10-06T13:30:10,anthropic/claude-sonnet-5.5,tool_calls,3823,0,74,0,0.008386,provider,0.008386,1.61,gen-1791318609-QmJDHocgaLPb5ofVgxXO,3.6687
+or-auto-xhigh,c1,release timeline,1,c1.3,hard,2,2026-10-06T13:30:11,anthropic/claude-opus-5.5,tool_calls,2439,0,323,0,0.016216,provider,0.016216,3.65,gen-1791318607-LucuE8QUY620pnRRVoJF,3.6849
+or-auto-high,c1,release timeline,1,c1.5,expert,1,2026-10-06T13:30:13,anthropic/claude-sonnet-5.5,tool_calls,3980,0,256,26,0.01052,provider,0.01052,2.39,gen-1791318610-7iqBWI0KeCWZz4Ct8ntp,3.6954
+or-auto-medium,c1,release timeline,1,c1.5,expert,3,2026-10-06T13:30:13,z-ai/glm-5.2,tool_calls,3159,0,347,0,0.005949,provider,0.005949,2.57,gen-1791318610-Te4MrGfZ902ExWxBhzHl,3.7014
+or-auto-xhigh,c1,release timeline,1,c1.3,hard,3,2026-10-06T13:30:14,anthropic/claude-opus-5.5,tool_calls,2818,0,262,0,0.016512,provider,0.016512,3.12,gen-1791318611-3rHP7kovghgaAQtTHUCE,3.7179
+or-auto-medium,c1,release timeline,1,c1.6,easy,1,2026-10-06T13:30:15,z-ai/glm-5.2,tool_calls,3525,2432,74,34,0.002488,provider,0.002488,2.13,gen-1791318613-1cVPTrydihCUnTvFbeMP,3.7204
+or-auto-high,c1,release timeline,1,c1.5,expert,2,2026-10-06T13:30:15,anthropic/claude-sonnet-5.5,tool_calls,4420,0,239,18,0.01123,provider,0.01123,2.61,gen-1791318613-DNDDMYI1vPJZHjnWy8gn,3.7316
+or-auto-medium,c1,release timeline,1,c1.6,easy,2,2026-10-06T13:30:15,z-ai/glm-5.2,tool_calls,3582,3456,45,0,0.001273,provider,0.001273,0.48,gen-1791318615-MrF00CMR46o33qm1eTNq,3.7329
+or-auto-medium,c2,instruments,1,c2.1,easy,1,2026-10-06T13:30:16,z-ai/glm-5.2,tool_calls,497,0,33,27,0.001382,provider,0.001382,0.56,gen-1791318615-hcWcgecI6C2fFj6W9lhR,3.7342
+or-auto-xhigh,c1,release timeline,1,c1.4,easy,1,2026-10-06T13:30:16,anthropic/claude-opus-5.5,tool_calls,3106,0,76,0,0.013944,provider,0.013944,2.12,gen-1791318614-crGxgcMXFAOyd9HpnyZa,3.7482
+or-auto-medium,c2,instruments,1,c2.1,easy,2,2026-10-06T13:30:17,z-ai/glm-5.2,tool_calls,573,0,16,0,0.001417,provider,0.001417,0.82,gen-1791318616-Bo2SmNM8tycAn7YHaCjB,3.7496
+or-auto-medium,c2,instruments,1,c2.1,easy,3,2026-10-06T13:30:17,z-ai/glm-5.2,tool_calls,715,256,23,0,0.00134,provider,0.00134,0.63,gen-1791318617-2lfqZEXOOPlyfvjySMZg,3.7509
+or-auto-high,c1,release timeline,1,c1.5,expert,3,2026-10-06T13:30:18,anthropic/claude-sonnet-5.5,tool_calls,4740,0,324,0,0.01272,provider,0.01272,2.68,gen-1791318615-dwPxjVcXoB6B4Mw3TwzU,3.7637
+or-auto-medium,c2,instruments,1,c2.1,easy,4,2026-10-06T13:30:18,z-ai/glm-5.2,tool_calls,776,512,23,0,0.001024,provider,0.001024,0.9,gen-1791318618-l1IMOOowPV1slVnhW6zu,3.7647
+or-auto-xhigh,c1,release timeline,1,c1.4,easy,2,2026-10-06T13:30:19,anthropic/claude-opus-5.5,tool_calls,3320,0,115,38,0.01558,provider,0.01558,2.6,gen-1791318616-hFPh3XOHNfuLhFHsYLT2,3.7803
+or-auto-high,c1,release timeline,1,c1.6,easy,1,2026-10-06T13:30:20,anthropic/claude-sonnet-5.5,tool_calls,5091,0,93,0,0.011112,provider,0.011112,1.47,gen-1791318618-1g0JQLys78LC1JUci4QA,3.7914
+or-auto-medium,c2,instruments,1,c2.2,medium,1,2026-10-06T13:30:20,z-ai/glm-5.2,tool_calls,822,256,34,22,0.001668,provider,0.001668,1.97,gen-1791318618-TsT0Xb7HpqRADvlMXSOz,3.793
+or-auto-high,c2,instruments,1,c2.1,easy,1,2026-10-06T13:30:21,anthropic/claude-sonnet-5.5,tool_calls,874,0,27,0,0.002018,provider,0.002018,1.36,gen-1791318620-k6ib6Yr3JX0w9WGTnFGA,3.7951
+or-auto-medium,c2,instruments,1,c2.2,medium,2,2026-10-06T13:30:22,z-ai/glm-5.2,tool_calls,913,448,44,0,0.000961,provider,0.000961,1.16,gen-1791318620-a6LN0xpBOZ0eLtpiiDIO,3.796
+or-auto-medium,c2,instruments,1,c2.2,medium,3,2026-10-06T13:30:22,z-ai/glm-5.2,tool_calls,972,0,44,0,0.001554,provider,0.001554,0.55,gen-1791318622-yWMMJRzqX6PYeyROSmDo,3.7976
+or-auto-high,c2,instruments,1,c2.1,easy,2,2026-10-06T13:30:23,anthropic/claude-sonnet-5.5,tool_calls,1014,0,54,0,0.002568,provider,0.002568,1.55,gen-1791318621-Ss2YoEgzkf59yvbG8jAE,3.8002
+or-auto-xhigh,c1,release timeline,1,c1.5,expert,1,2026-10-06T13:30:23,anthropic/claude-opus-5.5,tool_calls,3479,0,310,0,0.020116,provider,0.020116,3.84,gen-1791318619-3SoSrqhhqLp68qtauAtY,3.8203
+or-auto-high,c2,instruments,1,c2.1,easy,3,2026-10-06T13:30:24,anthropic/claude-sonnet-5.5,tool_calls,1364,0,77,0,0.003498,provider,0.003498,1.65,gen-1791318623-o01dTgtfkUgYbBG81jGA,3.8238
+or-auto-xhigh,c1,release timeline,1,c1.5,expert,2,2026-10-06T13:30:27,anthropic/claude-opus-5.5,tool_calls,4273,0,354,0,0.024172,provider,0.024172,3.96,gen-1791318623-aHvDYYdt2uMXubDyosJi,3.8479
+or-auto-medium,c2,instruments,1,c2.3,hard,1,2026-10-06T13:30:27,openai/gpt-6.1-sol,tool_calls,968,0,44,0,0.002376,provider,0.002376,4.68,gen-1791318622-Y8NZ0iwqfjOkKM6NwHDK,3.8503
+or-auto-high,c2,instruments,1,c2.1,easy,4,2026-10-06T13:30:27,anthropic/claude-sonnet-5.5,tool_calls,1527,0,129,48,0.004344,provider,0.004344,2.75,gen-1791318624-pCwhPZkXFj50aoWi4k4Q,3.8547
+or-auto-high,c2,instruments,1,c2.2,medium,1,2026-10-06T13:30:28,anthropic/claude-sonnet-5.5,tool_calls,1641,0,49,0,0.003772,provider,0.003772,1.32,gen-1791318627-IXOiuUL8dAaqK42iwrnZ,3.8584
+or-auto-xhigh,c1,release timeline,1,c1.6,easy,1,2026-10-06T13:30:29,anthropic/claude-opus-5.5,tool_calls,4654,0,114,35,0.020896,provider,0.020896,2.75,gen-1791318627-O69ujz2rLe2Jt2A54UnX,3.8793
+or-auto-xhigh,c2,instruments,1,c2.1,easy,1,2026-10-06T13:30:31,anthropic/claude-opus-5.5,tool_calls,874,0,27,0,0.004036,provider,0.004036,1.53,gen-1791318629-aFpBm0SFzP5D8E6vTRif,3.8834
+or-auto-high,c2,instruments,1,c2.2,medium,2,2026-10-06T13:30:31,anthropic/claude-sonnet-5.5,tool_calls,1880,0,289,0,0.00665,provider,0.00665,2.69,gen-1791318628-fRf0Kt3dbV9hapidMwwV,3.89
+or-auto-xhigh,c2,instruments,1,c2.1,easy,2,2026-10-06T13:30:33,anthropic/claude-opus-5.5,tool_calls,1014,0,128,0,0.006616,provider,0.006616,1.82,gen-1791318631-ak34QuE2dn1ubaURmkqQ,3.8966
+or-auto-medium,c2,instruments,1,c2.3,hard,2,2026-10-06T13:30:33,openai/gpt-6.1-sol,tool_calls,1539,0,205,18,0.005896,provider,0.005896,5.99,gen-1791318627-U1dtL1v6SmsKUoYsLTAY,3.9025
+or-auto-high,c2,instruments,1,c2.2,medium,3,2026-10-06T13:30:34,anthropic/claude-sonnet-5.5,tool_calls,2315,0,186,50,0.00649,provider,0.00649,3.26,gen-1791318631-Z7H7Qq5a6Ju8zdle8UVS,3.909
+or-auto-xhigh,c2,instruments,1,c2.1,easy,3,2026-10-06T13:30:36,anthropic/claude-opus-5.5,tool_calls,1572,0,139,55,0.009068,provider,0.009068,2.88,gen-1791318633-tNhB3xPxBaCT9yj3ey0T,3.9181
+or-auto-medium,c2,instruments,1,c2.4,easy,1,2026-10-06T13:30:37,openai/gpt-6.1-sol,tool_calls,1750,1536,42,0,0.001107,provider,0.001107,3.94,gen-1791318633-YhCRbdzoeFqmzE0KTNfg,3.9192
+or-auto-xhigh,c2,instruments,1,c2.2,medium,1,2026-10-06T13:30:37,anthropic/claude-opus-5.5,tool_calls,1689,0,49,0,0.007736,provider,0.007736,1.3,gen-1791318636-2ifvoZhAOLKN0ppikr92,3.9269
+or-auto-high,c2,instruments,1,c2.2,medium,4,2026-10-06T13:30:37,anthropic/claude-sonnet-5.5,tool_calls,2487,0,157,61,0.006544,provider,0.006544,2.76,gen-1791318634-zeCKq7blYcOQzULYDCzD,3.9335
+or-auto-xhigh,c2,instruments,1,c2.2,medium,2,2026-10-06T13:30:39,anthropic/claude-opus-5.5,tool_calls,1928,0,180,0,0.011312,provider,0.011312,2.16,gen-1791318637-LcM3jqR1v8UMmuW40Efd,3.9448
+or-auto-medium,c2,instruments,1,c2.4,easy,2,2026-10-06T13:30:40,openai/gpt-6.1-sol,tool_calls,1819,1747,36,0,0.000713,provider,0.000713,3.65,gen-1791318637-EtLWkWH3cfLKPxCYL0xA,3.9455
+or-auto-high,c2,instruments,1,c2.3,hard,1,2026-10-06T13:30:41,openai/gpt-6.1-sol,tool_calls,1289,0,63,0,0.003851,provider,0.003851,3.93,gen-1791318637-9FZj4JmC26TvGRqO8i6M,3.9493
+or-auto-xhigh,c2,instruments,1,c2.2,medium,3,2026-10-06T13:30:42,anthropic/claude-opus-5.5,tool_calls,2266,0,113,46,0.011324,provider,0.011324,2.61,gen-1791318639-08wJqbgPRuA7axpI0v5i,3.9607
+or-auto-xhigh,c2,instruments,1,c2.2,medium,4,2026-10-06T13:30:45,anthropic/claude-opus-5.5,tool_calls,2370,0,163,66,0.01274,provider,0.01274,2.99,gen-1791318642-jDCqefosdA09IpLAGHNn,3.9734
+or-auto-high,c2,instruments,1,c2.3,hard,2,2026-10-06T13:30:46,openai/gpt-6.1-sol,tool_calls,1732,1286,174,0,0.002982,provider,0.002982,5.11,gen-1791318641-TqXaRTjNlhZ1fsBFJr2K,3.9764
+or-auto-xhigh,c2,instruments,1,c2.3,hard,1,2026-10-06T13:30:48,anthropic/claude-opus-5.5,tool_calls,2549,0,183,65,0.013856,provider,0.013856,2.91,gen-1791318645-Oej1bfkpeS4kzhZneTKQ,3.9902
+or-auto-medium,c2,instruments,1,c2.5,expert,1,2026-10-06T13:30:48,openai/gpt-6.1-sol,tool_calls,1944,1816,76,25,0.00126,provider,0.00126,7.38,gen-1791318640-pQ0eEJIvpsNQ3MpR7zWG,3.9915
+or-auto-high,c2,instruments,1,c2.4,easy,1,2026-10-06T13:30:50,anthropic/claude-sonnet-5.5,tool_calls,3730,0,189,98,0.00935,provider,0.00935,3.74,gen-1791318646-u5AraNgEtWQzZmq2vP7k,4.0009
+or-auto-xhigh,c2,instruments,1,c2.3,hard,2,2026-10-06T13:30:50,anthropic/claude-opus-5.5,tool_calls,3200,0,254,50,0.01788,provider,0.01788,2.79,gen-1791318648-r0QpC2YmZ4oZspv48nyR,4.0187
+or-auto-high,c2,instruments,1,c2.5,expert,1,2026-10-06T13:30:53,anthropic/claude-sonnet-5.5,tool_calls,3933,0,370,146,0.011566,provider,0.011566,3.06,gen-1791318650-Bus9HZ9z2ufzevT4bE11,4.0303
+or-auto-medium,c2,instruments,1,c2.5,expert,2,2026-10-06T13:30:53,openai/gpt-6.1-sol,tool_calls,2290,1941,83,46,0.001895,provider,0.001895,5.15,gen-1791318648-4Cg3edAIzAXHjrFaSfF6,4.0322
+or-auto-xhigh,c2,instruments,1,c2.4,easy,1,2026-10-06T13:30:53,anthropic/claude-opus-5.5,tool_calls,3429,0,182,82,0.017356,provider,0.017356,2.92,gen-1791318650-pwNj9tOtvj8YszD6m8ja,4.0496
+or-auto-xhigh,c2,instruments,1,c2.4,easy,2,2026-10-06T13:30:55,anthropic/claude-opus-5.5,tool_calls,3558,0,83,0,0.015892,provider,0.015892,1.53,gen-1791318653-XJa0eDqn7iNUKmbCUO30,4.0654
+or-auto-xhigh,c2,instruments,1,c2.5,expert,1,2026-10-06T13:30:58,anthropic/claude-opus-5.5,tool_calls,3754,0,260,58,0.020216,provider,0.020216,2.81,gen-1791318655-9O0YYbpW3ktquVtlLEjD,4.0857
+or-auto-high,c2,instruments,1,c2.5,expert,2,2026-10-06T13:30:59,anthropic/claude-sonnet-5.5,tool_calls,4711,0,863,210,0.018052,provider,0.018052,5.86,gen-1791318653-V9uJu0MrtqpI5NZN35Bq,4.1037
+or-auto-xhigh,c2,instruments,1,c2.5,expert,2,2026-10-06T13:31:00,anthropic/claude-opus-5.5,tool_calls,4274,0,126,28,0.019616,provider,0.019616,2.64,gen-1791318658-NCMG26ge2DFxNEwLwyr8,4.1233
+or-auto-high,c2,instruments,1,c2.6,easy,1,2026-10-06T13:31:02,anthropic/claude-sonnet-5.5,tool_calls,5389,0,92,0,0.011698,provider,0.011698,2.96,gen-1791318659-DscgDukUPdYcMiZjzeL7,4.135
+or-auto-medium,c2,instruments,1,c2.5,expert,3,2026-10-06T13:31:03,openai/gpt-6.1-sol,tool_calls,2372,2287,433,85,0.00477,provider,0.00477,9.98,gen-1791318653-yPzDXppIMUbu75SODRJO,4.1398
+or-auto-high,c3,labelling pipeline,1,c3.1,easy,1,2026-10-06T13:31:03,anthropic/claude-sonnet-5.5,tool_calls,868,0,27,0,0.002006,provider,0.002006,1.47,gen-1791318662-6XKdJ0xLRDDUAonYPZkY,4.1418
+or-auto-high,c3,labelling pipeline,1,c3.1,easy,2,2026-10-06T13:31:05,anthropic/claude-sonnet-5.5,tool_calls,1008,0,109,0,0.003106,provider,0.003106,1.5,gen-1791318663-ZEODPv23ibnWcQf8Z1BR,4.1449
+or-auto-high,c3,labelling pipeline,1,c3.1,easy,3,2026-10-06T13:31:06,anthropic/claude-sonnet-5.5,tool_calls,1373,0,73,0,0.003476,provider,0.003476,1.3,gen-1791318665-9VsieyQRO29HeopAqUiJ,4.1484
+or-auto-xhigh,c2,instruments,1,c2.5,expert,3,2026-10-06T13:31:06,anthropic/claude-opus-5.5,tool_calls,4783,0,591,213,0.030952,provider,0.030952,6.1,gen-1791318660-BIJt1sphzv0tLTWLVezG,4.1793
+or-auto-high,c3,labelling pipeline,1,c3.1,easy,4,2026-10-06T13:31:07,anthropic/claude-sonnet-5.5,tool_calls,1497,0,62,0,0.003614,provider,0.003614,1.43,gen-1791318666-99YgdEDM91bVTFDk1uQj,4.183
+or-auto-high,c3,labelling pipeline,1,c3.2,medium,1,2026-10-06T13:31:10,anthropic/claude-sonnet-5.5,tool_calls,1584,0,112,0,0.004288,provider,0.004288,3.06,gen-1791318667-v9wuccAgcXU1a6IWLk1P,4.1872
+or-auto-xhigh,c2,instruments,1,c2.5,expert,4,2026-10-06T13:31:11,anthropic/claude-opus-5.5,tool_calls,5368,0,507,99,0.031612,provider,0.031612,4.64,gen-1791318666-PhDaJLGLdT0VvUXTjTdb,4.2189
+or-auto-medium,c2,instruments,1,c2.5,expert,4,2026-10-06T13:31:12,openai/gpt-6.1-sol,tool_calls,2801,2369,403,20,0.005345,provider,0.005345,8.67,gen-1791318663-p9QMfIsYfF9eje64CeRN,4.2242
+or-auto-high,c3,labelling pipeline,1,c3.2,medium,2,2026-10-06T13:31:13,anthropic/claude-sonnet-5.5,tool_calls,1972,0,285,53,0.006794,provider,0.006794,2.55,gen-1791318671-jQi1R7QPqZssYeziZZKx,4.231
+or-auto-xhigh,c2,instruments,1,c2.6,easy,1,2026-10-06T13:31:13,anthropic/claude-opus-5.5,tool_calls,5801,0,130,39,0.025804,provider,0.025804,2.37,gen-1791318671-XkNKjZkKewM7MgJmO43x,4.2568
+or-auto-medium,c2,instruments,1,c2.6,easy,1,2026-10-06T13:31:14,openai/gpt-6.1-sol,tool_calls,3208,2798,37,0,0.001673,provider,0.001673,2.26,gen-1791318672-bOGzBnAGeP4pwiPSCaCh,4.2585
+or-auto-medium,c3,labelling pipeline,1,c3.1,easy,1,2026-10-06T13:31:14,z-ai/glm-5.2,tool_calls,496,448,15,11,0.00025,provider,0.00025,0.39,gen-1791318674-i0LSN8dZUzItStMvUznh,4.2587
+or-auto-xhigh,c3,labelling pipeline,1,c3.1,easy,1,2026-10-06T13:31:15,anthropic/claude-opus-5.5,tool_calls,868,0,27,0,0.004012,provider,0.004012,1.45,gen-1791318673-msjqdEIhg7CE4tuiKDEZ,4.2627
+or-auto-high,c3,labelling pipeline,1,c3.2,medium,3,2026-10-06T13:31:15,anthropic/claude-sonnet-5.5,tool_calls,2366,0,121,25,0.005942,provider,0.005942,2.23,gen-1791318673-3Psgm1N6X7lSeNu9Blc8,4.2687
+or-auto-medium,c3,labelling pipeline,1,c3.1,easy,2,2026-10-06T13:31:16,z-ai/glm-5.2,tool_calls,572,448,38,21,0.000457,provider,0.000457,1.58,gen-1791318674-zqCANYdyRcN5zFxuMPMQ,4.2691
+or-auto-medium,c3,labelling pipeline,1,c3.1,easy,3,2026-10-06T13:31:16,z-ai/glm-5.2,tool_calls,606,448,33,12,0.000483,provider,0.000483,0.55,gen-1791318676-kAN4ks5B3xe35zr1BhF5,4.2696
+or-auto-xhigh,c3,labelling pipeline,1,c3.1,easy,2,2026-10-06T13:31:17,anthropic/claude-opus-5.5,tool_calls,1008,0,122,12,0.006472,provider,0.006472,1.73,gen-1791318675-6EJKPxpvFsvyjuDklrQn,4.2761
+or-auto-medium,c3,labelling pipeline,1,c3.2,medium,1,2026-10-06T13:31:17,z-ai/glm-5.2,tool_calls,640,448,44,26,0.000579,provider,0.000579,0.63,gen-1791318676-cJ0z3CtcqxQ4VuDZBouc,4.2767
+or-auto-medium,c3,labelling pipeline,1,c3.2,medium,2,2026-10-06T13:31:18,z-ai/glm-5.2,tool_calls,811,512,43,0,0.000741,provider,0.000741,0.47,gen-1791318677-5asRUx23BNex2Z5105cR,4.2774
+or-auto-xhigh,c3,labelling pipeline,1,c3.1,easy,3,2026-10-06T13:31:18,anthropic/claude-opus-5.5,tool_calls,1373,0,73,0,0.006952,provider,0.006952,1.41,gen-1791318677-8CdFKdscbHDdZrmqS4dS,4.2844
+or-auto-medium,c3,labelling pipeline,1,c3.2,medium,3,2026-10-06T13:31:18,z-ai/glm-5.2,tool_calls,871,576,43,0,0.000752,provider,0.000752,0.97,gen-1791318678-J7DckxcjEdt38gqZTxSK,4.2851
+or-auto-xhigh,c3,labelling pipeline,1,c3.1,easy,4,2026-10-06T13:31:19,anthropic/claude-opus-5.5,tool_calls,1497,0,68,0,0.007348,provider,0.007348,1.42,gen-1791318678-g9XCNg6wCgVeeyP9KHTg,4.2925
+or-auto-xhigh,c3,labelling pipeline,1,c3.2,medium,1,2026-10-06T13:31:21,anthropic/claude-opus-5.5,tool_calls,1590,0,49,0,0.00734,provider,0.00734,1.18,gen-1791318679-sdc0avehEgGpb9ZmfWAs,4.2998
+or-auto-high,c3,labelling pipeline,1,c3.3,hard,1,2026-10-06T13:31:21,openai/gpt-6.1-sol,tool_calls,1224,0,84,0,0.003899,provider,0.003899,5.5,gen-1791318675-V6pp9Ahw1w80xLjXEmra,4.3037
+or-auto-xhigh,c3,labelling pipeline,1,c3.2,medium,2,2026-10-06T13:31:23,anthropic/claude-opus-5.5,tool_calls,1829,0,173,0,0.010776,provider,0.010776,2.06,gen-1791318681-8EXz7wTdHzRxmgmBFkHR,4.3145
+or-auto-high,c3,labelling pipeline,1,c3.3,hard,2,2026-10-06T13:31:24,openai/gpt-6.1-sol,tool_calls,1522,0,110,0,0.004903,provider,0.004903,2.71,gen-1791318681-rznDlEN0u7fiQiuGNKVI,4.3194
+or-auto-medium,c3,labelling pipeline,1,c3.3,hard,1,2026-10-06T13:31:24,openai/gpt-6.1-sol,tool_calls,906,0,56,0,0.002372,provider,0.002372,5.99,gen-1791318679-0fQPIbToRZUeIAPUS4J0,4.3217
+or-auto-xhigh,c3,labelling pipeline,1,c3.2,medium,3,2026-10-06T13:31:25,anthropic/claude-opus-5.5,tool_calls,2240,0,140,44,0.01176,provider,0.01176,2.25,gen-1791318683-vxvVidFqvo4h1m9lxCoO,4.3335
+or-auto-xhigh,c3,labelling pipeline,1,c3.3,hard,1,2026-10-06T13:31:27,anthropic/claude-opus-5.5,tool_calls,2449,0,145,0,0.012696,provider,0.012696,1.87,gen-1791318685-XaaQIf0KHeLQSh7XP2G4,4.3462
+or-auto-high,c3,labelling pipeline,1,c3.3,hard,3,2026-10-06T13:31:27,openai/gpt-6.1-sol,tool_calls,1664,1221,88,0,0.002108,provider,0.002108,3.67,gen-1791318684-pxFniaykEWamJMn2F8oR,4.3483
+or-auto-medium,c3,labelling pipeline,1,c3.3,hard,2,2026-10-06T13:31:28,openai/gpt-6.1-sol,tool_calls,1508,0,49,0,0.004259,provider,0.004259,3.84,gen-1791318685-kZOhjygaWi2Nj6J32tFp,4.3526
+or-auto-high,c3,labelling pipeline,1,c3.4,easy,1,2026-10-06T13:31:30,anthropic/claude-sonnet-5.5,tool_calls,3494,0,71,0,0.007698,provider,0.007698,2.74,gen-1791318687-5sQEM3gzBwqrqz4UKSXP,4.3603
+or-auto-xhigh,c3,labelling pipeline,1,c3.3,hard,2,2026-10-06T13:31:30,anthropic/claude-opus-5.5,tool_calls,2911,0,222,97,0.016084,provider,0.016084,3.27,gen-1791318687-VmoQ5V8W78jABiRQ63kt,4.3763
+or-auto-high,c3,labelling pipeline,1,c3.4,easy,2,2026-10-06T13:31:31,anthropic/claude-sonnet-5.5,tool_calls,3601,0,75,0,0.007952,provider,0.007952,1.25,gen-1791318690-C1QS3KaCqmppUDsrEyiq,4.3843
+or-auto-xhigh,c3,labelling pipeline,1,c3.3,hard,3,2026-10-06T13:31:32,anthropic/claude-opus-5.5,tool_calls,3595,0,189,33,0.01816,provider,0.01816,2.29,gen-1791318690-xMXM4iG5LzbAJACTJasT,4.4025
+or-auto-xhigh,c3,labelling pipeline,1,c3.4,easy,1,2026-10-06T13:31:34,anthropic/claude-opus-5.5,tool_calls,3778,0,66,0,0.016432,provider,0.016432,1.37,gen-1791318692-mwzFmMzxCfnyMH6i3dYJ,4.4189
+or-auto-medium,c3,labelling pipeline,1,c3.3,hard,3,2026-10-06T13:31:34,openai/gpt-6.1-sol,tool_calls,1653,1505,168,46,0.002199,provider,0.002199,5.81,gen-1791318688-5C8jr6soz2HkGaQQHBWY,4.4211
+or-auto-xhigh,c3,labelling pipeline,1,c3.4,easy,2,2026-10-06T13:31:35,anthropic/claude-opus-5.5,tool_calls,3880,0,75,0,0.01702,provider,0.01702,1.4,gen-1791318694-V5C93Zn6GYMe0rgfnnNN,4.4381
+or-auto-high,c3,labelling pipeline,1,c3.5,expert,1,2026-10-06T13:31:36,anthropic/claude-sonnet-5.5,tool_calls,3801,0,145,19,0.009052,provider,0.009052,4.35,gen-1791318691-KxsuuJTIbQYrJBhN9hYM,4.4472
+or-auto-xhigh,c3,labelling pipeline,1,c3.5,expert,1,2026-10-06T13:31:37,anthropic/claude-opus-5.5,tool_calls,4080,0,167,30,0.01966,provider,0.01966,2.28,gen-1791318695-KVZiiizhLmwU97KiWQlW,4.4668
+or-auto-high,c3,labelling pipeline,1,c3.5,expert,2,2026-10-06T13:31:38,anthropic/claude-sonnet-5.5,tool_calls,4435,0,269,51,0.01156,provider,0.01156,2.68,gen-1791318696-0jn6hGqg31rapBF3AwXY,4.4784
+or-auto-xhigh,c3,labelling pipeline,1,c3.5,expert,2,2026-10-06T13:31:40,anthropic/claude-opus-5.5,tool_calls,4641,0,143,40,0.021424,provider,0.021424,2.59,gen-1791318697-qgNngCRfiQYO8dtA96fr,4.4998
+or-auto-medium,c3,labelling pipeline,1,c3.3,hard,4,2026-10-06T13:31:41,openai/gpt-6.1-sol,tool_calls,1811,1650,121,28,0.001776,provider,0.001776,6.51,gen-1791318694-oROj2keJlv38jA4jNxzU,4.5016
+or-auto-high,c3,labelling pipeline,1,c3.5,expert,3,2026-10-06T13:31:41,anthropic/claude-sonnet-5.5,tool_calls,4824,0,171,47,0.011358,provider,0.011358,3.15,gen-1791318698-pDOO6Hvzxks1Jpy6U26c,4.5129
+or-auto-xhigh,c3,labelling pipeline,1,c3.5,expert,3,2026-10-06T13:31:42,anthropic/claude-opus-5.5,tool_calls,4826,0,161,16,0.022524,provider,0.022524,1.8,gen-1791318700-LdVaMEwaq3U618PbGVLI,4.5355
+or-auto-medium,c3,labelling pipeline,1,c3.4,easy,1,2026-10-06T13:31:43,openai/gpt-6.1-sol,tool_calls,1931,1808,39,0,0.000877,provider,0.000877,2.7,gen-1791318701-YS3YXKeK3YlVkm9hksdE,4.5363
+or-auto-high,c3,labelling pipeline,1,c3.5,expert,4,2026-10-06T13:31:45,anthropic/claude-sonnet-5.5,tool_calls,5202,0,389,16,0.014294,provider,0.014294,3.12,gen-1791318701-GRqEe4qZybLtCuPqFWo6,4.5506
+or-auto-xhigh,c3,labelling pipeline,1,c3.5,expert,4,2026-10-06T13:31:46,anthropic/claude-opus-5.5,tool_calls,5168,0,369,0,0.028052,provider,0.028052,3.96,gen-1791318702-zacaFe3BtMfIstKXtTun,4.5787
+or-auto-medium,c3,labelling pipeline,1,c3.4,easy,2,2026-10-06T13:31:46,openai/gpt-6.1-sol,tool_calls,2004,1928,34,0,0.000721,provider,0.000721,2.68,gen-1791318703-OhFFPsz4OKqSZKSadDeV,4.5794
+or-auto-high,c3,labelling pipeline,1,c3.6,easy,1,2026-10-06T13:31:47,anthropic/claude-sonnet-5.5,tool_calls,5599,0,137,0,0.012568,provider,0.012568,2.96,gen-1791318705-xUk23joIHbtcb4RvnkNu,4.592
+or-auto-xhigh,c3,labelling pipeline,1,c3.6,easy,1,2026-10-06T13:31:48,anthropic/claude-opus-5.5,tool_calls,5562,0,141,0,0.025068,provider,0.025068,1.86,gen-1791318706-3ixxNYuXLeF3EaiOq0wK,4.617
+or-auto-medium,c3,labelling pipeline,1,c3.5,expert,1,2026-10-06T13:31:48,openai/gpt-6.1-sol,tool_calls,2136,2001,21,0,0.000746,provider,0.000746,2.09,gen-1791318706-fzJwEWzhi9cEKZ9KiULB,4.6178
+or-auto-high,c3,labelling pipeline,1,c3.6,easy,2,2026-10-06T13:31:49,anthropic/claude-sonnet-5.5,tool_calls,5766,0,79,0,0.012322,provider,0.012322,1.33,gen-1791318708-MM2k0nU2AG11YDYWvgTk,4.6301
+or-auto-xhigh,c3,labelling pipeline,1,c3.6,easy,2,2026-10-06T13:31:49,anthropic/claude-opus-5.5,tool_calls,5738,0,102,0,0.024992,provider,0.024992,1.72,gen-1791318708-XHr8UKdmTZBHuJVuJ5Pn,4.6551
+or-auto-high,c4,objects,1,c4.1,easy,1,2026-10-06T13:31:50,anthropic/claude-sonnet-5.5,tool_calls,868,0,27,0,0.002006,provider,0.002006,1.47,gen-1791318709-HTMhvoGoolbjyOT8zLwv,4.6571
+or-auto-xhigh,c4,objects,1,c4.1,easy,1,2026-10-06T13:31:51,anthropic/claude-opus-5.5,tool_calls,868,0,27,0,0.004012,provider,0.004012,1.44,gen-1791318709-R9SHGnjTjFcXgVIyVhuh,4.6611
+or-auto-medium,c3,labelling pipeline,1,c3.5,expert,2,2026-10-06T13:31:52,openai/gpt-6.1-sol,tool_calls,2290,2133,120,0,0.001804,provider,0.001804,3.4,gen-1791318708-VCE4cvOwYu0hzRtzLuTP,4.6629
+or-auto-high,c4,objects,1,c4.1,easy,2,2026-10-06T13:31:52,anthropic/claude-sonnet-5.5,tool_calls,1008,0,146,0,0.003476,provider,0.003476,1.53,gen-1791318710-VOE4Hyw01YFjGfgdHu2c,4.6664
+or-auto-xhigh,c4,objects,1,c4.1,easy,2,2026-10-06T13:31:52,anthropic/claude-opus-5.5,tool_calls,1008,0,54,0,0.005112,provider,0.005112,1.51,gen-1791318711-drAL4yQXcVGkFmTqkiB6,4.6715
+or-auto-high,c4,objects,1,c4.1,easy,3,2026-10-06T13:31:54,anthropic/claude-sonnet-5.5,tool_calls,1884,0,164,0,0.005408,provider,0.005408,2.05,gen-1791318712-ANxTUmiM7uhu20pQj1FN,4.6769
+or-auto-xhigh,c4,objects,1,c4.1,easy,3,2026-10-06T13:31:54,anthropic/claude-opus-5.5,tool_calls,1358,0,129,0,0.008012,provider,0.008012,1.93,gen-1791318712-rTdjMFtXM9XTkIFYYDon,4.6849
+or-auto-high,c4,objects,1,c4.1,easy,4,2026-10-06T13:31:56,anthropic/claude-sonnet-5.5,tool_calls,2076,0,232,0,0.006472,provider,0.006472,2.03,gen-1791318714-XG0tnc2FuuNtuNtGN3rY,4.6914
+or-auto-xhigh,c4,objects,1,c4.1,easy,4,2026-10-06T13:31:56,anthropic/claude-opus-5.5,tool_calls,1514,0,139,24,0.008836,provider,0.008836,1.89,gen-1791318714-20dwFwvz5kF75m0NX3gs,4.7002
+or-auto-medium,c3,labelling pipeline,1,c3.5,expert,3,2026-10-06T13:31:58,openai/gpt-6.1-sol,tool_calls,2654,2287,262,0,0.003765,provider,0.003765,6.62,gen-1791318712-in3p6LuRbbum5RDl39ix,4.704
+or-auto-xhigh,c4,objects,1,c4.1,easy,5,2026-10-06T13:31:58,anthropic/claude-opus-5.5,tool_calls,1745,0,86,0,0.0087,provider,0.0087,2.0,gen-1791318716-n03X6DG0CGUvNyixMhcp,4.7127
+or-auto-high,c4,objects,1,c4.1,easy,5,2026-10-06T13:31:58,anthropic/claude-sonnet-5.5,tool_calls,2565,0,146,28,0.00659,provider,0.00659,2.25,gen-1791318716-zZKncSCKsQ8wxiYNSnWJ,4.7193
+or-auto-medium,c3,labelling pipeline,1,c3.6,easy,1,2026-10-06T13:31:59,z-ai/glm-5.2,tool_calls,2883,896,59,30,0.003274,provider,0.003274,0.74,gen-1791318718-CNwuFOkUHa7yxKF3JaDx,4.7226
+or-auto-medium,c3,labelling pipeline,1,c3.6,easy,2,2026-10-06T13:32:00,z-ai/glm-5.2,tool_calls,2927,2880,43,16,0.001004,provider,0.001004,0.67,gen-1791318719-8Jk5HhMkZzbqmzdYTRWI,4.7236
+or-auto-high,c4,objects,1,c4.1,easy,6,2026-10-06T13:32:00,anthropic/claude-sonnet-5.5,tool_calls,2748,0,78,0,0.006276,provider,0.006276,1.41,gen-1791318718-ndml2iRvfYZX1hQzE226,4.7299
+or-auto-high,c4,objects,1,c4.2,medium,1,2026-10-06T13:32:01,anthropic/claude-sonnet-5.5,tool_calls,2867,0,96,0,0.006694,provider,0.006694,1.35,gen-1791318720-4NQd3ymcl64bbyV6XDOg,4.7365
+or-auto-xhigh,c4,objects,1,c4.2,medium,1,2026-10-06T13:32:01,anthropic/claude-opus-5.5,tool_calls,1872,0,97,0,0.009428,provider,0.009428,3.15,gen-1791318718-s8Un8Gg6UzPupk0v6id2,4.746
+or-auto-medium,c3,labelling pipeline,1,c3.6,easy,3,2026-10-06T13:32:02,openai/gpt-6.1-sol,tool_calls,3056,2651,37,0,0.001646,provider,0.001646,2.78,gen-1791318720-evYENM0Xu1BQJCGe9jKr,4.7476
+or-auto-medium,c4,objects,1,c4.1,easy,1,2026-10-06T13:32:04,z-ai/glm-5.2,tool_calls,497,448,21,22,0.000277,provider,0.000277,1.14,gen-1791318722-3WTMl44MWs7ffYvIfc0v,4.7479
+or-auto-high,c4,objects,1,c4.2,medium,2,2026-10-06T13:32:04,anthropic/claude-sonnet-5.5,tool_calls,3262,0,200,98,0.008524,provider,0.008524,3.27,gen-1791318721-VCUN7BlV0yj2VxUnVTvf,4.7564
+or-auto-medium,c4,objects,1,c4.1,easy,2,2026-10-06T13:32:04,z-ai/glm-5.2,tool_calls,573,448,16,0,0.000362,provider,0.000362,0.77,gen-1791318724-wqZYz8ZCUwRPZmdbarUE,4.7568
+or-auto-xhigh,c4,objects,1,c4.2,medium,2,2026-10-06T13:32:05,anthropic/claude-opus-5.5,tool_calls,2140,0,229,103,0.01314,provider,0.01314,3.13,gen-1791318721-CDIr6mR5GRP2oqfjw4oK,4.7699
+or-auto-medium,c4,objects,1,c4.1,easy,3,2026-10-06T13:32:05,z-ai/glm-5.2,tool_calls,715,576,30,0,0.000476,provider,0.000476,0.44,gen-1791318724-koHF4guJk0aL8jAyN5Sk,4.7704
+or-auto-medium,c4,objects,1,c4.1,easy,4,2026-10-06T13:32:06,z-ai/glm-5.2,tool_calls,758,704,82,89,0.000619,provider,0.000619,0.82,gen-1791318725-V6LqhNOM6WoX12WxpLDq,4.771
+or-auto-medium,c4,objects,1,c4.1,easy,5,2026-10-06T13:32:06,z-ai/glm-5.2,tool_calls,842,704,33,0,0.000521,provider,0.000521,0.41,gen-1791318726-Uck6CMhYl5XJU1iXlloQ,4.7715
+or-auto-medium,c4,objects,1,c4.1,easy,6,2026-10-06T13:32:07,z-ai/glm-5.2,tool_calls,888,832,39,0,0.000466,provider,0.000466,0.58,gen-1791318726-4sLsRQCV0grn0yGD0EsN,4.772
+or-auto-medium,c4,objects,1,c4.1,easy,7,2026-10-06T13:32:07,z-ai/glm-5.2,tool_calls,1047,448,59,19,0.001215,provider,0.001215,0.66,gen-1791318727-ziHlhkwrJYwcY9mxqu7i,4.7732
+or-auto-xhigh,c4,objects,1,c4.2,medium,3,2026-10-06T13:32:08,anthropic/claude-opus-5.5,tool_calls,2366,0,217,111,0.013804,provider,0.013804,3.37,gen-1791318725-9q3uDhzmivPvLRhVmP1b,4.787
+or-auto-medium,c4,objects,1,c4.2,medium,1,2026-10-06T13:32:08,z-ai/glm-5.2,tool_calls,1114,896,92,35,0.000943,provider,0.000943,0.71,gen-1791318727-0CkHyifUibnNkXwjdvZ5,4.788
+or-auto-high,c4,objects,1,c4.3,hard,1,2026-10-06T13:32:08,anthropic/claude-sonnet-5.5,tool_calls,3412,0,207,21,0.008894,provider,0.008894,3.78,gen-1791318724-0waCGNfGl1s5zCTzCCYa,4.7969
+or-auto-medium,c4,objects,1,c4.2,medium,2,2026-10-06T13:32:09,z-ai/glm-5.2,tool_calls,1227,1024,62,0,0.000823,provider,0.000823,0.64,gen-1791318728-VgMBA5vkEux0jgS2AI0E,4.7977
+or-auto-medium,c4,objects,1,c4.3,hard,1,2026-10-06T13:32:10,z-ai/glm-5.2,tool_calls,1327,448,161,59,0.002055,provider,0.002055,1.1,gen-1791318729-MOTwkUX6oXmzwTiwKxA2,4.7997
+or-auto-xhigh,c4,objects,1,c4.3,hard,1,2026-10-06T13:32:10,anthropic/claude-opus-5.5,tool_calls,2520,0,169,47,0.01346,provider,0.01346,2.29,gen-1791318728-UZ3d8QKz3hAh67hxvnc0,4.8132
+or-auto-high,c4,objects,1,c4.3,hard,2,2026-10-06T13:32:10,anthropic/claude-sonnet-5.5,tool_calls,3652,0,294,28,0.010244,provider,0.010244,2.33,gen-1791318728-3q3hLB2LJheO6ardg46V,4.8234
+or-auto-medium,c4,objects,1,c4.3,hard,2,2026-10-06T13:32:10,z-ai/glm-5.2,tool_calls,1690,1280,74,38,0.001232,provider,0.001232,0.72,gen-1791318730-JJbB4kKLL4vZgKWl9U7Q,4.8247
+or-auto-medium,c4,objects,1,c4.3,hard,3,2026-10-06T13:32:12,z-ai/glm-5.2,tool_calls,2151,1088,179,33,0.002559,provider,0.002559,1.01,gen-1791318731-DPNH4BDfqGiwItrhR2Rr,4.8272
+or-auto-xhigh,c4,objects,1,c4.3,hard,2,2026-10-06T13:32:13,anthropic/claude-opus-5.5,tool_calls,2776,0,192,0,0.014944,provider,0.014944,2.46,gen-1791318730-2jRQF4jff3ogaHuPBEwE,4.8422
+or-auto-high,c4,objects,1,c4.3,hard,3,2026-10-06T13:32:14,anthropic/claude-sonnet-5.5,tool_calls,5333,0,267,94,0.013336,provider,0.013336,3.41,gen-1791318730-j7UfkB7B9Gp7S2jC5OgZ,4.8555
+or-auto-medium,c4,objects,1,c4.3,hard,4,2026-10-06T13:32:15,z-ai/glm-5.2,tool_calls,2541,1664,123,0,0.002202,provider,0.002202,3.64,gen-1791318732-oX2ZTkXVLmtUooKWvfKF,4.8577
+or-auto-medium,c4,objects,1,c4.3,hard,5,2026-10-06T13:32:16,z-ai/glm-5.2,tool_calls,2725,2624,123,0,0.001365,provider,0.001365,0.84,gen-1791318735-W4WYbO6n9fHn89GqMJER,4.8591
+or-auto-xhigh,c4,objects,1,c4.3,hard,3,2026-10-06T13:32:16,anthropic/claude-opus-5.5,tool_calls,3414,0,292,112,0.019496,provider,0.019496,3.68,gen-1791318733-yNY5uW9oVxkLs73j8ZkB,4.8786
+or-auto-high,c4,objects,1,c4.3,hard,4,2026-10-06T13:32:17,anthropic/claude-sonnet-5.5,tool_calls,5657,0,247,93,0.013784,provider,0.013784,3.62,gen-1791318734-FwYXk68JDG8eXg0nNvLS,4.8924
+or-auto-medium,c4,objects,1,c4.4,easy,1,2026-10-06T13:32:18,z-ai/glm-5.2,tool_calls,2866,2112,93,42,0.002014,provider,0.002014,2.43,gen-1791318736-vkWxb0iIKYbHrHW6oOSM,4.8944
+or-auto-medium,c4,objects,1,c4.4,easy,2,2026-10-06T13:32:19,z-ai/glm-5.2,tool_calls,2946,1280,37,0,0.002828,provider,0.002828,0.88,gen-1791318738-AbQ6BgLdexZ1Vqaj5Ka7,4.8972
+or-auto-xhigh,c4,objects,1,c4.3,hard,4,2026-10-06T13:32:20,anthropic/claude-opus-5.5,tool_calls,3847,0,343,140,0.022248,provider,0.022248,3.93,gen-1791318736-2viDPSv9hEn2WKThLgyd,4.9195
+or-auto-high,c4,objects,1,c4.4,easy,1,2026-10-06T13:32:20,anthropic/claude-sonnet-5.5,tool_calls,5839,0,129,0,0.012968,provider,0.012968,2.94,gen-1791318737-5ozDeXJsMldjZAzjTUqn,4.9324
+or-auto-medium,c4,objects,1,c4.5,expert,1,2026-10-06T13:32:22,z-ai/glm-5.2,tool_calls,3058,448,99,90,0.004206,provider,0.004206,3.03,gen-1791318739-hsFlpuAKw6jaBlmtkTED,4.9366
+or-auto-xhigh,c4,objects,1,c4.4,easy,1,2026-10-06T13:32:23,anthropic/claude-opus-5.5,tool_calls,4078,0,179,36,0.019892,provider,0.019892,2.61,gen-1791318740-pfC3PZKNycqrk7U8lLI0,4.9565
+or-auto-high,c4,objects,1,c4.4,easy,2,2026-10-06T13:32:23,anthropic/claude-sonnet-5.5,tool_calls,6017,0,137,54,0.013404,provider,0.013404,2.9,gen-1791318740-zdvGLIXB3oPuYSQusFWV,4.9699
+or-auto-medium,c4,objects,1,c4.5,expert,2,2026-10-06T13:32:24,z-ai/glm-5.2,tool_calls,3119,448,178,0,0.004639,provider,0.004639,1.55,gen-1791318742-C4rPIfwTiEzdNgP5docz,4.9746
+or-auto-xhigh,c4,objects,1,c4.4,easy,2,2026-10-06T13:32:25,anthropic/claude-opus-5.5,tool_calls,4562,0,139,26,0.021028,provider,0.021028,2.2,gen-1791318743-JkLrtHmNC7GyyBCjFyJC,4.9956
+or-auto-high,c4,objects,1,c4.5,expert,1,2026-10-06T13:32:26,anthropic/claude-sonnet-5.5,tool_calls,6205,0,90,12,0.01331,provider,0.01331,2.26,gen-1791318743-2mA23BdfuO8EIk5QN9bv,5.0089
+or-auto-medium,c4,objects,1,c4.5,expert,3,2026-10-06T13:32:26,z-ai/glm-5.2,tool_calls,3468,3008,119,92,0.00195,provider,0.00195,1.87,gen-1791318744-TuS5xPLimU7TzSpSYf5F,5.0108
+or-auto-medium,c4,objects,1,c4.5,expert,4,2026-10-06T13:32:27,z-ai/glm-5.2,tool_calls,3529,3456,41,0,0.001181,provider,0.001181,0.87,gen-1791318746-ozYVLS1KD6m7zSW5Ienu,5.012
+or-auto-xhigh,c4,objects,1,c4.4,easy,3,2026-10-06T13:32:28,anthropic/claude-opus-5.5,tool_calls,4826,0,114,27,0.021584,provider,0.021584,2.48,gen-1791318745-dlsl6lWGbjGr2Yu6qKDf,5.0336
+or-auto-medium,c4,objects,1,c4.5,expert,5,2026-10-06T13:32:28,z-ai/glm-5.2,tool_calls,3814,2944,178,0,0.002767,provider,0.002767,1.11,gen-1791318747-T6sPNbJCbx5exxBwWD6a,5.0364
+or-auto-high,c4,objects,1,c4.5,expert,2,2026-10-06T13:32:29,anthropic/claude-sonnet-5.5,tool_calls,6368,0,452,202,0.017256,provider,0.017256,3.61,gen-1791318746-tY8SO7yn8NdA97So4os4,5.0536
+or-auto-xhigh,c4,objects,1,c4.5,expert,1,2026-10-06T13:32:29,anthropic/claude-opus-5.5,tool_calls,5018,0,89,11,0.021852,provider,0.021852,1.77,gen-1791318748-srmzLTkbLns6tg4ACT0u,5.0755
+or-auto-medium,c4,objects,1,c4.6,easy,1,2026-10-06T13:32:30,z-ai/glm-5.2,tool_calls,4006,3968,82,42,0.001446,provider,0.001446,2.03,gen-1791318748-CeQTZn6KsaHZuPRKnnrg,5.0769
+or-auto-medium,c4,objects,1,c4.6,easy,2,2026-10-06T13:32:32,z-ai/glm-5.2,tool_calls,4069,2816,169,155,0.00323,provider,0.00323,2.05,gen-1791318750-2GeBY7cu0L96uE96BClY,5.0802
+or-auto-high,c4,objects,1,c4.5,expert,3,2026-10-06T13:32:32,anthropic/claude-sonnet-5.5,tool_calls,6862,0,148,60,0.015204,provider,0.015204,3.31,gen-1791318749-BW3rmyE9Rft6cJXp2kJS,5.0954
+or-auto-xhigh,c4,objects,1,c4.5,expert,2,2026-10-06T13:32:34,anthropic/claude-opus-5.5,tool_calls,5181,0,438,186,0.029484,provider,0.029484,4.37,gen-1791318749-yayerlJOsxfC0XCVr2AN,5.1249
+or-auto-high,c4,objects,1,c4.5,expert,4,2026-10-06T13:32:35,anthropic/claude-sonnet-5.5,tool_calls,6983,0,272,36,0.016686,provider,0.016686,2.31,gen-1791318753-IrtWt5TRAJchAm2EPz0U,5.1415
+or-auto-xhigh,c4,objects,1,c4.5,expert,3,2026-10-06T13:32:37,anthropic/claude-opus-5.5,tool_calls,5645,0,286,33,0.0283,provider,0.0283,2.89,gen-1791318754-eznfuI5XQ9JAEF0mlmmX,5.1698
+or-auto-high,c4,objects,1,c4.6,easy,1,2026-10-06T13:32:38,anthropic/claude-sonnet-5.5,tool_calls,7243,0,234,102,0.016826,provider,0.016826,3.41,gen-1791318755-2wsqJuvS1m7hVanP45j8,5.1867
+or-auto-xhigh,c4,objects,1,c4.6,easy,1,2026-10-06T13:32:40,anthropic/claude-opus-5.5,tool_calls,5922,0,202,72,0.027728,provider,0.027728,3.25,gen-1791318757-8Nu6Oa8DtwOH9mLLGuRm,5.2144
+or-auto-high,c4,objects,1,c4.6,easy,2,2026-10-06T13:32:41,anthropic/claude-sonnet-5.5,tool_calls,7427,0,152,72,0.016374,provider,0.016374,3.2,gen-1791318758-uRLO4EdUjtguKoaiJZMP,5.2308
+or-auto-xhigh,c4,objects,1,c4.6,easy,2,2026-10-06T13:32:42,anthropic/claude-opus-5.5,tool_calls,6874,0,139,55,0.030276,provider,0.030276,2.58,gen-1791318760-zXZPGZPqwVhyR4zQlral,5.261

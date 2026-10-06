@@ -29,7 +29,7 @@ from rich.console import Console
 import providers
 from agent import TOOLS, run_conversation
 from check import grade, load_expected
-from config import CONFIGS, RESULTS_DIR, SPEND_CAP
+from config import CONFIGS, DEFAULT_PLAN, RESULTS_DIR, SPEND_CAP
 from db import DB
 from questions import TURNS, conversations
 
@@ -128,7 +128,9 @@ def run_config(name, items, repeats, run, expected):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--configs", default=",".join(CONFIGS), help=f"comma-separated: {', '.join(CONFIGS)}, scripted")
+    p.add_argument("--configs", default=",".join(DEFAULT_PLAN),
+                   help=f"comma-separated, default the plan ({', '.join(DEFAULT_PLAN)}); also: "
+                        f"{', '.join(n for n in CONFIGS if n not in DEFAULT_PLAN)}, scripted")
     p.add_argument("--items", help="comma-separated conversation ids, e.g. c1,c3 (default: all)")
     p.add_argument("--repeats", type=int, help="override every config's repeat count")
     p.add_argument("--label", default="run")

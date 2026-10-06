@@ -4,8 +4,8 @@ Returns (assistant_message, meta). The assistant message is OpenAI-shaped and go
 back into the history; meta holds the per-call log fields.
 
 Cost comes from the provider when it reports one (FireRouter's x-litellm-response-cost
-header, OpenRouter's usage.cost) and from LiteLLM's price map otherwise. Both are logged,
-so LiteLLM's own cost tracking can be checked against what the provider billed.
+header, OpenRouter's usage.cost) and from LiteLLM's price map otherwise. LiteLLM's own figure
+is logged too; for OpenRouter it simply passes through usage.cost.
 """
 
 import os
@@ -28,6 +28,8 @@ def call(cfg, messages, tools):
             headers["x-anthropic-api-key"] = os.environ["ANTHROPIC_API_KEY"]
     if cfg["model"].startswith("openrouter/"):
         extra_body["usage"] = {"include": True}  # OpenRouter returns the billed cost in usage.cost
+        if "cost_tier" in cfg:  # Auto Router band: low, medium, high, xhigh or max
+            extra_body["plugins"] = [{"id": "auto-router", "cost_tier": cfg["cost_tier"]}]
 
     start = time.perf_counter()
     resp = litellm.completion(model=cfg["model"], messages=messages, tools=tools, max_tokens=MAX_TOKENS,

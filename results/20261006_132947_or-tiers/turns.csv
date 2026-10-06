@@ -1,0 +1,358 @@
+config,item,topic,repeat,turn_id,turn,tier,correct,reason,final_sql,answer_source,end,steps,n_sql,failed_sql,sql_time_s,nudged,cost_usd,litellm_cost_usd,latency_s,prompt_tokens,completion_tokens,repeated_sql,first_model,models,n_switches
+or-auto-medium,c1,release timeline,1,c1.1,1,easy,True,match,SELECT COUNT(*) AS image_count FROM jwst_space_images,submit,submitted,3,1,[],0.002,False,0.002773,0.002773,2.93,1680,139,0,z-ai/glm-5.2,z-ai/glm-5.2|z-ai/glm-5.2|z-ai/glm-5.2,0
+or-auto-medium,c1,release timeline,1,c1.2,2,medium,True,match,"SELECT EXTRACT(YEAR FROM date_taken) AS year, COUNT(*) AS count
+FROM jwst_space_images
+WHERE date_taken IS NOT NULL
+  AND EXTRACT(YEAR FROM date_taken) >= 2022
+  AND EXTRACT(YEAR FROM date_taken) <= 2026
+GROUP BY year
+ORDER BY year",submit,submitted,3,1,[],0.006,False,0.001846,0.001846,4.1,2376,194,0,z-ai/glm-5.2,z-ai/glm-5.2|z-ai/glm-5.2|z-ai/glm-5.2,0
+or-auto-high,c1,release timeline,1,c1.1,1,easy,True,match,select count(*) as n_images from jwst_space_images,submit,submitted,4,2,"[{""sql"": ""select count(*), count(distinct id) from jwst_space_images"", ""error"": ""Binder Error: Referenced column \""id\"" not found in FROM clause!""}]",0.015,False,0.013812,0.013812,8.0,5096,362,0,anthropic/claude-sonnet-5.5,anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5,0
+or-auto-xhigh,c1,release timeline,1,c1.1,1,easy,True,match,select count(distinct photo_id) as n_images from jwst_space_images,submit,submitted,4,1,[],0.002,False,0.024216,0.024216,8.95,4734,264,0,anthropic/claude-opus-5.5,anthropic/claude-opus-5.5|anthropic/claude-opus-5.5|anthropic/claude-opus-5.5|anthropic/claude-opus-5.5,0
+or-auto-medium,c1,release timeline,1,c1.3,3,hard,False,no column matches reference column(s) [0],"WITH ordered AS (
+  SELECT date_taken, photo_id,
+         LAG(date_taken) OVER (ORDER BY date_taken) AS prev_date
+  FROM jwst_space_images
+  WHERE date_taken >= '2022-07-12'
+),
+flagged AS (
+  SELECT date_taken, photo_id,
+    CASE 
+      WHEN prev_date IS NULL THEN 1
+      WHEN date_taken - prev_date > INTERVAL '168 hours' THEN 1
+      ELSE 0
+    END AS is_new_burst
+  FROM ordered
+),
+bursted AS (
+  SELECT date_taken, photo_id,
+    SUM(is_new_burst) OVER (ORDER BY date_taken) AS burst_id
+  FROM flagged
+),
+burst_counts AS (
+  SELECT burst_id, COUNT(*) AS cnt
+  FROM bursted
+  GROUP BY burst_id
+)
+SELECT COUNT(*) AS num_bursts, MAX(cnt) AS largest_burst_size
+FROM burst_counts",submit,submitted,4,3,"[{""sql"": ""WITH ordered AS (\n  SELECT date_taken, photo_id,\n         LAG(date_taken) OVER (ORDER BY date_taken) AS prev_date\n  FROM jwst_space_images\n  WHERE date_taken >= '2022-07-12'\n),\nflagged AS (\n  SELECT date_taken, photo_id,\n    CASE \n      WHEN prev_date IS NULL THEN 1\n      WHEN date_taken - prev_date > INTERVAL '168 hours' THEN 1\n      ELSE 0\n    END AS is_new_burst\n  FROM ordered\n),\nbursted AS (\n  SELECT date_taken, photo_id,\n    SUM(is_new_burst) OVER (ORDER BY date_taken) AS burst_id\n  FROM flagged\n)\nSELECT COUNT(*) AS num_bursts, MAX(cnt) AS largest_burst_size\nFROM (\n  SELECT burst_id, COUNT(*) AS cnt\n  FROM burstered\n  GROUP BY burst_id\n)"", ""error"": ""Catalog Error: Table with name burstered does not exist!""}]",0.029,False,0.006703,0.006703,5.84,6345,765,0,z-ai/glm-5.2,z-ai/glm-5.2|z-ai/glm-5.2|z-ai/glm-5.2|z-ai/glm-5.2,0
+or-auto-high,c1,release timeline,1,c1.2,2,medium,True,match,"select year(date_taken) as year, count(*) as n from jwst_space_images where date_taken >= '2022-01-01' and date_taken <= '2026-10-05' group by 1 order by 1",submit,submitted,3,2,[],0.006,False,0.01539,0.01539,6.32,5925,354,0,anthropic/claude-sonnet-5.5,anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5,0
+or-auto-xhigh,c1,release timeline,1,c1.2,2,medium,True,match,"select year(date_taken) as year, count(*) as n_images from jwst_space_images where date_taken >= '2022-01-01' and date_taken <= '2026-10-05' group by 1 order by 1",submit,submitted,3,2,[],0.004,False,0.027896,0.027896,7.0,5269,341,0,anthropic/claude-opus-5.5,anthropic/claude-opus-5.5|anthropic/claude-opus-5.5|anthropic/claude-opus-5.5,0
+or-auto-medium,c1,release timeline,1,c1.4,4,easy,True,match,"SELECT COUNT(*) AS nebula_count
+FROM jwst_space_images
+WHERE subject = 'nebula'",submit,submitted,3,2,[],0.005,False,0.003807,0.003807,4.09,6840,115,0,z-ai/glm-5.2,z-ai/glm-5.2|z-ai/glm-5.2|z-ai/glm-5.2,0
+or-auto-high,c1,release timeline,1,c1.3,3,hard,True,match,"with d as (select date_taken, lag(date_taken) over (order by date_taken) p from jwst_space_images where date_taken >= '2022-07-12' and date_taken <= '2026-10-05'),
+b as (select *, sum(case when p is null or date_diff('second', p, date_taken) > 168*3600 then 1 else 0 end) over (order by date_taken rows unbounded preceding) g from d),
+s as (select g, count(*) c from b group by g)
+select count(*) as n_bursts, max(c) as largest_burst_size from s",submit,submitted,2,1,[],0.002,False,0.01577,0.01577,5.83,5725,432,0,anthropic/claude-sonnet-5.5,anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5,0
+or-auto-high,c1,release timeline,1,c1.4,4,easy,True,match,select count(*) as n from jwst_space_images where subject = 'nebula',submit,submitted,2,1,[],0.002,False,0.016364,0.016364,3.13,7432,150,0,anthropic/claude-sonnet-5.5,anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5,0
+or-auto-medium,c1,release timeline,1,c1.5,5,expert,True,match,"WITH ordered AS (
+  SELECT date_taken, photo_id, subject,
+         LAG(date_taken) OVER (ORDER BY date_taken) AS prev_date
+  FROM jwst_space_images
+  WHERE date_taken >= '2022-07-12'
+),
+flagged AS (
+  SELECT date_taken, photo_id, subject,
+    CASE 
+      WHEN prev_date IS NULL THEN 1
+      WHEN date_taken - prev_date > INTERVAL '168 hours' THEN 1
+      ELSE 0
+    END AS is_new_burst
+  FROM ordered
+),
+bursted AS (
+  SELECT date_taken, photo_id, subject,
+    SUM(is_new_burst) OVER (ORDER BY date_taken) AS burst_id
+  FROM flagged
+),
+burst_counts AS (
+  SELECT burst_id, COUNT(*) AS cnt
+  FROM bursted
+  GROUP BY burst_id
+),
+largest_burst AS (
+  SELECT burst_id FROM burst_counts WHERE cnt = (SELECT MAX(cnt) FROM burst_counts)
+)
+SELECT 
+  MIN(b.date_taken) AS start_date,
+  MAX(b.date_taken) AS end_date,
+  COUNT(*) AS image_count,
+  sc.subject AS most_common_subject,
+  sc.subject_count
+FROM bursted b
+JOIN largest_burst lb ON b.burst_id = lb.burst_id
+CROSS JOIN (
+  SELECT subject, COUNT(*) AS subject_count
+  FROM bursted b2
+  JOIN largest_burst lb2 ON b2.burst_id = lb2.burst_id
+  GROUP BY subject
+  ORDER BY subject_count DESC
+  LIMIT 1
+) sc
+GROUP BY sc.subject, sc.subject_count",submit,submitted,3,2,[],0.015,False,0.013286,0.013286,8.68,8354,975,0,z-ai/glm-5.2,z-ai/glm-5.2|z-ai/glm-5.2|z-ai/glm-5.2,0
+or-auto-xhigh,c1,release timeline,1,c1.3,3,hard,True,match,"with t as (select photo_id, date_taken from jwst_space_images where date_taken >= '2022-07-12' and date_taken <= '2026-10-05'),
+g as (select *, case when lag(date_taken) over (order by date_taken, photo_id) is null or date_taken - lag(date_taken) over (order by date_taken, photo_id) > interval 168 hour then 1 else 0 end s from t),
+b as (select *, sum(s) over (order by date_taken, photo_id) bid from g),
+c as (select bid, count(*) n from b group by bid)
+select count(*) as n_bursts, max(n) as largest_burst_size from c",submit,submitted,3,2,"[{""sql"": ""with t as (select photo_id, date_taken from jwst_space_images where date_taken >= '2022-07-12' and date_taken <= '2026-10-05'),\ng as (select *, case when lag(date_taken) over (order by date_taken, photo_id) is null or date_taken - lag(date_taken) over (order by date_taken, photo_id) > interval 168 hour then 1 else 0 end s from t),\nb as (select *, sum(s) over (order by date_taken, photo_id) bid from g),\nc as (select bid, count(*) n from b group by bid)\nselect count(*) bursts, max(n) largest, (select count(*) from jwst_space_images where date_taken is null) nulls, (select count(*) from t) total from c"", ""error"": ""Parser Error: syntax error at or near \""nulls\""""}]",0.009,False,0.047796,0.047796,10.89,7379,914,0,anthropic/claude-opus-5.5,anthropic/claude-opus-5.5|anthropic/claude-opus-5.5|anthropic/claude-opus-5.5,0
+or-auto-medium,c1,release timeline,1,c1.6,6,easy,True,match,"SELECT COUNT(*) AS count
+FROM jwst_space_images
+WHERE date_taken IS NOT NULL
+  AND EXTRACT(YEAR FROM date_taken) = 2025",submit,submitted,2,1,[],0.002,False,0.003761,0.003761,2.61,7107,119,0,z-ai/glm-5.2,z-ai/glm-5.2|z-ai/glm-5.2,0
+or-auto-high,c1,release timeline,1,c1.5,5,expert,True,match,"with d as (select photo_id, subject, date_taken, lag(date_taken) over (order by date_taken) p from jwst_space_images where date_taken >= '2022-07-12' and date_taken <= '2026-10-05'),
+b as (select *, sum(case when p is null or date_diff('second', p, date_taken) > 168*3600 then 1 else 0 end) over (order by date_taken rows unbounded preceding) g from d),
+s as (select g, min(date_taken) start_date, max(date_taken) end_date, count(*) image_count from b group by g order by image_count desc limit 1),
+t as (select b.subject, count(*) subject_count from b join s using (g) group by 1 order by 2 desc limit 1)
+select s.start_date, s.end_date, s.image_count, t.subject, t.subject_count from s, t",submit,submitted,3,2,[],0.009,False,0.03447,0.03447,7.68,13140,819,0,anthropic/claude-sonnet-5.5,anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5,0
+or-auto-medium,c2,instruments,1,c2.1,1,easy,True,match,SELECT DISTINCT instrument FROM jwst_space_images ORDER BY instrument,submit,submitted,4,1,[],0.002,False,0.005163,0.005163,2.91,2561,95,0,z-ai/glm-5.2,z-ai/glm-5.2|z-ai/glm-5.2|z-ai/glm-5.2|z-ai/glm-5.2,0
+or-auto-xhigh,c1,release timeline,1,c1.4,4,easy,True,match,select count(*) as n_images from jwst_space_images where subject = 'nebula',submit,submitted,2,1,[],0.002,False,0.029524,0.029524,4.72,6426,191,0,anthropic/claude-opus-5.5,anthropic/claude-opus-5.5|anthropic/claude-opus-5.5,0
+or-auto-high,c1,release timeline,1,c1.6,6,easy,True,match,select count(*) as n from jwst_space_images where date_taken >= '2025-01-01' and date_taken < '2026-01-01',submit,submitted,1,0,[],0.0,False,0.011112,0.011112,1.47,5091,93,0,anthropic/claude-sonnet-5.5,anthropic/claude-sonnet-5.5,0
+or-auto-medium,c2,instruments,1,c2.2,2,medium,True,match,"SELECT COUNT(*) AS differing_count
+FROM jwst_space_images j
+JOIN labels l ON j.photo_id = l.photo_id
+WHERE j.instrument <> l.instrument",submit,submitted,3,1,[],0.004,False,0.004183,0.004183,3.68,2707,122,0,z-ai/glm-5.2,z-ai/glm-5.2|z-ai/glm-5.2|z-ai/glm-5.2,0
+or-auto-xhigh,c1,release timeline,1,c1.5,5,expert,True,match,"with t as (select photo_id, date_taken, subject from jwst_space_images where date_taken >= '2022-07-12' and date_taken <= '2026-10-05'),
+g as (select *, case when lag(date_taken) over (order by date_taken, photo_id) is null or date_taken - lag(date_taken) over (order by date_taken, photo_id) > interval 168 hour then 1 else 0 end s from t),
+b as (select *, sum(s) over (order by date_taken, photo_id) bid from g),
+c as (select bid, count(*) n, min(date_taken) st, max(date_taken) en from b group by bid),
+top as (select * from c order by n desc limit 1)
+select top.st as start_date, top.en as end_date, top.n as image_count, b.subject, count(*) as subject_count
+from top join b using(bid) group by all order by subject_count desc limit 1",submit,submitted,2,1,[],0.006,False,0.044288,0.044288,7.8,7752,664,0,anthropic/claude-opus-5.5,anthropic/claude-opus-5.5|anthropic/claude-opus-5.5,0
+or-auto-high,c2,instruments,1,c2.1,1,easy,True,match,"select instrument, count(*) as n from jwst_space_images group by 1 order by 2 desc",submit,submitted,4,1,[],0.003,False,0.012428,0.012428,7.31,4779,287,0,anthropic/claude-sonnet-5.5,anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5,0
+or-auto-xhigh,c1,release timeline,1,c1.6,6,easy,True,match,select count(*) as n_images from jwst_space_images where year(date_taken) = 2025,submit,submitted,1,0,[],0.0,False,0.020896,0.020896,2.75,4654,114,0,anthropic/claude-opus-5.5,anthropic/claude-opus-5.5,0
+or-auto-medium,c2,instruments,1,c2.3,3,hard,True,match,"WITH subject_counts AS (
+    SELECT instrument, subject, COUNT(*) AS image_count
+    FROM jwst_space_images
+    WHERE instrument IN ('FGS', 'MIRI', 'NIRCam', 'NIRISS', 'NIRSpec')
+    GROUP BY instrument, subject
+), ranked AS (
+    SELECT instrument, subject, image_count,
+           SUM(image_count) OVER (PARTITION BY instrument) AS instrument_total,
+           DENSE_RANK() OVER (PARTITION BY instrument ORDER BY image_count DESC) AS subject_rank
+    FROM subject_counts
+)
+SELECT instrument, subject,
+       ROUND(100.0 * image_count / instrument_total, 1) AS percentage
+FROM ranked
+WHERE instrument_total >= 20 AND subject_rank = 2
+ORDER BY instrument, subject",submit,submitted,2,1,[],0.003,False,0.008272,0.008272,10.67,2507,249,0,openai/gpt-6.1-sol,openai/gpt-6.1-sol|openai/gpt-6.1-sol,0
+or-auto-xhigh,c2,instruments,1,c2.1,1,easy,True,match,"select instrument, count(*) as n_photos from jwst_space_images group by 1 order by 2 desc",submit,submitted,3,1,[],0.002,False,0.01972,0.01972,6.23,3460,294,0,anthropic/claude-opus-5.5,anthropic/claude-opus-5.5|anthropic/claude-opus-5.5|anthropic/claude-opus-5.5,0
+or-auto-high,c2,instruments,1,c2.2,2,medium,True,match,select count(*) as n_differ from jwst_space_images j join labels l using(photo_id) where j.instrument is distinct from l.instrument,submit,submitted,4,3,"[{""sql"": ""select count(*) total, count(l.photo_id) matched, count(distinct j.photo_id) dj,\nsum(case when j.instrument is distinct from l.instrument then 1 else 0 end) differ_distinct_null,\nsum(case when j.instrument <> l.instrument then 1 else 0 end) differ\nfrom jwst_space_images j left join labels l using(photo_id)"", ""error"": ""Parser Error: syntax error at or near \""matched\""""}]",0.008,False,0.023456,0.023456,10.03,8323,681,0,anthropic/claude-sonnet-5.5,anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5,0
+or-auto-medium,c2,instruments,1,c2.4,4,easy,True,match,SELECT COUNT(*) AS image_count FROM jwst_space_images WHERE instrument = 'NIRSpec',submit,submitted,2,1,[],0.002,False,0.00182,0.00182,7.59,3569,78,0,openai/gpt-6.1-sol,openai/gpt-6.1-sol|openai/gpt-6.1-sol,0
+or-auto-xhigh,c2,instruments,1,c2.2,2,medium,True,match,select count(*) as n_differ from jwst_space_images j left join labels l using(photo_id) where j.instrument is distinct from l.instrument,submit,submitted,4,3,[],0.003,False,0.043112,0.043112,9.06,8253,505,0,anthropic/claude-opus-5.5,anthropic/claude-opus-5.5|anthropic/claude-opus-5.5|anthropic/claude-opus-5.5|anthropic/claude-opus-5.5,0
+or-auto-high,c2,instruments,1,c2.3,3,hard,True,match,"WITH subject_counts AS (
+ SELECT instrument, subject, COUNT(*) AS subject_count
+ FROM jwst_space_images
+ WHERE instrument IN ('NIRCam', 'MIRI', 'NIRSpec', 'NIRISS', 'FGS')
+ GROUP BY instrument, subject
+), ranked AS (
+ SELECT instrument, subject, subject_count,
+ SUM(subject_count) OVER (PARTITION BY instrument) AS instrument_count,
+ DENSE_RANK() OVER (PARTITION BY instrument ORDER BY subject_count DESC) AS subject_rank
+ FROM subject_counts
+)
+SELECT instrument, subject,
+ ROUND(100.0 * subject_count / instrument_count, 1) AS percentage
+FROM ranked
+WHERE instrument_count >= 20 AND subject_rank = 2
+ORDER BY instrument",submit,submitted,2,1,[],0.003,False,0.006833,0.006833,9.04,3021,237,0,openai/gpt-6.1-sol,openai/gpt-6.1-sol|openai/gpt-6.1-sol,0
+or-auto-high,c2,instruments,1,c2.4,4,easy,True,match,SELECT COUNT(*) AS n FROM jwst_space_images WHERE instrument = 'NIRSpec',submit,submitted,1,0,[],0.0,False,0.00935,0.00935,3.74,3730,189,0,anthropic/claude-sonnet-5.5,anthropic/claude-sonnet-5.5,0
+or-auto-xhigh,c2,instruments,1,c2.3,3,hard,False,final SQL failed: Binder Error: Cannot mix aggregates with non-aggregated columns!,"with c as (select instrument, subject, count(*) n, sum(count(*)) over (partition by instrument) tot, row_number() over (partition by instrument order by count(*) desc) rn from jwst_space_images where instrument in ('NIRCam','MIRI','NIRSpec','NIRISS','FGS') group by all)
+select instrument, subject, round(100.0*n/tot,1) as percentage from c where tot>=20 and rn=2 order by instrument",submit,submitted,2,1,[],0.003,False,0.031736,0.031736,5.7,5749,437,0,anthropic/claude-opus-5.5,anthropic/claude-opus-5.5|anthropic/claude-opus-5.5,0
+or-auto-xhigh,c2,instruments,1,c2.4,4,easy,True,match,select count(*) as n_nirspec from jwst_space_images where instrument = 'NIRSpec',submit,submitted,2,1,[],0.003,False,0.033248,0.033248,4.45,6987,265,0,anthropic/claude-opus-5.5,anthropic/claude-opus-5.5|anthropic/claude-opus-5.5,0
+or-auto-high,c2,instruments,1,c2.5,5,expert,True,match,"WITH inst AS (
+ SELECT instrument FROM jwst_space_images WHERE instrument IN ('NIRCam','MIRI','NIRSpec','NIRISS','FGS') GROUP BY 1 HAVING COUNT(*) >= 20
+), valid AS (
+ SELECT instrument, date_taken FROM jwst_space_images
+ WHERE instrument IN (SELECT instrument FROM inst) AND date_taken >= '2022-07-12' AND date_taken <= TIMESTAMP '2026-10-05'
+), gaps AS (
+ SELECT instrument, date_taken AS end_date,
+ date_diff('day', CAST(LAG(date_taken) OVER (PARTITION BY instrument ORDER BY date_taken) AS DATE), CAST(date_taken AS DATE)) AS gap_days
+ FROM valid
+), best AS (
+ SELECT instrument, gap_days, end_date,
+ ROW_NUMBER() OVER (PARTITION BY instrument ORDER BY gap_days DESC, end_date) AS rn
+ FROM gaps WHERE gap_days IS NOT NULL
+), pct AS (
+ SELECT instrument, ROUND(100.0 * SUM(CASE WHEN modality='spectrum_or_plot' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_spectra_or_plots
+ FROM jwst_space_images WHERE instrument IN (SELECT instrument FROM inst) GROUP BY 1
+)
+SELECT b.instrument, b.gap_days, b.end_date, p.pct_spectra_or_plots
+FROM best b JOIN pct p USING(instrument) WHERE rn = 1 ORDER BY instrument",submit,submitted,2,2,[],0.004,False,0.029618,0.029618,8.92,8644,1233,0,anthropic/claude-sonnet-5.5,anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5,0
+or-auto-high,c2,instruments,1,c2.6,6,easy,True,match,SELECT COUNT(*) AS n FROM jwst_space_images WHERE modality = 'spectrum_or_plot',submit,submitted,1,0,[],0.0,False,0.011698,0.011698,2.96,5389,92,0,anthropic/claude-sonnet-5.5,anthropic/claude-sonnet-5.5,0
+or-auto-high,c3,labelling pipeline,1,c3.1,1,easy,True,match,select count(*) as total_photos from photos,submit,submitted,4,2,"[{""sql"": ""select count(*), count(distinct id) from photos"", ""error"": ""Binder Error: Referenced column \""id\"" not found in FROM clause!""}]",0.005,False,0.012202,0.012202,5.7,4746,271,0,anthropic/claude-sonnet-5.5,anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5,0
+or-auto-xhigh,c2,instruments,1,c2.5,5,expert,True,match,"with d as (select instrument, date_taken, lag(date_taken) over (partition by instrument order by date_taken) prev from jwst_space_images where instrument in ('NIRCam','MIRI','NIRSpec') and date_taken>='2022-07-12' and date_taken<=timestamp '2026-10-05'),
+g as (select instrument, date_taken, prev, epoch(date_taken-prev)/86400.0 gap_days, row_number() over (partition by instrument order by date_taken-prev desc) rn from d where prev is not null),
+p as (select instrument, round(100.0*avg(case when modality='spectrum_or_plot' then 1 else 0 end),1) pct from jwst_space_images where instrument in ('NIRCam','MIRI','NIRSpec') group by 1)
+select g.instrument, gap_days, date_diff('day', prev::date, date_taken::date) as gap_calendar_days, date_taken::date as gap_end_date, pct as pct_spectrum_or_plot from g join p using(instrument) where rn=1 order by instrument",submit,submitted,4,4,[],0.012,False,0.102396,0.102396,16.19,18179,1484,0,anthropic/claude-opus-5.5,anthropic/claude-opus-5.5|anthropic/claude-opus-5.5|anthropic/claude-opus-5.5|anthropic/claude-opus-5.5,0
+or-auto-medium,c2,instruments,1,c2.5,5,expert,True,match,"WITH instrument_totals AS (
+    SELECT instrument,
+           COUNT(*) AS total_images,
+           COUNT(*) FILTER (WHERE modality = 'spectrum_or_plot') AS spectra_or_plots
+    FROM jwst_space_images
+    WHERE instrument IN ('FGS', 'MIRI', 'NIRCam', 'NIRISS', 'NIRSpec')
+    GROUP BY instrument
+    HAVING COUNT(*) >= 20
+), consecutive_images AS (
+    SELECT j.instrument, j.date_taken,
+           LAG(j.date_taken) OVER (
+               PARTITION BY j.instrument ORDER BY j.date_taken, j.photo_id
+           ) AS previous_date
+    FROM jwst_space_images j
+    JOIN instrument_totals t USING (instrument)
+    WHERE j.date_taken >= TIMESTAMP '2022-07-12 00:00:00'
+      AND j.date_taken < TIMESTAMP '2026-10-06 00:00:00'
+), ranked_gaps AS (
+    SELECT instrument, date_taken,
+           DATE_DIFF('day', previous_date, date_taken) AS gap,
+           ROW_NUMBER() OVER (
+               PARTITION BY instrument
+               ORDER BY DATE_DIFF('day', previous_date, date_taken) DESC NULLS LAST,
+                        date_taken
+           ) AS gap_rank
+    FROM consecutive_images
+)
+SELECT t.instrument,
+       g.gap,
+       CAST(g.date_taken AS DATE) AS end_date,
+       ROUND(100.0 * t.spectra_or_plots / t.total_images, 1) AS percentage
+FROM instrument_totals t
+LEFT JOIN ranked_gaps g ON t.instrument = g.instrument AND g.gap_rank = 1
+ORDER BY t.instrument",submit,submitted,4,3,[],0.011,False,0.01327,0.01327,31.18,9407,995,0,openai/gpt-6.1-sol,openai/gpt-6.1-sol|openai/gpt-6.1-sol|openai/gpt-6.1-sol|openai/gpt-6.1-sol,0
+or-auto-xhigh,c2,instruments,1,c2.6,6,easy,True,match,select count(*) as n_spectrum_or_plot from jwst_space_images where modality = 'spectrum_or_plot',submit,submitted,1,0,[],0.0,False,0.025804,0.025804,2.37,5801,130,0,anthropic/claude-opus-5.5,anthropic/claude-opus-5.5,0
+or-auto-medium,c2,instruments,1,c2.6,6,easy,True,match,SELECT COUNT(*) AS image_count FROM jwst_space_images WHERE modality = 'spectrum_or_plot',submit,submitted,1,0,[],0.0,False,0.001673,0.001673,2.26,3208,37,0,openai/gpt-6.1-sol,openai/gpt-6.1-sol,0
+or-auto-high,c3,labelling pipeline,1,c3.2,2,medium,True,match,select count(*) as unlabelled_photos from photos p where not exists (select 1 from labels l where l.photo_id = p.photo_id),submit,submitted,3,3,[],0.008,False,0.017024,0.017024,7.84,5922,518,0,anthropic/claude-sonnet-5.5,anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5,0
+or-auto-medium,c3,labelling pipeline,1,c3.1,1,easy,True,match,SELECT COUNT(*) AS total_photos FROM photos,submit,submitted,3,1,[],0.001,False,0.00119,0.00119,2.52,1674,86,0,z-ai/glm-5.2,z-ai/glm-5.2|z-ai/glm-5.2|z-ai/glm-5.2,0
+or-auto-medium,c3,labelling pipeline,1,c3.2,2,medium,True,match,"SELECT COUNT(*) AS unlabelled_photos
+FROM photos p
+LEFT JOIN labels l ON p.photo_id = l.photo_id
+WHERE l.photo_id IS NULL",submit,submitted,3,1,[],0.003,False,0.002072,0.002072,2.07,2322,130,0,z-ai/glm-5.2,z-ai/glm-5.2|z-ai/glm-5.2|z-ai/glm-5.2,0
+or-auto-xhigh,c3,labelling pipeline,1,c3.1,1,easy,True,match,select count(distinct photo_id) as total_photos from photos,submit,submitted,4,2,"[{""sql"": ""select count(*), count(distinct id) from photos"", ""error"": ""Binder Error: Referenced column \""id\"" not found in FROM clause!""}]",0.003,False,0.024784,0.024784,6.01,4746,290,0,anthropic/claude-opus-5.5,anthropic/claude-opus-5.5|anthropic/claude-opus-5.5|anthropic/claude-opus-5.5|anthropic/claude-opus-5.5,0
+or-auto-xhigh,c3,labelling pipeline,1,c3.2,2,medium,True,match,select count(*) as unlabelled_photos from photos p where not exists (select 1 from labels l where l.photo_id = p.photo_id),submit,submitted,3,2,[],0.004,False,0.029876,0.029876,5.49,5659,362,0,anthropic/claude-opus-5.5,anthropic/claude-opus-5.5|anthropic/claude-opus-5.5|anthropic/claude-opus-5.5,0
+or-auto-high,c3,labelling pipeline,1,c3.3,3,hard,True,match,"SELECT ROUND(100.0 * COUNT(*) FILTER (WHERE REPLACE(p.legacy_tag_label, ' ', '_') = l.subject) / COUNT(*), 1) AS same_subject_percentage FROM photos p JOIN labels l ON l.photo_id = p.photo_id WHERE p.legacy_tag_label NOT IN ('unclassified', 'observatory / engineering')",submit,submitted,3,3,[],0.007,False,0.01091,0.01091,11.88,4410,282,0,openai/gpt-6.1-sol,openai/gpt-6.1-sol|openai/gpt-6.1-sol|openai/gpt-6.1-sol,0
+or-auto-high,c3,labelling pipeline,1,c3.4,4,easy,True,match,select count(*) as v6_labels from labels where codebook_version = 'v6',submit,submitted,2,1,[],0.002,False,0.01565,0.01565,3.99,7095,146,0,anthropic/claude-sonnet-5.5,anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5,0
+or-auto-xhigh,c3,labelling pipeline,1,c3.3,3,hard,True,match,"select round(100.0 * avg(case when replace(p.legacy_tag_label,' ','_') = l.subject then 1 else 0 end), 1) as pct_agree, count(*) as n from photos p join labels l using(photo_id) where p.legacy_tag_label not in ('unclassified','observatory / engineering')",submit,submitted,3,3,[],0.009,False,0.04694,0.04694,7.43,8955,556,0,anthropic/claude-opus-5.5,anthropic/claude-opus-5.5|anthropic/claude-opus-5.5|anthropic/claude-opus-5.5,0
+or-auto-xhigh,c3,labelling pipeline,1,c3.4,4,easy,True,match,select count(*) as v6_labels from labels where codebook_version = 'v6',submit,submitted,2,1,[],0.002,False,0.033452,0.033452,2.77,7658,141,0,anthropic/claude-opus-5.5,anthropic/claude-opus-5.5|anthropic/claude-opus-5.5,0
+or-auto-medium,c3,labelling pipeline,1,c3.3,3,hard,True,match,"SELECT ROUND(100.0 * COUNT(*) FILTER (WHERE REPLACE(p.legacy_tag_label, ' ', '_') = l.subject) / COUNT(*), 1) AS same_subject_percentage
+FROM photos p
+JOIN labels l ON p.photo_id = l.photo_id
+WHERE p.legacy_tag_label NOT IN ('unclassified', 'observatory / engineering')",submit,submitted,4,3,[],0.015,False,0.010606,0.010606,22.15,5878,394,0,openai/gpt-6.1-sol,openai/gpt-6.1-sol|openai/gpt-6.1-sol|openai/gpt-6.1-sol|openai/gpt-6.1-sol,0
+or-auto-high,c3,labelling pipeline,1,c3.5,5,expert,True,match,"with x as (
+  select year(p.date_taken) as yr, l.gate_category, (j.photo_id is null) as unpublished
+  from photos p join labels l on l.photo_id = p.photo_id
+  left join jwst_space_images j on j.photo_id = p.photo_id
+  where year(p.date_taken) between 2022 and 2025
+),
+s as (
+  select yr, count(*) as labelled_count, round(100.0 * count(*) filter (where unpublished) / count(*), 1) as pct_not_published
+  from x group by yr
+),
+c as (
+  select yr, gate_category, count(*) n, row_number() over (partition by yr order by count(*) desc, gate_category) rn
+  from x where unpublished group by yr, gate_category
+)
+select s.yr as year, s.labelled_count, s.pct_not_published, c.gate_category as top_unpublished_gate_category
+from s join c on c.yr = s.yr and c.rn = 1
+order by s.yr",submit,submitted,4,4,[],0.011,False,0.046264,0.046264,13.3,18262,974,0,anthropic/claude-sonnet-5.5,anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5,0
+or-auto-xhigh,c3,labelling pipeline,1,c3.5,5,expert,True,match,"with b as (
+  select year(p.date_taken) as yr, l.gate_category, j.photo_id is null as excluded
+  from photos p join labels l using(photo_id) left join jwst_space_images j using(photo_id)
+  where p.date_taken >= '2022-01-01' and p.date_taken < '2026-01-01'
+), tot as (
+  select yr, count(*) as labelled, round(100.0*avg(excluded::int),1) as pct_not_published from b group by yr
+), top as (
+  select yr, gate_category, row_number() over (partition by yr order by count(*) desc, gate_category) rn
+  from b where excluded group by yr, gate_category
+)
+select t.yr as year, t.labelled as labelled_count, t.pct_not_published, top.gate_category as top_excluded_gate_category
+from tot t left join top on top.yr = t.yr and top.rn = 1 order by t.yr",submit,submitted,4,3,[],0.011,False,0.09166,0.09166,10.63,18715,840,0,anthropic/claude-opus-5.5,anthropic/claude-opus-5.5|anthropic/claude-opus-5.5|anthropic/claude-opus-5.5|anthropic/claude-opus-5.5,0
+or-auto-medium,c3,labelling pipeline,1,c3.4,4,easy,True,match,SELECT COUNT(*) AS label_count FROM labels WHERE codebook_version = 'v6',submit,submitted,2,1,[],0.002,False,0.001598,0.001598,5.38,3935,73,0,openai/gpt-6.1-sol,openai/gpt-6.1-sol|openai/gpt-6.1-sol,0
+or-auto-high,c3,labelling pipeline,1,c3.6,6,easy,True,match,select count(*) as photos_without_tags from photos where tags is null or len(tags) = 0,submit,submitted,2,1,[],0.007,False,0.02489,0.02489,4.29,11365,216,0,anthropic/claude-sonnet-5.5,anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5,0
+or-auto-xhigh,c3,labelling pipeline,1,c3.6,6,easy,True,match,"select count(*) as photos_without_tags from photos where tags is null or len(list_filter(tags, x -> x is not null and trim(x) <> '')) = 0",submit,submitted,2,1,[],0.004,False,0.05006,0.05006,3.58,11300,243,0,anthropic/claude-opus-5.5,anthropic/claude-opus-5.5|anthropic/claude-opus-5.5,0
+or-auto-xhigh,c4,objects,1,c4.1,1,easy,True,match,select count(*) as images_without_object_name from jwst_space_images where object_name is null or trim(object_name)='',submit,submitted,5,2,[],0.005,False,0.034672,0.034672,8.77,6493,435,0,anthropic/claude-opus-5.5,anthropic/claude-opus-5.5|anthropic/claude-opus-5.5|anthropic/claude-opus-5.5|anthropic/claude-opus-5.5|anthropic/claude-opus-5.5,0
+or-auto-medium,c3,labelling pipeline,1,c3.5,5,expert,True,match,"WITH labelled AS (
+    SELECT YEAR(p.date_taken) AS year, l.gate_category,
+           NOT EXISTS (SELECT 1 FROM jwst_space_images j WHERE j.photo_id = p.photo_id) AS unpublished
+    FROM photos p
+    JOIN labels l ON l.photo_id = p.photo_id
+    WHERE p.date_taken >= TIMESTAMP '2022-01-01'
+      AND p.date_taken < TIMESTAMP '2026-01-01'
+), yearly AS (
+    SELECT year, COUNT(*) AS labelled_count,
+           ROUND(100.0 * COUNT(*) FILTER (WHERE unpublished) / COUNT(*), 1) AS percentage
+    FROM labelled
+    GROUP BY year
+), ranked_categories AS (
+    SELECT year, gate_category,
+           ROW_NUMBER() OVER (PARTITION BY year ORDER BY COUNT(*) DESC, gate_category) AS rank
+    FROM labelled
+    WHERE unpublished
+    GROUP BY year, gate_category
+)
+SELECT y.year, y.labelled_count, y.percentage, r.gate_category
+FROM yearly y
+LEFT JOIN ranked_categories r ON r.year = y.year AND r.rank = 1
+ORDER BY y.year",submit,submitted,3,1,[],0.005,False,0.006315,0.006315,12.11,7080,403,0,openai/gpt-6.1-sol,openai/gpt-6.1-sol|openai/gpt-6.1-sol|openai/gpt-6.1-sol,0
+or-auto-high,c4,objects,1,c4.1,1,easy,True,match,select count(*) from jwst_space_images where object_name is null or trim(object_name)='',submit,submitted,6,4,"[{""sql"": ""select count(*) total, count(distinct photo_id) d, sum(object_name is null) nulls, sum(trim(object_name)='') empty, sum(object_name_normalized is null) nn, sum(is_primary) prim from jwst_space_images;\nselect object_name, count(*) c from jwst_space_images group by 1 order by c desc limit 15;"", ""error"": ""Parser Error: syntax error at or near \""nulls\""""}]",0.011,False,0.030228,0.030228,10.74,11149,793,0,anthropic/claude-sonnet-5.5,anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5,0
+or-auto-medium,c3,labelling pipeline,1,c3.6,6,easy,True,match,SELECT COUNT(*) AS no_tags FROM photos WHERE tags IS NULL OR array_length(tags) = 0,submit,submitted,3,2,[],0.004,False,0.005924,0.005924,4.19,8866,139,1,z-ai/glm-5.2,z-ai/glm-5.2|z-ai/glm-5.2|openai/gpt-6.1-sol,1
+or-auto-high,c4,objects,1,c4.2,2,medium,True,match,"select object_name_normalized as object, count(*) as n from jwst_space_images where object_name_normalized is not null group by 1 order by n desc, object limit 5",submit,submitted,2,1,[],0.004,False,0.015218,0.015218,4.62,6129,296,0,anthropic/claude-sonnet-5.5,anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5,0
+or-auto-medium,c4,objects,1,c4.1,1,easy,True,match,"SELECT COUNT(*) AS published_images_with_no_object_name
+FROM jwst_space_images
+WHERE object_name IS NULL OR TRIM(object_name) = ''",submit,submitted,7,3,[],0.004,False,0.003936,0.003936,4.82,5320,280,0,z-ai/glm-5.2,z-ai/glm-5.2|z-ai/glm-5.2|z-ai/glm-5.2|z-ai/glm-5.2|z-ai/glm-5.2|z-ai/glm-5.2|z-ai/glm-5.2,0
+or-auto-xhigh,c4,objects,1,c4.2,2,medium,True,match,"select object_name_normalized as object, count(*) as n from jwst_space_images where object_name_normalized is not null group by 1 order by 2 desc, 1 limit 5",submit,submitted,3,2,[],0.004,False,0.036372,0.036372,9.65,6378,543,0,anthropic/claude-opus-5.5,anthropic/claude-opus-5.5|anthropic/claude-opus-5.5|anthropic/claude-opus-5.5,0
+or-auto-medium,c4,objects,1,c4.2,2,medium,True,match,"SELECT object_name_normalized AS object, COUNT(*) AS count
+FROM jwst_space_images
+WHERE object_name_normalized IS NOT NULL AND TRIM(object_name_normalized) <> ''
+GROUP BY object_name_normalized
+ORDER BY count DESC, object
+LIMIT 5",submit,submitted,2,1,[],0.003,False,0.001766,0.001766,1.35,2341,154,0,z-ai/glm-5.2,z-ai/glm-5.2|z-ai/glm-5.2,0
+or-auto-medium,c4,objects,1,c4.3,3,hard,True,match,"SELECT object_name_normalized AS object,
+       COUNT(*) AS image_count,
+       MIN(date_taken) AS first_date,
+       MAX(date_taken) AS last_date,
+       DATE_DIFF('day', MIN(date_taken), MAX(date_taken)) AS span_days
+FROM jwst_space_images
+WHERE object_name_normalized IS NOT NULL AND TRIM(object_name_normalized) <> ''
+  AND date_taken IS NOT NULL
+  AND date_taken <= CURRENT_DATE
+GROUP BY object_name_normalized
+HAVING COUNT(*) >= 4
+ORDER BY span_days DESC
+LIMIT 1",submit,submitted,5,4,[],0.012,False,0.009413,0.009413,7.31,10434,660,0,z-ai/glm-5.2,z-ai/glm-5.2|z-ai/glm-5.2|z-ai/glm-5.2|z-ai/glm-5.2|z-ai/glm-5.2,0
+or-auto-high,c4,objects,1,c4.3,3,hard,True,match,"select object_name_normalized as object, date_diff('day', min(date_taken), max(date_taken)) as span_days from jwst_space_images where object_name_normalized is not null and date_taken between '2021-12-25' and '2026-10-05' group by 1 having count(*)>=4 order by span_days desc limit 1",submit,submitted,4,4,[],0.01,False,0.046258,0.046258,13.14,18054,1015,0,anthropic/claude-sonnet-5.5,anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5,0
+or-auto-medium,c4,objects,1,c4.4,4,easy,True,match,"SELECT COUNT(*) AS published_images
+FROM jwst_space_images
+WHERE object_name_normalized ILIKE '%pillars of creation%'",submit,submitted,2,1,[],0.002,False,0.004842,0.004842,3.31,5812,130,0,z-ai/glm-5.2,z-ai/glm-5.2|z-ai/glm-5.2,0
+or-auto-xhigh,c4,objects,1,c4.3,3,hard,True,match,"with v as (select * from jwst_space_images where object_name_normalized is not null and date_taken >= '2021-12-25' and date_taken <= '2026-10-05')
+select object_name_normalized as object, count(*) as n_images, min(date_taken) as first_image, max(date_taken) as last_image, date_diff('day', min(date_taken), max(date_taken)) as span_days from v group by 1 having count(*)>=4 order by span_days desc limit 1",submit,submitted,4,4,[],0.006,False,0.070148,0.070148,12.36,12557,996,0,anthropic/claude-opus-5.5,anthropic/claude-opus-5.5|anthropic/claude-opus-5.5|anthropic/claude-opus-5.5|anthropic/claude-opus-5.5,0
+or-auto-high,c4,objects,1,c4.4,4,easy,True,match,select count(*) from jwst_space_images where object_name_normalized = 'Pillars of Creation',submit,submitted,2,1,[],0.001,False,0.026372,0.026372,5.84,11856,266,0,anthropic/claude-sonnet-5.5,anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5,0
+or-auto-xhigh,c4,objects,1,c4.4,4,easy,True,match,select count(*) as n_images from jwst_space_images where object_name_normalized = 'Pillars of Creation',submit,submitted,3,2,[],0.008,False,0.062504,0.062504,7.29,13466,432,0,anthropic/claude-opus-5.5,anthropic/claude-opus-5.5|anthropic/claude-opus-5.5|anthropic/claude-opus-5.5,0
+or-auto-medium,c4,objects,1,c4.5,5,expert,True,match,"SELECT object_name_normalized AS object,
+       COUNT(*) AS image_count,
+       MIN(EXTRACT(YEAR FROM date_taken)) AS first_year,
+       MAX(EXTRACT(YEAR FROM date_taken)) AS last_year,
+       ROUND(
+         100.0 * SUM(CASE WHEN instrument IN ('FGS','MIRI','NIRCam','NIRISS','NIRSpec') THEN 1 ELSE 0 END) / COUNT(*),
+         1
+       ) AS single_instrument_pct
+FROM jwst_space_images
+WHERE object_name_normalized IS NOT NULL AND TRIM(object_name_normalized) <> ''
+  AND date_taken IS NOT NULL
+  AND date_taken <= CURRENT_DATE
+GROUP BY object_name_normalized
+HAVING COUNT(DISTINCT EXTRACT(YEAR FROM date_taken)) >= 3
+ORDER BY object",submit,submitted,5,4,[],0.012,False,0.014743,0.014743,8.43,16988,615,0,z-ai/glm-5.2,z-ai/glm-5.2|z-ai/glm-5.2|z-ai/glm-5.2|z-ai/glm-5.2|z-ai/glm-5.2,0
+or-auto-medium,c4,objects,1,c4.6,6,easy,True,match,"SELECT COUNT(*) AS published_images
+FROM jwst_space_images
+WHERE object_name_normalized ILIKE '%jupiter%'",submit,submitted,2,1,[],0.002,False,0.004676,0.004676,4.08,8075,251,0,z-ai/glm-5.2,z-ai/glm-5.2|z-ai/glm-5.2,0
+or-auto-high,c4,objects,1,c4.5,5,expert,True,match,"select object_name_normalized as object, count(*) as image_count, min(year(date_taken)) as first_year, max(year(date_taken)) as last_year,
+round(100.0*sum(cast(instrument in ('NIRCam','MIRI','NIRSpec','NIRISS','FGS') as int))/count(*),1) as pct_single_instrument
+from jwst_space_images where object_name_normalized is not null and date_taken between '2021-12-25' and '2026-10-05'
+group by 1 having count(distinct year(date_taken))>=3 order by 1",submit,submitted,4,3,[],0.01,False,0.062456,0.062456,11.49,26418,962,0,anthropic/claude-sonnet-5.5,anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5,0
+or-auto-xhigh,c4,objects,1,c4.5,5,expert,True,match,"with v as (select * from jwst_space_images where object_name_normalized is not null and date_taken >= '2021-12-25' and date_taken <= '2026-10-05')
+select object_name_normalized as object, count(*) as n_images, min(year(date_taken)) first_year, max(year(date_taken)) last_year,
+round(100.0*count(*) filter (where instrument in ('NIRCam','MIRI','NIRSpec','NIRISS','FGS'))/count(*),1) pct_single_instrument
+from v group by 1 having count(distinct year(date_taken))>=3 order by n_images desc, object",submit,submitted,3,2,[],0.008,False,0.079636,0.079636,9.03,15844,813,0,anthropic/claude-opus-5.5,anthropic/claude-opus-5.5|anthropic/claude-opus-5.5|anthropic/claude-opus-5.5,0
+or-auto-high,c4,objects,1,c4.6,6,easy,True,match,select count(*) from jwst_space_images where object_name_normalized = 'Jupiter',submit,submitted,2,1,[],0.002,False,0.0332,0.0332,6.61,14670,386,0,anthropic/claude-sonnet-5.5,anthropic/claude-sonnet-5.5|anthropic/claude-sonnet-5.5,0
+or-auto-xhigh,c4,objects,1,c4.6,6,easy,True,match,select count(*) as n_images from jwst_space_images where object_name_normalized = 'Jupiter',submit,submitted,2,1,[],0.002,False,0.058004,0.058004,5.83,12796,341,0,anthropic/claude-opus-5.5,anthropic/claude-opus-5.5|anthropic/claude-opus-5.5,0

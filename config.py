@@ -34,3 +34,11 @@ CONFIGS = {
     # Cost floor: one cheap open model, no routing.
     "glm-flash": {"model": "fireworks_ai/accounts/fireworks/models/glm-5p3-flash", "repeats": 1},
 }
+
+# OpenRouter's Auto Router at higher cost tiers. Not part of the default plan: run them by name.
+# route_probe.py showed each tier picks one model for every SQL question (medium: GLM 5.2,
+# high: Claude Sonnet 5.5, xhigh: Claude Opus 5.5, max: GPT-6 Astra Pro, about $0.02 a call).
+for _tier in ("medium", "high", "xhigh", "max"):
+    CONFIGS[f"or-auto-{_tier}"] = {"model": "openrouter/openrouter/auto", "cost_tier": _tier, "repeats": 1,
+                                   "extra": True}
+DEFAULT_PLAN = [name for name, cfg in CONFIGS.items() if not cfg.get("extra")]

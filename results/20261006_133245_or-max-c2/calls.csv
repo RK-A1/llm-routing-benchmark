@@ -1,0 +1,17 @@
+config,item,topic,repeat,turn_id,tier,step,ts,chosen_model,finish_reason,prompt_tokens,cached_tokens,completion_tokens,reasoning_tokens,cost_usd,cost_source,litellm_cost_usd,latency_s,trace_id,project_spend_usd
+or-auto-max,c2,instruments,1,c2.1,easy,1,2026-10-06T13:32:49,openai/gpt-6-astra-pro,tool_calls,2201,1389,43,0,0.011659,provider,0.011659,3.91,gen-1791318765-FnLmfD8RC3LOE9NsR8nB,5.2727
+or-auto-max,c2,instruments,1,c2.1,easy,2,2026-10-06T13:32:53,openai/gpt-6-astra-pro,tool_calls,2391,0,57,0,0.02676,provider,0.02676,3.97,gen-1791318769-r03itvcC5AHhJkvcbZGQ,5.2995
+or-auto-max,c2,instruments,1,c2.1,easy,3,2026-10-06T13:32:58,openai/gpt-6-astra-pro,tool_calls,2729,0,87,0,0.03164,provider,0.03164,5.61,gen-1791318773-7CMzRY3a62wWemV8YbwD,5.3311
+or-auto-max,c2,instruments,1,c2.1,easy,4,2026-10-06T13:33:03,openai/gpt-6-astra-pro,tool_calls,2925,0,71,0,0.0328,provider,0.0328,4.46,gen-1791318779-BP9jsEifhNaSA3GBTuWQ,5.3639
+or-auto-max,c2,instruments,1,c2.2,medium,1,2026-10-06T13:33:07,openai/gpt-6-astra-pro,tool_calls,3503,0,51,0,0.03758,provider,0.03758,4.02,gen-1791318783-BNthElhuKTFrtWbf2t5w,5.4015
+or-auto-max,c2,instruments,1,c2.2,medium,2,2026-10-06T13:33:12,openai/gpt-6-astra-pro,tool_calls,3813,0,174,17,0.04683,provider,0.04683,4.91,gen-1791318787-RiGFjp1qie9ebi3ZT4nd,5.4483
+or-auto-max,c2,instruments,1,c2.2,medium,3,2026-10-06T13:33:18,openai/gpt-6-astra-pro,tool_calls,4193,0,138,13,0.04883,provider,0.04883,5.8,gen-1791318792-cKNcrivuT2ZBhPplsKph,5.4971
+or-auto-max,c2,instruments,1,c2.3,hard,1,2026-10-06T13:33:24,openai/gpt-6-astra-pro,tool_calls,4928,1141,164,33,0.047211,provider,0.047211,6.29,gen-1791318798-0CMc617AhtWUZRqVEW0C,5.5444
+or-auto-max,c2,instruments,1,c2.3,hard,2,2026-10-06T13:33:31,openai/gpt-6-astra-pro,tool_calls,6080,2732,381,0,0.055262,provider,0.055262,6.95,gen-1791318804-bIMoQUlMrmPF8bFOGfjs,5.5996
+or-auto-max,c2,instruments,1,c2.4,easy,1,2026-10-06T13:33:37,openai/gpt-6-astra-pro,tool_calls,6941,3391,99,0,0.043841,provider,0.043841,6.19,gen-1791318811-nGWivXJAwljwobmZDkkV,5.6435
+or-auto-max,c2,instruments,1,c2.4,easy,2,2026-10-06T13:33:42,openai/gpt-6-astra-pro,tool_calls,7075,3669,95,0,0.042479,provider,0.042479,4.69,gen-1791318817-aLCCedeEMH1zsEiVmwaY,5.6859
+or-auto-max,c2,instruments,1,c2.5,expert,1,2026-10-06T13:33:51,openai/gpt-6-astra-pro,tool_calls,7678,3867,221,92,0.05335,provider,0.05335,8.69,gen-1791318822-2vogUldpmfCgDxGaksuL,5.7393
+or-auto-max,c2,instruments,1,c2.5,expert,2,2026-10-06T13:34:03,openai/gpt-6-astra-pro,tool_calls,9954,4975,601,132,0.087263,provider,0.087263,12.14,gen-1791318831-hEvKaJ9kccp08cC3CIMh,5.8265
+or-auto-max,c2,instruments,1,c2.5,expert,3,2026-10-06T13:34:17,openai/gpt-6-astra-pro,tool_calls,11356,6513,876,114,0.098743,provider,0.098743,14.76,gen-1791318843-ThppAtwoh92OuGZ8QHRs,5.9253
+or-auto-max,c2,instruments,1,c2.6,easy,1,2026-10-06T13:34:22,openai/gpt-6-astra-pro,tool_calls,13449,7471,87,0,0.071601,provider,0.071601,4.78,gen-1791318857-MADWyi4iDnMCy46oq9i2,5.9969
+or-auto-max,c2,instruments,1,c2.6,easy,2,2026-10-06T13:34:27,openai/gpt-6-astra-pro,tool_calls,13635,7954,105,0,0.070224,provider,0.070224,4.76,gen-1791318862-9xLiYbpKP5jOYGsdTMTJ,6.0671

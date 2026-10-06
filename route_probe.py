@@ -1,23 +1,27 @@
-"""Which model does FireRouter pick for each question, at a given routing preference?
+"""Which model does a router pick for each question, at each setting?
 
-Sends every question once with the agent's system prompt and tools, asking for a single
-token, so it costs fractions of a cent: the router decides before generation. A hard
-reasoning prompt rides along as a control.
+Sends every question once with the agent's system prompt and tools and asks for a single
+token, so it costs little: the router decides before generation. FireRouter is probed at
+routing preferences; OpenRouter's Auto Router at cost tiers ("default" sends no tier).
+A hard reasoning prompt rides along as a control. Calls are logged to results/ so their
+cost counts toward the project's spend cap.
 
 Usage:
-    python route_probe.py           # preferences 2 and 3, two tries each
-    python route_probe.py 1 2 3
+    python route_probe.py fireworks 2 3
+    python route_probe.py openrouter default low medium high xhigh max
 """
 
+import csv
 import sys
 from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
 
 import litellm
 from dotenv import load_dotenv
 
 from agent import SYSTEM, TOOLS
-from config import CONFIGS
+from config import CONFIGS, RESULTS_DIR
 from questions import TURNS
 
 CONTROL = ("Prove or disprove: for every integer n > 1, there is a prime between n and 2n. "
@@ -25,32 +29,45 @@ CONTROL = ("Prove or disprove: for every integer n > 1, there is a prime between
 TIERS = ["easy", "medium", "hard", "expert", "control"]
 
 
-def route(question, pref):
-    resp = litellm.completion(
-        model=CONFIGS["fw-auto"]["model"], max_tokens=1, tools=TOOLS,
-        messages=[{"role": "system", "content": SYSTEM}, {"role": "user", "content": question}],
-        extra_headers={"x-routing-preference": str(pref)})
-    return resp.model.rsplit("/", 1)[-1], resp._hidden_params.get("response_cost") or 0
+def route(router, setting, question):
+    kwargs = {"messages": [{"role": "system", "content": SYSTEM}, {"role": "user", "content": question}],
+              "tools": TOOLS, "max_tokens": 1}
+    if router == "fireworks":
+        kwargs |= {"model": CONFIGS["fw-auto"]["model"], "extra_headers": {"x-routing-preference": setting}}
+    else:
+        body = {"usage": {"include": True}}
+        if setting != "default":
+            body["plugins"] = [{"id": "auto-router", "cost_tier": setting}]
+        kwargs |= {"model": CONFIGS["or-auto"]["model"], "extra_body": body}
+    resp = litellm.completion(**kwargs)
+    cost = getattr(resp.usage, "cost", None) or resp._hidden_params.get("response_cost") or 0
+    return resp.model.rsplit("/", 1)[-1], float(cost)
 
 
 def main():
     load_dotenv()
     litellm.suppress_debug_info = True
-    prefs = [int(p) for p in sys.argv[1:]] or [2, 3]
-    questions = [(t["tier"], t["question"]) for t in TURNS.values()] + [("control", CONTROL)]
-    jobs = [(tier, q, pref) for tier, q in questions for pref in prefs for _ in range(2)]
+    router, settings = sys.argv[1], sys.argv[2:]
+    questions = [(tid, t["tier"], t["question"]) for tid, t in TURNS.items()] + [("control", "control", CONTROL)]
+    jobs = [(setting, tid, tier, q) for setting in settings for tid, tier, q in questions]
     with ThreadPoolExecutor(8) as pool:
-        results = list(pool.map(lambda j: (j[0], j[2], *route(j[1], j[2])), jobs))
+        results = list(pool.map(lambda j: (j[0], j[1], j[2], *route(router, j[0], j[3])), jobs))
 
-    picks, cost = defaultdict(Counter), 0.0
-    for tier, pref, model, c in results:
-        picks[(tier, pref)][model] += 1
-        cost += c
-    for pref in prefs:
-        print(f"preference {pref}")
+    out = RESULTS_DIR / f"{datetime.now():%Y%m%d_%H%M%S}_route-probe-{router}"
+    out.mkdir(parents=True)
+    with (out / "calls.csv").open("w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["router", "setting", "turn_id", "tier", "chosen_model", "cost_usd"])
+        w.writerows([router, *r] for r in results)
+
+    picks = defaultdict(Counter)
+    for setting, _, tier, model, _ in results:
+        picks[(setting, tier)][model] += 1
+    for setting in settings:
+        print(f"{router} {setting}")
         for tier in TIERS:
-            print(f"  {tier:<8} " + ", ".join(f"{m} x{n}" for m, n in picks[(tier, pref)].most_common()))
-    print(f"cost ${cost:.4f}")
+            print(f"  {tier:<8} " + ", ".join(f"{m} x{n}" for m, n in picks[(setting, tier)].most_common()))
+    print(f"cost ${sum(r[4] for r in results):.4f}; saved {out}/calls.csv")
 
 
 if __name__ == "__main__":
