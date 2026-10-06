@@ -10,7 +10,7 @@ import json
 import re
 from collections import Counter
 
-from config import MAX_STEPS
+from .config import MAX_STEPS
 
 SYSTEM = """You answer questions about a database of James Webb Space Telescope photos by writing SQL.
 

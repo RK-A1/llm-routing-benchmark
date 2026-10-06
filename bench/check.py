@@ -9,8 +9,8 @@ Rules (lenient on shape, strict on content):
 - A one-row reference also matches when the same values come back spread over rows.
 
 Usage:
-    python check.py --freeze     # run every reference query on the local DuckDB, write expected.json
-    python check.py --selftest   # grade each reference against itself plus a few reshaped variants
+    python -m bench.check --freeze     # run every reference query on the local DuckDB, write expected.json
+    python -m bench.check --selftest   # grade each reference against itself plus a few reshaped variants
 """
 
 import argparse
@@ -18,7 +18,7 @@ import datetime as dt
 import decimal
 import json
 
-from config import EXPECTED, LOCAL_DB
+from .config import EXPECTED, LOCAL_DB
 
 DEFAULT_TOL = 1e-6
 
@@ -129,7 +129,7 @@ def load_expected():
 def freeze():
     import duckdb
 
-    from questions import TURNS
+    from .questions import TURNS
 
     con = duckdb.connect(str(LOCAL_DB), read_only=True)
     out = {}
@@ -147,7 +147,7 @@ def freeze():
 def selftest():
     import duckdb
 
-    from questions import TURNS
+    from .questions import TURNS
 
     con = duckdb.connect(str(LOCAL_DB), read_only=True)
     expected = load_expected()

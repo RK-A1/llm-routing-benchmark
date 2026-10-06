@@ -13,7 +13,7 @@ import time
 
 import litellm
 
-from config import MAX_TOKENS
+from .config import MAX_TOKENS
 
 litellm.suppress_debug_info = True
 

@@ -7,8 +7,8 @@ A hard reasoning prompt rides along as a control. Calls are logged to results/ s
 cost counts toward the project's spend cap.
 
 Usage:
-    python route_probe.py fireworks 2 3
-    python route_probe.py openrouter default low medium high xhigh max
+    python -m bench.route_probe fireworks 2 3
+    python -m bench.route_probe openrouter default low medium high xhigh max
 """
 
 import csv
@@ -20,9 +20,9 @@ from datetime import datetime
 import litellm
 from dotenv import load_dotenv
 
-from agent import SYSTEM, TOOLS
-from config import CONFIGS, RESULTS_DIR
-from questions import TURNS
+from .agent import SYSTEM, TOOLS
+from .config import CONFIGS, RESULTS_DIR, ROOT
+from .questions import TURNS
 
 CONTROL = ("Prove or disprove: for every integer n > 1, there is a prime between n and 2n. "
            "Give a rigorous proof sketch and name the theorem.")
@@ -45,8 +45,10 @@ def route(router, setting, question):
 
 
 def main():
-    load_dotenv()
+    load_dotenv(ROOT / ".env")
     litellm.suppress_debug_info = True
+    if len(sys.argv) < 3 or sys.argv[1] not in ("fireworks", "openrouter"):
+        raise SystemExit(__doc__)
     router, settings = sys.argv[1], sys.argv[2:]
     questions = [(tid, t["tier"], t["question"]) for tid, t in TURNS.items()] + [("control", "control", CONTROL)]
     jobs = [(setting, tid, tier, q) for setting in settings for tid, tier, q in questions]

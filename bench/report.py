@@ -1,7 +1,7 @@
 """Summarize one or more run directories: prints the tables and writes report.md.
 
 Usage:
-    python report.py results/<run_dir> [more run dirs]   # a config in several runs is taken from the last one
+    python -m bench.report results/<run_dir> [more run dirs]   # a config in several runs is taken from the last one
 """
 
 import argparse

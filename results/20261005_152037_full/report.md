@@ -14,7 +14,7 @@ Runs: 20261005_152037_full, 20261005_143531_calib-v3
 
 ## Cost
 
-| config             |   answers |   correct |   total $ |   LiteLLM-computed $ |   $ / correct answer |   $ / answer |   LLM calls / answer |   LLM seconds / answer |
+| config             |   answers |   correct |   total $ |   LiteLLM-reported $ |   $ / correct answer |   $ / answer |   LLM calls / answer |   LLM seconds / answer |
 |:-------------------|----------:|----------:|----------:|---------------------:|---------------------:|-------------:|---------------------:|-----------------------:|
 | claude-opus        |        24 |        23 |     1.103 |                1.103 |               0.048  |       0.046  |                  2.8 |                    7.5 |
 | fw-auto            |        72 |        72 |     0.304 |                0.304 |               0.0042 |       0.0042 |                  3.1 |                    9.9 |

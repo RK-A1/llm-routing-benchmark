@@ -2,11 +2,11 @@
 
 from pathlib import Path
 
-ROOT = Path(__file__).parent
+ROOT = Path(__file__).resolve().parent.parent  # the repo root
 DATA_DIR = ROOT / "data"
 RESULTS_DIR = ROOT / "results"
 LOCAL_DB = DATA_DIR / "jwst.duckdb"
-EXPECTED = ROOT / "expected.json"  # reference answers, frozen by check.py --freeze
+EXPECTED = Path(__file__).parent / "expected.json"  # reference answers, frozen by python -m bench.check --freeze
 
 # Agent limits.
 MAX_STEPS = 12          # LLM calls per user turn

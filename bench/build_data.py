@@ -5,12 +5,12 @@ The parquet files are exported from the jwst-image-pipeline project
 the published jwst_space_images dataset. Embeddings are left out.
 
 Usage:
-    python build_local.py
+    python -m bench.build_data
 """
 
 import duckdb
 
-from config import DATA_DIR, LOCAL_DB
+from .config import DATA_DIR, LOCAL_DB
 
 # Short descriptions, the kind a real warehouse carries. Shown by list_tables.
 TABLES = {

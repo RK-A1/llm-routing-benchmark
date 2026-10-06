@@ -9,7 +9,7 @@ import time
 
 import duckdb
 
-from config import CHAR_CAP, LOCAL_DB, ROW_CAP, SQL_TIMEOUT_S
+from .config import CHAR_CAP, LOCAL_DB, ROW_CAP, SQL_TIMEOUT_S
 
 
 def cell(v):

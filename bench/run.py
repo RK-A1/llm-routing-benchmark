@@ -8,10 +8,10 @@ Writes to results/<timestamp>_<label>/:
 Spend is a project-wide ledger: every calls.csv under results/ counts toward SPEND_CAP.
 
 Usage:
-    python run.py --configs scripted                  # offline pipeline test, no API calls
-    python run.py                                     # the plan: each config at its own repeat count
-    python run.py --configs glm-flash --items c2      # one conversation, a quick look
-    python run.py --configs fw-auto --repeats 1
+    python -m bench.run --configs scripted               # offline pipeline test, no API calls
+    python -m bench.run                                  # the plan: each config at its own repeat count
+    python -m bench.run --configs glm-flash --items c2   # one conversation, a quick look
+    python -m bench.run --configs fw-auto --repeats 1
 """
 
 import argparse
@@ -26,12 +26,12 @@ import pandas as pd
 from dotenv import load_dotenv
 from rich.console import Console
 
-import providers
-from agent import TOOLS, run_conversation
-from check import grade, load_expected
-from config import CONFIGS, DEFAULT_PLAN, RESULTS_DIR, SPEND_CAP
-from db import DB
-from questions import TURNS, conversations
+from . import providers
+from .agent import TOOLS, run_conversation
+from .check import grade, load_expected
+from .config import CONFIGS, DEFAULT_PLAN, RESULTS_DIR, ROOT, SPEND_CAP
+from .db import DB
+from .questions import TURNS, conversations
 
 console = Console()
 
@@ -136,7 +136,7 @@ def main():
     p.add_argument("--label", default="run")
     args = p.parse_args()
 
-    load_dotenv()
+    load_dotenv(ROOT / ".env")
     names = args.configs.split(",")
     if unknown := [n for n in names if n not in CONFIGS and n != "scripted"]:
         raise SystemExit(f"unknown config(s): {unknown}")
@@ -165,7 +165,7 @@ def main():
                    for n in names]
         for f in futures:
             f.result()
-    console.print(f"\nDone. Project spend ${run.spent:.2f} of ${SPEND_CAP}. Report: python report.py {out}")
+    console.print(f"\nDone. Project spend ${run.spent:.2f} of ${SPEND_CAP}. Report: python -m bench.report {out}")
 
 
 if __name__ == "__main__":
