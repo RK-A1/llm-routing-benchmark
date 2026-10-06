@@ -37,9 +37,10 @@ like its cheapest cost tier.
 **The router's setting decides the model, not the difficulty of the question.** `route_probe.py` sends each question
 to a router once and records which model it picks. At FireRouter's default preference of 3, every SQL question, from
 the easiest to the most complex, went to GLM-5.3. For the hard and expert questions, removing the agent's system
-prompt and tools made no difference. At preference 2, an expert question occasionally went to Kimi K3, and at preference 1, every request goes to Kimi K3.
-A control prompt that asks for a mathematical proof went to Kimi K3 at preferences 2 and 3. So FireRouter does
-escalate requests it judges to be hard; it just doesn't judge SQL analytics to be hard.
+prompt and tools made no difference. At preference 2, an expert question occasionally went to Kimi K3, and at
+preference 1, every request goes to Kimi K3. A control prompt that asks for a mathematical proof went to Kimi K3 at
+preferences 2 and 3. So FireRouter does escalate requests it judges to be hard; it just doesn't judge SQL analytics
+to be hard.
 
 **Paying for a higher OpenRouter cost tier made answers more expensive, not more accurate.** OpenRouter's Auto Router
 has five cost tiers. I probed every question at each tier, then ran the full session once at each tier that picked a
@@ -95,7 +96,8 @@ spelled two ways.
 tolerance.
 
 **Logging.** Each run writes three files to `results/`. `calls.csv` has one row per LLM call, with the model that
-answered, token counts, latency, cost, and the provider's trace or request ID. `turns.csv` has one graded row per answer.
+answered, token counts, latency, cost, and the provider's trace or request ID. `turns.csv` has one graded row per
+answer.
 `transcripts.jsonl` has every full conversation.
 
 ## Setups
