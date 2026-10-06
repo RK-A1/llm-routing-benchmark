@@ -98,9 +98,9 @@ spelled two ways.
 `bench/expected.json`. It ignores row order, column names, and extra columns, and it compares numbers with a small
 tolerance.
 
-**Logging.** Each run writes three files to a new folder in `results/`. `calls.csv` has one row per LLM call, with the model that
-answered, token counts, latency, cost, and the provider's trace or request ID. `turns.csv` has one graded row per
-answer. `transcripts.jsonl` has every full conversation.
+**Logging.** Each run writes three files to a new folder in `results/`. `calls.csv` has one row per LLM call, with the
+model that answered, token counts, latency, cost, and the provider's trace or request ID. `turns.csv` has one graded
+row per answer. `transcripts.jsonl` has every full conversation.
 
 ## Setups
 
