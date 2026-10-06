@@ -1,107 +1,102 @@
 # sql-agent-router-bench
 
-This project asks a simple question: when an AI agent does multi-step work, does a model router pick the right
-model for each step, and what does that save? To find out, I built one text-to-SQL agent and ran the same
-24-question analyst session through five setups. One calls Claude Opus 5.5 directly, two use Fireworks' FireRouter,
-one uses OpenRouter's auto router, and one uses GLM-5.3 Flash, a cheap open model with no routing at all. Every
-answer is graded automatically, so the comparison comes down to accuracy, cost per correct answer, and which model
-each router chose at each step. All calls go through [LiteLLM](https://github.com/BerriAI/litellm), and the whole
-project is budgeted at under $20.
+I built a text-to-SQL agent and ran the same 24 questions through five model setups to measure what model routers
+actually do. A model router is a single model ID that you call like any other LLM. Behind it, the router picks which
+real model answers each request, so that easy work goes to cheap models and hard work goes to expensive ones.
+
+The five setups are Claude Opus 5.5 called directly, two routes of Fireworks' FireRouter, OpenRouter's Auto Router,
+and GLM-5.3 Flash, a cheap open model with no routing. A grader checks every answer automatically, so I can compare
+accuracy, cost per correct answer, and which model each router chose. Every call goes through
+[LiteLLM](https://github.com/BerriAI/litellm). The whole project cost $6.07 in API fees.
 
 ## Results
 
-I ran the full session through every setup on October 5, 2026, three times for each router and once for each fixed
-model, and added OpenRouter's higher cost tiers on October 6. The whole project, including calibration, cost $6.07.
+I ran each router three times, Claude Opus once, and GLM-5.3 Flash twice.
 
 | Setup | Correct | Cost per correct answer | Model that actually answered |
 |---|---|---|---|
 | Claude Opus 5.5, direct | 96% (23 of 24) | $0.048 | Claude Opus 5.5 |
-| FireRouter `firerouter/opus` | 97% (70 of 72) | $0.0043 | GLM-5.3 on every turn; Opus was never chosen |
+| FireRouter `firerouter/opus` | 97% (70 of 72) | $0.0043 | GLM-5.3 on every turn; never Opus |
 | FireRouter `auto` | 100% (72 of 72) | $0.0042 | GLM-5.3, with GLM-5.3 Flash on a few easy turns |
 | OpenRouter `auto` | 100% (72 of 72) | $0.0012 | DeepSeek V4.1 Flash on every call |
 | GLM-5.3 Flash, no routing | 98% (47 of 48) | $0.0011 | GLM-5.3 Flash |
 
-Every setup was accurate, and the real difference is cost, which spans a factor of forty. Claude Opus cost about five
-cents per correct answer, roughly ten times as much as FireRouter and forty times as much as OpenRouter's router or
-GLM-5.3 Flash on its own, and it was no more accurate. Its one miss was an expert question where it removed the
-photo dated 2124 when finding an object's first and last year but still counted that photo, which is the same kind
-of trap the cheaper models occasionally fell into. With samples this small, a difference of one or two answers
-between setups is noise, so the fair reading is that all five are equally accurate on this workload.
+**All five setups were equally accurate, but Opus cost about 40 times as much per correct answer.** Opus cost about
+five cents per correct answer, ten times as much as FireRouter and forty times as much as OpenRouter's router or GLM-5.3
+Flash. Opus missed one expert question: it dropped a photo dated 2124 when it found an object's first and last year,
+but still counted that photo. The cheaper models fell for the same kind of trap now and then. With samples this small,
+a gap of one or two answers is noise.
 
-Neither router escalated, and on this workload they were right not to. FireRouter's `firerouter/opus` route has
-Claude Opus in its pool, but in 72 answers it never chose it, so the Anthropic key was never charged. FireRouter
-changed models partway through 8 percent of conversations, dropping some easy turns to GLM-5.3 Flash, and for 92 to
-96 percent of turns it made the same first choice in all three repeats. OpenRouter's router picked DeepSeek V4.1 Flash
-for every call and never switched. Part of that difference is the defaults: with no cost tier set, OpenRouter routes
-in roughly its lowest-cost band, while FireRouter's default preference is "balanced". I kept both on their defaults
-because that is what a customer gets out of the box.
+**Neither router escalated to a bigger model, and neither needed to.** FireRouter's `firerouter/opus` route can send
+work to Claude Opus, but it never did in 72 answers, so it never charged the Anthropic key. FireRouter switched models
+partway through 8% of conversations, sending some easy turns to GLM-5.3 Flash. For 92% to 96% of turns, it chose the
+same first model in all three runs. OpenRouter's router used DeepSeek V4.1 Flash for every call. Both routers ran on
+their defaults, which differ: FireRouter's default preference is "balanced", while OpenRouter's default routes roughly
+like its cheapest cost tier.
 
-To find FireRouter's threshold, `route_probe.py` sends each question to the router alone and records which model it
-picks. At routing preference 3, every SQL question, from the easiest to the most complex, went to GLM-5.3, and for the
-hardest questions, removing the agent's system prompt and tools made no difference. At preference 2, an expert
-question occasionally went to Kimi K3, and at preference 1 every request goes to Kimi K3. A control prompt asking for a
-mathematical proof went to Kimi K3 at both 2 and 3, so the router does escalate requests it judges to be hard; it
-simply doesn't judge SQL analytics to be hard. On this workload, the routing preference decides which model runs far
-more than the difficulty of the question does.
+**The router's setting decides the model, not the difficulty of the question.** `route_probe.py` sends each question
+to a router once and records which model it picks. At FireRouter's default preference of 3, every SQL question, from
+the easiest to the most complex, went to GLM-5.3. For the hard and expert questions, removing the agent's system
+prompt and tools made no difference. At preference 2, an expert question occasionally went to Kimi K3, and at preference 1, every request goes to Kimi K3.
+A control prompt that asks for a mathematical proof went to Kimi K3 at preferences 2 and 3. So FireRouter does
+escalate requests it judges to be hard; it just doesn't judge SQL analytics to be hard.
 
-OpenRouter's router behaves the same way along its own dial. It has five cost tiers, and its default behaves like the
-lowest one. I probed every question at each tier, then ran the full session once at each tier that picked a different
-model. The most expensive tier, `max`, ran only one six-turn conversation, because each of its calls cost several
-cents.
+**Paying for a higher OpenRouter cost tier made answers more expensive, not more accurate.** OpenRouter's Auto Router
+has five cost tiers. I probed every question at each tier, then ran the full session once at each tier that picked a
+different model. I ran the most expensive tier, `max`, on one six-turn conversation only, because each call cost
+several cents.
 
 | OpenRouter cost tier | Model it picked | Correct | Cost per correct answer |
 |---|---|---|---|
 | default or `low` | DeepSeek V4.1 Flash | 100% (72 of 72) | $0.0012 |
-| `medium` | GLM 5.2, with GPT-6.1 Sol on some turns | 96% (23 of 24) | $0.0058 |
-| `high` | Claude Sonnet 5.5, with GPT-6.1 Sol on two turns | 100% (24 of 24) | $0.023 |
+| `medium` | GLM 5.2, with GPT-6.1 Sol on 7 of 24 turns | 96% (23 of 24) | $0.0058 |
+| `high` | Claude Sonnet 5.5, with GPT-6.1 Sol on 2 turns | 100% (24 of 24) | $0.023 |
 | `xhigh` | Claude Opus 5.5 | 96% (23 of 24) | $0.047 |
 | `max` | GPT-6 Astra Pro | 100% (6 of 6) | $0.13 |
 
-Each step up the tiers raised the cost per correct answer, by more than a hundred times from the default to `max`,
-and none of them improved accuracy on this workload. In the probe, every SQL question at a given tier went to the same
-model (apart from two picks of an older DeepSeek Flash version at the default tier), while the math-proof control moved to Kimi K3 at `medium` and `high`, so the tier, not the question, decided
-the model. Real multi-step conversations were a little less tidy: at `medium`, 7 of the 24 turns started on GPT-6.1
-Sol instead of GLM 5.2. The `xhigh` tier routes to Claude Opus 5.5 and closely matched calling Opus directly, at $0.047
-against $0.048 per correct answer. Its one miss was a hard question where it submitted a query it had never run, and
-the query failed; Opus called directly made the same mistake on the same question during my verification run.
+Each tier cost more than the one below it, and `max` cost more than a hundred times the default per correct answer.
+Within a tier, the probe sent every SQL question to the same model, apart from two picks of an older DeepSeek Flash
+version at the default tier. The math-proof control moved to Kimi K3 at `medium` and `high`. The `xhigh` tier is
+effectively Claude Opus through OpenRouter: it cost $0.047 per correct answer against $0.048 for Opus called directly.
+Its one miss repeated a mistake that Opus also made when called directly: on the same hard question, it submitted a
+query it had never run, and the query failed.
 
-Cost tracking held up through FireRouter, with a caveat for OpenRouter. For both FireRouter routes, pricing each call
-from LiteLLM's own price list, for the model that actually served it, reproduced the billed cost exactly on all 455
-calls. For OpenRouter, LiteLLM passes through the cost OpenRouter reports, so the two always agree. When I priced the
-same calls from LiteLLM's price list instead, the default tier came out 37 percent too high and the `medium` tier 32
-percent too low, while the Claude tiers matched. So when a router picks cheap open models, a gateway's price list can
-drift well away from the bill, and the router's own reported cost is the number to trust. Anthropic doesn't return a
-cost, so the Claude figures are LiteLLM's.
+**Trust the router's reported cost, not a gateway's price list.** For both FireRouter routes, LiteLLM's price list,
+applied to the model that actually answered, reproduced the billed cost exactly on all 455 calls. For OpenRouter,
+LiteLLM doesn't calculate the cost at all; it copies the cost that OpenRouter reports. When I priced those calls from
+LiteLLM's price list instead, the default tier came out 37% too high and the `medium` tier 32% too low, while the
+Claude tiers matched. Anthropic doesn't report a cost, so the Claude figures come from LiteLLM's price list.
 
-One operational note: during the full run, Fireworks' GLM-5.3 Flash endpoint was overloaded, returning "service
-overloaded" errors and taking about 48 seconds per call, so I stopped that part of the run. The GLM-5.3 Flash results
-above come from two complete runs earlier the same day on the same questions and grader. The full report is in
-`results/20261005_152037_full/report.md`.
+During the main run, Fireworks' GLM-5.3 Flash endpoint was overloaded: it returned "service overloaded" errors and
+took about 48 seconds per call. I stopped that part of the run and used two complete GLM-5.3 Flash runs from earlier
+the same day, with the same questions and grader. The full reports are in `results/*/report.md`.
 
 ## How it works
 
-The data is a small warehouse of James Webb Space Telescope photos from my
-[jwst-image-pipeline](https://github.com/RK-A1/jwst-image-pipeline) project. It has 4,345 photos, 1,077
-model-generated labels and 481 published images, stored as parquet files in `data/` and loaded into DuckDB.
+**Data.** The database holds James Webb Space Telescope photos from my
+[jwst-image-pipeline](https://github.com/RK-A1/jwst-image-pipeline) project: 4,345 photos, 1,077 model-generated
+labels, and 481 published images. `build_local.py` loads the parquet files in `data/` into a local DuckDB file.
 
-The agent in `agent.py` is a single tool-calling loop that every setup shares, with the same system prompt and the
-same four tools. It can list the tables, describe a table and run read-only SQL, and it finishes each question by
-submitting the one query whose result is its answer. The grader in `check.py` re-runs that query and compares the
-result with a reference answer, so nothing depends on parsing prose. Row order, column names and extra columns don't
-affect the grade, and numbers are compared with a small tolerance.
+**Agent.** `agent.py` runs one tool-calling loop, with the same system prompt and tools for every setup. The agent
+can list the tables, describe a table, and run read-only SQL. It ends each question by calling `submit_answer` with
+the one SQL query whose result is its answer. The system prompt tells every model that the data contains errors and
+gives today's date.
 
-The questions in `questions.py` form four analyst conversations of six turns each. The history carries over from one
-turn to the next, so later questions can refer to earlier answers. Every conversation follows the same difficulty
-pattern: easy, medium, hard, easy, expert, easy. An easy question needs a single count, a medium one needs a join or
-a grouping, a hard one needs window functions or a ranking within groups, and an expert one asks for three or four
-related results at once. The hard and expert questions also run into real problems in the data that the question
-never mentions, such as photos dated in the year 2124, instrument values like "unknown" that aren't instruments, and
-the same galaxy spelled two different ways. The system prompt gives every model the same warning that the data
-contains errors, along with today's date.
+**Questions.** `questions.py` holds four conversations of six questions each. The agent keeps the full history, so
+later questions can say "of those" or "among them". Each conversation follows the same difficulty pattern: easy,
+medium, hard, easy, expert, easy. An easy question needs one count. A medium question needs a join or a GROUP BY. A
+hard question needs a window function or a ranking within groups. An expert question asks for three or four related
+results at once. The hard and expert questions also hit real problems in the data that the question doesn't mention,
+such as photos dated in the year 2124, instrument values like "unknown" that aren't instruments, and one galaxy
+spelled two ways.
 
-Every LLM call is logged with the model that actually served it, its token counts and latency, and two cost figures:
-the cost the provider reported and the cost LiteLLM reported. LiteLLM prices calls from its own price list unless the
-provider returns a cost, which OpenRouter does, so for OpenRouter the second figure is a copy of the first.
+**Grading.** `check.py` runs the submitted query and compares its result with a reference answer frozen in
+`expected.json`. It ignores row order, column names, and extra columns, and it compares numbers with a small
+tolerance.
+
+**Logging.** Each run writes three files to `results/`. `calls.csv` has one row per LLM call, with the model that
+answered, token counts, latency, cost, and the provider's trace or request ID. `turns.csv` has one graded row per answer.
+`transcripts.jsonl` has every full conversation.
 
 ## Setups
 
@@ -113,26 +108,23 @@ provider returns a cost, which OpenRouter does, so for OpenRouter the second fig
 | `or-auto` | `openrouter/openrouter/auto` | 3 |
 | `glm-flash` | `fireworks_ai/accounts/fireworks/models/glm-5p3-flash` | 1 |
 
-The routers run three times so I can see whether they make the same choice for the same question. The fixed models
-run once. OpenRouter's higher cost tiers are available as `or-auto-medium`, `or-auto-high`, `or-auto-xhigh` and
-`or-auto-max`, but they aren't part of the default run.
+The routers run three times to show whether they pick the same model for the same question. The OpenRouter tier
+setups (`or-auto-medium`, `or-auto-high`, `or-auto-xhigh`, and `or-auto-max`) run only when you name them.
 
-## Running it
+## Run it
 
 ```bash
 pip install -r requirements.txt
-cp .env.example .env                 # add Fireworks, Anthropic and OpenRouter keys
+cp .env.example .env                 # add your Fireworks, Anthropic, and OpenRouter keys
 python build_local.py                # build data/jwst.duckdb from the parquet files
 python check.py --freeze --selftest  # compute the reference answers and test the grader
-python run.py --configs scripted     # a free end-to-end check that replays the reference SQL
+python run.py --configs scripted     # free end-to-end check that replays the reference SQL
 
-python run.py --label full           # the full run
-python report.py results/<run_dir>   # accuracy, cost and routing tables, also written to report.md;
-                                     # with several run folders, each setup comes from the last one given
-python route_probe.py fireworks 2 3  # which model FireRouter picks for each question, at preferences 2 and 3
-python route_probe.py openrouter default low medium high xhigh max   # the same for OpenRouter's cost tiers
+python run.py --label full           # run the five setups (about $2)
+python report.py results/<run_dir>   # print accuracy, cost, and routing tables, and write report.md
+python route_probe.py fireworks 2 3  # see which model FireRouter picks at preferences 2 and 3
+python route_probe.py openrouter default low medium high xhigh max   # the same for OpenRouter's tiers
 ```
 
-Each run writes `calls.csv` with one row per LLM call, `turns.csv` with one graded row per answer, and
-`transcripts.jsonl` with every full conversation. A spend cap in `config.py` stops any run once the project as a
-whole has spent $18, counting every run in `results/`. The full run cost $1.81.
+`report.py` accepts several run folders. If a setup appears in more than one, it uses the last folder you give. A spend
+cap in `config.py` stops any run once the whole project has spent $18, counting every run in `results/`.
