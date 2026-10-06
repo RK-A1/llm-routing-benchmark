@@ -1,4 +1,4 @@
-# sql-agent-router-bench
+# LLM Routing Benchmark
 
 I built a text-to-SQL agent and ran the same 24 questions through five model setups to measure what model routers
 actually do. A model router is a single model ID that you call like any other LLM. Behind it, the router picks which
